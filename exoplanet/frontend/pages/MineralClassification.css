@@ -1,0 +1,248 @@
+.mineral-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  position: relative;
+}
+
+.mineral-page-container {
+  width: 100%;
+  padding: 8rem 2rem 3rem;
+}
+
+.mineral-content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.mineral-header {
+  background: rgba(15, 12, 41, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(147, 51, 234, 0.3);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+}
+
+.mineral-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.mineral-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mineral-icon svg {
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.mineral-header-text h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.mineral-header-text p {
+  color: #c084fc;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.mineral-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.mineral-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mineral-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mineral-card-header h2 {
+  color: white;
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.mineral-card-header svg {
+  width: 24px;
+  height: 24px;
+  color: #a78bfa;
+}
+
+.info-card {
+  background: rgba(30, 58, 138, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.info-card h3 {
+  color: #93c5fd;
+  font-size: 1.2rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-card svg {
+  width: 20px;
+  height: 20px;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  color: #bfdbfe;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.info-list li::before {
+  content: "•";
+  color: #60a5fa;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.backend-status {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.backend-status p {
+  color: #93c5fd;
+  font-size: 0.8rem;
+  margin: 0.25rem 0;
+}
+
+.backend-status code {
+  background: rgba(30, 58, 138, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
+.mineral-footer {
+  background: rgba(15, 12, 41, 0.7);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(147, 51, 234, 0.3);
+  padding: 1.5rem;
+  margin-top: 3rem;
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.mineral-footer p {
+  color: #a78bfa;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .mineral-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .mineral-page-container {
+    padding: 5rem 1rem 2rem;
+  }
+
+  .mineral-header {
+    padding: 1.5rem;
+  }
+
+  .mineral-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .mineral-header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .mineral-card {
+    padding: 1.5rem;
+  }
+
+  .info-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mineral-page-container {
+    padding: 4.5rem 0.75rem 1.5rem;
+  }
+
+  .mineral-header {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .mineral-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mineral-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mineral-header-text h1 {
+    font-size: 1.25rem;
+  }
+
+  .mineral-header-text p {
+    font-size: 0.85rem;
+  }
+
+  .mineral-card {
+    padding: 1.25rem;
+  }
+
+  .mineral-grid {
+    gap: 1.5rem;
+  }
+}

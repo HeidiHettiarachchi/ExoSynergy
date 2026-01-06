@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Individual CRISM Images - CRISM ML Processing</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; 
+               background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 25px; }
+        .header { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); 
+                  color: #2c3e50; padding: 40px; text-align: center; border-radius: 20px; 
+                  margin-bottom: 40px; box-shadow: 0 15px 35px rgba(255,107,107,0.3); }
+        .methodology { background: rgba(254,202,87,0.15); border-left: 5px solid #feca57; 
+                       padding: 25px; margin: 30px 0; border-radius: 12px; backdrop-filter: blur(10px); }
+        .stats-overview { background: rgba(255,107,107,0.15); padding: 25px; border-radius: 12px; 
+                          margin: 25px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-box { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; text-align: center; }
+        .image-section { background: rgba(255,255,255,0.05); margin: 30px 0; padding: 25px; 
+                         border-radius: 15px; border: 1px solid #ff6b6b; }
+        .scene-title { font-size: 2.2em; color: #feca57; margin-bottom: 20px; text-align: center; 
+                       text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+        .image-card { background: rgba(255,255,255,0.08); padding: 20px; border-radius: 15px; 
+                      text-align: center; transition: all 0.3s; }
+        .image-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(255,107,107,0.3); }
+        .image-card img { max-width: 100%; height: auto; border-radius: 12px; 
+                          box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+        .image-title { font-size: 1.3em; color: #ff6b6b; margin: 15px 0 8px 0; font-weight: bold; }
+        .image-description { font-size: 0.95em; color: #ddd; line-height: 1.5; }
+        .processing-badge { background: #ff6b6b; color: white; padding: 5px 10px; 
+                            border-radius: 15px; font-size: 0.8em; margin: 5px 0; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛰️ Individual CRISM Image Processing</h1>
+            <h2>Enhanced with CRISM ML Proven Methodology</h2>
+            <p style="font-size: 1.2em;">Pixel-by-pixel reconstruction of individual Mars surface scenes</p>
+            <p>Generated: September 07, 2025 at 22:40:19</p>
+        </div>
+        
+        <div class="stats-overview">
+            <div class="stat-box">
+                <h3 style="margin: 0; font-size: 2.5em; color: #feca57;">16</h3>
+                <p>Individual Images</p>
+            </div>
+            <div class="stat-box">
+                <h3 style="margin: 0; font-size: 2.5em; color: #feca57;">80</h3>
+                <p>Total RGB Images</p>
+            </div>
+            <div class="stat-box">
+                <h3 style="margin: 0; font-size: 2.5em; color: #feca57;">5</h3>
+                <p>Band Combinations</p>
+            </div>
+            <div class="stat-box">
+                <h3 style="margin: 0; font-size: 2.5em; color: #feca57;">350</h3>
+                <p>Spectral Channels</p>
+            </div>
+        </div>
+        
+        <div class="methodology">
+            <h3>🔬 Individual Image Processing Methodology</h3>
+            <p><strong>Enhanced individual image handling using CRISM ML toolkit:</strong></p>
+            <ul>
+                <li><strong>Individual Reconstruction:</strong> Each CRISM scene processed separately with its own geometry</li>
+                <li><strong>Spatial Accuracy:</strong> Pixel coordinates preserved from original orbital data</li>
+                <li><strong>CRISM ML RGB:</strong> Proven get_false_colors() function from published toolkit</li>
+                <li><strong>Adaptive Processing:</strong> Bad pixel detection and handling per individual image</li>
+                <li><strong>Multiple Enhancements:</strong> 5 different band combinations for geological analysis</li>
+            </ul>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 10</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 430 × 558 pixels | 
+                Valid Data Points: 7,886 | 
+                Coverage: 3.3% | 
+                Image ID: 10
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_10_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_10_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_10_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_10_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_10_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 11</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 417 × 600 pixels | 
+                Valid Data Points: 11,104 | 
+                Coverage: 4.4% | 
+                Image ID: 11
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_11_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_11_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_11_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_11_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_11_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 12</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 400 × 269 pixels | 
+                Valid Data Points: 1,913 | 
+                Coverage: 1.8% | 
+                Image ID: 12
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_12_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_12_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_12_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_12_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_12_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 13</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 378 × 551 pixels | 
+                Valid Data Points: 3,514 | 
+                Coverage: 1.7% | 
+                Image ID: 13
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_13_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_13_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_13_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_13_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_13_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 14</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 468 × 482 pixels | 
+                Valid Data Points: 15,957 | 
+                Coverage: 7.1% | 
+                Image ID: 14
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_14_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_14_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_14_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_14_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_14_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 15</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 418 × 405 pixels | 
+                Valid Data Points: 10,648 | 
+                Coverage: 6.3% | 
+                Image ID: 15
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_15_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_15_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_15_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_15_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_15_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 16</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 377 × 589 pixels | 
+                Valid Data Points: 18,601 | 
+                Coverage: 8.4% | 
+                Image ID: 16
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_16_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_16_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_16_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_16_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_16_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 17</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 305 × 600 pixels | 
+                Valid Data Points: 19,353 | 
+                Coverage: 10.6% | 
+                Image ID: 17
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_17_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_17_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_17_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_17_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_17_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 18</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 245 × 83 pixels | 
+                Valid Data Points: 404 | 
+                Coverage: 2.0% | 
+                Image ID: 18
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_18_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_18_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_18_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_18_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_18_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 2</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 480 × 315 pixels | 
+                Valid Data Points: 7,803 | 
+                Coverage: 5.2% | 
+                Image ID: 2
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_2_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_2_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_2_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_2_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_2_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 3</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 538 × 297 pixels | 
+                Valid Data Points: 6,117 | 
+                Coverage: 3.8% | 
+                Image ID: 3
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_3_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_3_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_3_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_3_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_3_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 4</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 230 × 297 pixels | 
+                Valid Data Points: 3,688 | 
+                Coverage: 5.4% | 
+                Image ID: 4
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_4_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_4_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_4_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_4_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_4_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 5</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 473 × 588 pixels | 
+                Valid Data Points: 4,270 | 
+                Coverage: 1.5% | 
+                Image ID: 5
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_5_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_5_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_5_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_5_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_5_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 6</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 479 × 608 pixels | 
+                Valid Data Points: 10,380 | 
+                Coverage: 3.6% | 
+                Image ID: 6
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_6_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_6_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_6_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_6_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_6_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 7</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 364 × 599 pixels | 
+                Valid Data Points: 4,046 | 
+                Coverage: 1.9% | 
+                Image ID: 7
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_7_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_7_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_7_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_7_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_7_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="image-section">
+            <div class="scene-title">🗺️ Individual CRISM Scene: 9</div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                <div class="processing-badge">Individual Processing</div>
+                <div class="processing-badge">CRISM ML Enhanced</div>
+                <br><br>
+                <strong>📊 Scene Characteristics:</strong><br>
+                Original Dimensions: 447 × 600 pixels | 
+                Valid Data Points: 14,085 | 
+                Coverage: 5.3% | 
+                Image ID: 9
+            </div>
+            
+            <div class="image-grid">
+
+                <div class="image-card">
+                    <img src="individual_9_geology_crism_ml.png" alt="🏔️ General Geology">
+                    <div class="image-title">🏔️ General Geology</div>
+                    <div class="image-description">Balanced enhancement for geological features</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_9_hydration_crism_ml.png" alt="💧 Hydration Features">
+                    <div class="image-title">💧 Hydration Features</div>
+                    <div class="image-description">Optimized for clay minerals and hydrated phases</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_9_mineral_crism_ml.png" alt="💎 Mineral Detection">
+                    <div class="image-title">💎 Mineral Detection</div>
+                    <div class="image-description">Enhanced for mafic and felsic mineral identification</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_9_standard_crism_ml.png" alt="🎯 Standard CRISM ML">
+                    <div class="image-title">🎯 Standard CRISM ML</div>
+                    <div class="image-description">Proven band combination (233,103,20) from published research</div>
+                </div>
+
+                <div class="image-card">
+                    <img src="individual_9_visible_crism_ml.png" alt="👁️ Near-Visible">
+                    <div class="image-title">👁️ Near-Visible</div>
+                    <div class="image-description">Approximates human vision for natural appearance</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h3>✅ Individual Processing Advantages</h3>
+            <p><strong>Why individual image processing produces better results:</strong></p>
+            <ul>
+                <li><strong>Preserved Geometry:</strong> Each CRISM scene maintains its original spatial structure</li>
+                <li><strong>Scene-Specific Optimization:</strong> Processing parameters adapted per individual image</li>
+                <li><strong>Reduced Artifacts:</strong> No inter-scene contamination or averaging effects</li>
+                <li><strong>Scientific Accuracy:</strong> Maintains orbital data integrity for geological analysis</li>
+                <li><strong>Enhanced Detail:</strong> Fine-scale features preserved within each scene</li>
+            </ul>
+        </div>
+        
+        <div class="header">
+            <h3>🔬 CRISM ML Integration Success</h3>
+            <p>Successfully integrated proven CRISM ML methodology for individual image processing!</p>
+            <p><strong>Reference:</strong> <a href="https://github.com/Banus/crism_ml" style="color: #feca57;">Banus/crism_ml Repository</a></p>
+        </div>
+    </div>
+</body>
+</html>

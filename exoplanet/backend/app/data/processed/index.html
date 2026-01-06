@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRISM Hyperspectral Mineral Gallery - Enhanced</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; 
+               background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #333; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: rgba(255,255,255,0.96); padding: 30px; text-align: center; 
+                  border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .stats-overview { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                          color: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+        .stat-box { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 10px; text-align: center; backdrop-filter: blur(10px); }
+        .scene { background: rgba(255,255,255,0.97); margin: 25px 0; padding: 25px; 
+                 border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .scene-title { font-size: 1.8em; color: #2c3e50; margin-bottom: 15px; 
+                       border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        .scene-info { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .enhancement-note { background: #e8f5e8; border-left: 4px solid #27ae60; padding: 15px; margin: 15px 0; }
+        .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .image-item { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; 
+                      transition: transform 0.3s, box-shadow 0.3s; }
+        .image-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .image-item img { max-width: 100%; height: auto; border-radius: 8px; 
+                          box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .image-caption { font-weight: bold; color: #2c3e50; margin: 12px 0 8px 0; }
+        .image-description { font-size: 0.9em; color: #666; line-height: 1.4; }
+        .nav { position: sticky; top: 0; background: rgba(30, 60, 114, 0.95); padding: 15px; 
+               text-align: center; z-index: 100; backdrop-filter: blur(10px); }
+        .nav a { color: white; text-decoration: none; margin: 0 20px; font-weight: bold; 
+                 padding: 8px 16px; border-radius: 20px; transition: background 0.3s; }
+        .nav a:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="#overview">🏠 Overview</a>
+        <a href="#enhancements">🔬 Enhancements</a>
+        <a href="#gallery">🖼️ Gallery</a>
+        <a href="#statistics">📊 Statistics</a>
+    </div>
+    
+    <div class="container">
+        <div class="header" id="overview">
+            <h1>🛰️ CRISM Hyperspectral Mineral Data Gallery</h1>
+            <h2 style="color: #555; font-weight: normal;">Enhanced Visualization with Proper Spectral Processing</h2>
+            <p style="font-size: 1.2em; color: #666;">Mars Reconnaissance Orbiter • Compact Reconnaissance Imaging Spectrometer for Mars</p>
+            <p style="font-size: 1em; color: #888;">Generated on September 07, 2025 at 21:15:07</p>
+        </div>
+        
+        <div class="stats-overview" id="statistics">
+            <h2>📊 Enhanced Dataset Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">9</h3>
+                    <p style="margin: 5px 0;">CRISM Scenes</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">388,813</h3>
+                    <p style="margin: 5px 0;">Total Pixels</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">40,095</h3>
+                    <p style="margin: 5px 0;">Labeled Pixels</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">350</h3>
+                    <p style="margin: 5px 0;">Spectral Bands</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">15</h3>
+                    <p style="margin: 5px 0;">Mineral Classes</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="margin: 0; font-size: 2.2em;">10.3%</h3>
+                    <p style="margin: 5px 0;">Mineral Coverage</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="enhancement-note" id="enhancements">
+            <h3>🔬 Enhanced Processing Techniques</h3>
+            <ul>
+                <li><strong>Outlier Handling:</strong> Percentile-based normalization (2-98th percentile) to avoid extreme values</li>
+                <li><strong>Contrast Enhancement:</strong> Gamma correction for better visual dynamic range</li>
+                <li><strong>CRISM-Optimized Bands:</strong> Mineral-specific band combinations for geological interpretation</li>
+                <li><strong>Background Handling:</strong> Proper treatment of unlabeled/zero pixels</li>
+                <li><strong>False-Color Composites:</strong> Multiple enhancement modes for different mineral types</li>
+            </ul>
+        </div>
+        
+        <div id="gallery">
+            <h2 style="text-align: center; color: white; font-size: 2.5em; margin: 40px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                🗺️ Enhanced CRISM Image Gallery
+            </h2>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 1: 02FC5</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 230 × 297 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 5 types</div>
+                        <div><strong>📊 Coverage:</strong> 5.4% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 7, Class 21, Class 22, Class 30
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/02FC5_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/02FC5_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/02FC5_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/02FC5_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 2: 081CF</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 245 × 83 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 4 types</div>
+                        <div><strong>📊 Coverage:</strong> 2.0% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 12, Class 21, Class 22
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/081CF_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/081CF_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/081CF_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/081CF_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 3: 0987B</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 131 × 188 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 2 types</div>
+                        <div><strong>📊 Coverage:</strong> 5.4% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 10
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/0987B_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0987B_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0987B_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/0987B_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 4: 0AB81</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 247 × 355 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 3 types</div>
+                        <div><strong>📊 Coverage:</strong> 28.1% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 6, Class 35
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/0AB81_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0AB81_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0AB81_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/0AB81_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 5: 0C26C</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 42 × 48 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 2 types</div>
+                        <div><strong>📊 Coverage:</strong> 38.2% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 34
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/0C26C_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0C26C_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0C26C_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/0C26C_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 6: 0CBAC</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 178 × 161 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 4 types</div>
+                        <div><strong>📊 Coverage:</strong> 3.5% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 23, Class 26, Class 37
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/0CBAC_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0CBAC_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/0CBAC_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/0CBAC_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 7: 14703</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 118 × 478 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 3 types</div>
+                        <div><strong>📊 Coverage:</strong> 6.1% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 12, Class 29
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/14703_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/14703_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/14703_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/14703_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 8: 36F60</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 169 × 306 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 2 types</div>
+                        <div><strong>📊 Coverage:</strong> 5.0% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 14
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/36F60_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/36F60_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/36F60_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/36F60_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scene">
+                <div class="scene-title">🗺️ Scene 9: 3703F</div>
+                <div class="scene-info">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>📐 Dimensions:</strong> 163 × 301 pixels</div>
+                        <div><strong>🌈 Spectral Bands:</strong> 350 channels</div>
+                        <div><strong>🏷️ Mineral Classes:</strong> 2 types</div>
+                        <div><strong>📊 Coverage:</strong> 4.5% labeled</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>🧪 Minerals Present:</strong> 
+                        Class 14
+                        
+                    </div>
+                </div>
+                
+                <div class="image-gallery">
+                    <div class="image-item">
+                        <img src="rgb_composites/3703F_enhanced_rgb.png" alt="Enhanced RGB">
+                        <div class="image-caption">📸 Enhanced RGB Composite</div>
+                        <div class="image-description">Percentile-normalized with outlier handling and gamma correction for optimal visual contrast</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/3703F_mineral_false_color.png" alt="Mineral Detection">
+                        <div class="image-caption">💎 Mineral Detection False-Color</div>
+                        <div class="image-description">Optimized for mafic minerals: olivine, pyroxene, and iron oxides using diagnostic CRISM bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="rgb_composites/3703F_hydration_detection.png" alt="Hydration Detection">
+                        <div class="image-caption">💧 Hydrated Mineral Detection</div>
+                        <div class="image-description">Enhanced for clay minerals and hydrated phases using water absorption bands</div>
+                    </div>
+                    <div class="image-item">
+                        <img src="ground_truth/3703F_enhanced_ground_truth.png" alt="Enhanced Ground Truth">
+                        <div class="image-caption">🎯 Enhanced Ground Truth</div>
+                        <div class="image-description">High-contrast mineral classification map with distinguishable colors for each mineral type</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="header">
+            <h3>🔬 CRISM Hyperspectral Mineral Segmentation Project</h3>
+            <p style="font-size: 1.1em; color: #555;">
+                Enhanced Deep Learning Pipeline for Martian Surface Mineral Analysis
+            </p>
+            <p style="font-size: 0.95em; color: #777; line-height: 1.6;">
+                This gallery demonstrates proper CRISM hyperspectral data visualization techniques including 
+                outlier handling, contrast enhancement, and mineral-specific false-color composites. 
+                Each scene shows multiple enhancement modes optimized for different mineral detection tasks.
+            </p>
+            <div style="margin-top: 20px; font-size: 0.9em; color: #888;">
+                <strong>Processing Stats:</strong> 9 scenes • 388,813 pixels • 
+                15 mineral classes • 40,095 labeled pixels
+            </div>
+        </div>
+    </div>
+</body>
+</html>
