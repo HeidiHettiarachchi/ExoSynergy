@@ -1,0 +1,87 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>CRISM Mineral Overlay Visualizations</title>
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; 
+                   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+            .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
+            .header { background: rgba(255,255,255,0.95); color: #2c3e50; padding: 30px; 
+                      text-align: center; border-radius: 15px; margin-bottom: 30px; }
+            .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+                       gap: 25px; }
+            .scene-card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; 
+                          backdrop-filter: blur(10px); }
+            .scene-card img { max-width: 100%; border-radius: 10px; margin: 10px 0; }
+            .scene-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; 
+                           color: #feca57; }
+            .mineral-stats { background: rgba(46,204,113,0.2); padding: 15px; 
+                             border-radius: 10px; margin: 10px 0; }
+            .stat-item { margin: 5px 0; font-size: 0.95em; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🛰️ CRISM Clean Overlay Visualizations</h1>
+                <h2>Pure Mineral Classifications on Satellite Imagery</h2>
+                <p>Clean colored mineral overlays - No text, no legends, just pure overlay images</p>
+            </div>
+            
+            <div class="gallery">
+    
+            <div class="scene-card">
+                <div class="scene-title">Scene 2</div>
+                <img src="scene_2_overlay.png" alt="Scene 2 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Mineral_12: 39,982 pixels (0.31%)</div><div class='stat-item'>• Mineral_21: 28,954 pixels (0.22%)</div><div class='stat-item'>• Class_22: 189,351 pixels (1.47%)</div></div>
+                <p><strong>Dimensions:</strong> 3717×3476</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 3</div>
+                <img src="scene_3_overlay.png" alt="Scene 3 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Goethite: 700,477 pixels (5.42%)</div></div>
+                <p><strong>Dimensions:</strong> 3717×3476</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 4</div>
+                <img src="scene_4_overlay.png" alt="Scene 4 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Nontronite: 4,204,832 pixels (26.83%)</div><div class='stat-item'>• Mineral_35: 226,824 pixels (1.45%)</div></div>
+                <p><strong>Dimensions:</strong> 4509×3476</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 5</div>
+                <img src="scene_5_overlay.png" alt="Scene 5 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Mineral_34: 6,090,449 pixels (39.44%)</div></div>
+                <p><strong>Dimensions:</strong> 4442×3476</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 6</div>
+                <img src="scene_6_overlay.png" alt="Scene 6 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Mineral_23: 511,104 pixels (3.28%)</div><div class='stat-item'>• Mineral_26: 34,104 pixels (0.22%)</div><div class='stat-item'>• Mineral_37: 140 pixels (0.00%)</div></div>
+                <p><strong>Dimensions:</strong> 4478×3476</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 7</div>
+                <img src="scene_7_overlay.png" alt="Scene 7 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Mineral_12: 330,687 pixels (2.04%)</div><div class='stat-item'>• Mineral_29: 655,566 pixels (4.05%)</div></div>
+                <p><strong>Dimensions:</strong> 4812×3362</p>
+            </div>
+        
+            <div class="scene-card">
+                <div class="scene-title">Scene 9</div>
+                <img src="scene_9_overlay.png" alt="Scene 9 Clean Overlay">
+                <div class='mineral-stats'><strong>Detected Minerals:</strong><br><div class='stat-item'>• Mineral_14: 723,592 pixels (4.55%)</div></div>
+                <p><strong>Dimensions:</strong> 4579×3476</p>
+            </div>
+        
+            </div>
+        </div>
+    </body>
+    </html>
+    

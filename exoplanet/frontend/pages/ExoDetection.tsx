@@ -1,9 +1,5 @@
-import React from 'react'
-
 function ExoDetection() {
-  return (
-    <div>ExoDetection</div>
-  )
+  return <div>ExoDetection</div>;
 }
 
-export default ExoDetection
+export default ExoDetection;

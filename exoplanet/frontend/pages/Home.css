@@ -1,63 +1,58 @@
 * {
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box;  /* Added this */
-    font-family: 'Times New Roman', Times, serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Added this */
+  font-family: "Times New Roman", Times, serif;
 }
 
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;  /* Prevent scrolling */
-}
+/* Remove global body/html styles - they affect all pages */
 
 .main {
-    width: 100vw;  /* Changed to 100vw */
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
+  overflow: hidden; /* Prevent scrolling only on home page */
+  width: 100vw; /* Changed to 100vw */
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 .bg-vid {
-    width: 100vw;  /* Changed to 100vw */
-    height: 100vh;  /* Changed to 100vh */
-    object-fit: cover;  /* Back to cover */
-    position: fixed;  /* Changed to fixed */
-    top: 0;
-    left: 0;
-    z-index: -1;
+  width: 100vw; /* Changed to 100vw */
+  height: 100vh; /* Changed to 100vh */
+  object-fit: cover; /* Back to cover */
+  position: fixed; /* Changed to fixed */
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 
 .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
 }
 
 .content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: white;
-    z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 2;
 }
 
 .content h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
 .content p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
 }
 /* 
 .content button {
@@ -139,4 +134,3 @@ body, html {
   top: 0;
   border-radius: 10px;
 }
-

@@ -1,9 +1,5 @@
-import React from 'react'
-
 function AtmosProfile() {
-  return (
-    <div>AtmosProfile</div>
-  )
+  return <div>AtmosProfile</div>;
 }
 
-export default AtmosProfile
+export default AtmosProfile;
