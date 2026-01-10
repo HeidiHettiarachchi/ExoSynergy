@@ -1,4 +1,3 @@
-========================================================
 AI-INTEGRATED FRAMEWORK FOR EXOPLANET DETECTION, STELLAR
 & PLANETARY RESOURCE ANALYSIS
 IT4010 Research Project – July 2025
