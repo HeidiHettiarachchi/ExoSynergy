@@ -72,7 +72,7 @@ detection pipeline, significantly improving robustness and reliability.
 Component 02 – Stellar Classification & Exoplanet Suitability Prediction  
 --------------------------------------------------
 Owner : Fernando M.K.C  
-GitHub Repo: https://github.com/HeidiHettiarachchi/ExoSynergy.git
+GitHub Repo: https://github.com/KCxRULZZ/Star-Suitability-Predictor.git
 
 This component focuses on intelligent stellar characterization and habitability
 assessment using multi-band photometric data (u, g, r, i, z) from large-scale
