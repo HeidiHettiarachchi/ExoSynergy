@@ -255,7 +255,7 @@ https://github.com/HeidiHettiarachchi/ExoSynergy/blob/main/exoplanet/frontend/sr
 
 2. Fernando M.K.C  
    Registration No : IT22346254  
-   Component       : Stellar Age & Metallicity Prediction  
+   Component       : Stellar Type & Metallicity Prediction for Get Star Suitability for Host Habitual ExoPlanets Using SDSS ugriz photometry  
 
 3. Tissera W A H  
    Registration No : IT22026866  
