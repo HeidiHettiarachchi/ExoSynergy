@@ -3,7 +3,7 @@ import './ComponentPage.css';
 import exodetect from '../src/assets/exodetect.jpg';
 import ExoDetection from './ExoDetection';
 import ExtraMineral from './ExtraMineral';  
-import AtmosProfile from './AtmosProfile';
+import AtmosProfile from './spectrumAnalysis';
 import StellarAnalysis from './StellarAnalysis';
 import { useNavigate } from 'react-router-dom';
 

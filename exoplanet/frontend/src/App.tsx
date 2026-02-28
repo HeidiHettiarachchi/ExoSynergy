@@ -11,7 +11,7 @@ import ComponentPage from '../pages/ComponentPage';
 import Login from '../pages/Login';
 import ExoDetect from '../pages/ExoDetection';
 import ExtraMineral from '../pages/ExtraMineral';
-import AtmosProfile from '../pages/AtmosProfile';
+import AtmosProfile from '../pages/spectrumAnalysis';
 import StellarAnalysis from '../pages/StellarAnalysis';
 import './App.css';
 
