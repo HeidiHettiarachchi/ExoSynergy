@@ -68,24 +68,29 @@ export default function SpectrumAnalysis(): JSX.Element {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
+      formData.append("data_type", "direct");
 
       const res: Response = await fetch("http://127.0.0.1:8000/preprocess", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Data Processing failed");
+      const data = await res.json();
 
-      const data: { data?: unknown[]; processed_path?: string } = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Processing failed");
+      }
 
-      setRowCount(data.data ? data.data.length : 0);
-      setProcessedDataPath(data.processed_path || null);
+      setRowCount(data.row_count || 0); 
       setProcessStatus("Processing Completed Successfully");
       setProgress(100);
-    } catch (err) {
+
+    } catch (err: any) {
       console.error(err);
-      setError("Processing failed. Check server/API.");
+      setError(err.message || "Processing failed.");
       setProcessStatus("Preprocessing failed");
+      setProgress(0);
+      
     } finally {
       setLoading(false);
     }

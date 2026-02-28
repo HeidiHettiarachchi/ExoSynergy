@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+backend/app/data/raw_data/*
+backend/app/data/processed_data/*

@@ -3,13 +3,7 @@ import numpy as np
 from scipy.interpolate import UnivariateSpline
 from scipy.signal import savgol_filter
 
-# ==============================
-# MASTER PREPROCESSOR
-# ==============================
 def preprocess_spectrum(input_csv_path, data_type):
-    """
-    data_type: 'direct' | 'eclipse' | 'transmission'
-    """
 
     df = pd.read_csv(input_csv_path)
 
@@ -26,9 +20,7 @@ def preprocess_spectrum(input_csv_path, data_type):
         raise ValueError("Invalid data_type. Use: direct | eclipse | transmission")
 
 
-# ==============================
-# DIRECT IMAGING
-# ==============================
+# Direct Imaging Data Preprocessing
 def preprocess_direct_imaging(df):
 
     df = df[["CENTRALWAVELNG", "FLAM"]].rename(columns={
@@ -53,15 +45,12 @@ def preprocess_direct_imaging(df):
     # Smoothing
     df["flux_smooth"] = savgol_filter(df["flux_norm"], window_length=9, polyorder=2)
 
-    # ML features
     features = extract_spectral_features(wavelength, df["flux_smooth"].values)
 
     return features
 
 
-# ==============================
-# ECLIPSE DATA
-# ==============================
+# Eclipse Data Preprocessing
 def preprocess_eclipse(df):
 
     df = df[[
@@ -93,9 +82,7 @@ def preprocess_eclipse(df):
     return pd.DataFrame([features])
 
 
-# ==============================
-# TRANSMISSION DATA
-# ==============================
+# Trasmission Data Preprocessing
 def preprocess_transmission(df):
 
     df = df[[
@@ -114,7 +101,6 @@ def preprocess_transmission(df):
 
     df = df.dropna()
 
-    # Physical features
     df["radius_uncertainty"] = df["rad_plus"] + df["rad_minus"]
     df["transit_stability"] = 1 / (df["transit_err"] + 1e-6)
 
@@ -127,10 +113,6 @@ def preprocess_transmission(df):
 
     return pd.DataFrame([features])
 
-
-# ==============================
-# FEATURE EXTRACTION (FOR ML)
-# ==============================
 def extract_spectral_features(wavelength, flux):
 
     return pd.DataFrame([{

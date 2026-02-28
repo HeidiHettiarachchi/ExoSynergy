@@ -166,7 +166,7 @@
 }
 
 .upload-box.uploaded {
-  border: 2px solid #2195f393;
+  border: 1px solid #2195f364;
   background: rgba(33, 150, 243, 0.08);
   box-shadow: 0 0 15px rgba(33, 150, 243, 0.25);
 }
@@ -211,7 +211,7 @@
 
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-/* ======================== Progress Bar ======================== */
+/*  Progress Bar */
 .progress-container { display: flex; flex-direction: column; gap: 0.5rem; }
 .progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; }
 .progress-percent { color: #7da6ff; font-weight: 600; }
@@ -229,7 +229,7 @@
   transition: width 0.25s ease;
 }
 
-/* ======================== Buttons ======================== */
+/* Buttons */
 .buttons {
   position: relative;
   display: flex;
