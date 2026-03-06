@@ -23,5 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
-backend/app/data/raw_data/*
-backend/app/data/processed_data/*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+node_modules/
+*.hdf5
+*.pt

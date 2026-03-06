@@ -3,123 +3,203 @@ import numpy as np
 from scipy.interpolate import UnivariateSpline
 from scipy.signal import savgol_filter
 
-def preprocess_spectrum(input_csv_path, data_type):
-
-    df = pd.read_csv(input_csv_path)
-
-    if data_type == "direct":
-        return preprocess_direct_imaging(df)
-
-    elif data_type == "eclipse":
-        return preprocess_eclipse(df)
-
-    elif data_type == "transmission":
-        return preprocess_transmission(df)
-
+def preprocess_spectrum(input_csv_path_or_df, data_type):
+    # Accept either a file path / file-like object or a pre-loaded DataFrame
+    if isinstance(input_csv_path_or_df, pd.DataFrame):
+        df = input_csv_path_or_df.copy()
     else:
-        raise ValueError("Invalid data_type. Use: direct | eclipse | transmission")
+        # when it's a file-like object the stream should be at the beginning
+        df = pd.read_csv(input_csv_path_or_df)
+    
+    # Strip column names
+    df.columns = df.columns.str.strip()
+    
+    try:
+        if data_type == "direct":
+            return preprocess_direct_imaging(df)
+        elif data_type == "eclipse":
+            return preprocess_eclipse(df)
+        elif data_type == "transmission":
+            return preprocess_transmission(df)
+        else:
+            raise ValueError("Invalid data_type. Use: direct | eclipse | transmission")
+    except KeyError as ke:
+        raise ValueError(f"Preprocessing failed for '{data_type}' data, missing column: {ke}")
+    except Exception:
+        raise
 
 
-# Direct Imaging Data Preprocessing
+# ------------------------------
+# Direct Imaging Preprocessing
+# ------------------------------
 def preprocess_direct_imaging(df):
-
-    df = df[["CENTRALWAVELNG", "FLAM"]].rename(columns={
-        "CENTRALWAVELNG": "wave_length",
-        "FLAM": "F_lambda"
-    })
-
-    df = df.dropna()
-    df = df[df["F_lambda"] > 0]
-    df = df.sort_values("wave_length")
-
-    wavelength = df["wave_length"].values
-    flux = df["F_lambda"].values
-
-    # Continuum fitting
-    spline = UnivariateSpline(wavelength, flux, s=0.5 * len(wavelength))
-    continuum = spline(wavelength)
-
-    # Normalization
-    df["flux_norm"] = flux / continuum
-
-    # Smoothing
-    df["flux_smooth"] = savgol_filter(df["flux_norm"], window_length=9, polyorder=2)
-
-    features = extract_spectral_features(wavelength, df["flux_smooth"].values)
-
-    return features
+    df = df[["CENTRALWAVELNG", "FLAM"]].dropna()
+    df = df[df["FLAM"] > 0].sort_values("CENTRALWAVELNG")
+    
+    # UnivariateSpline with default degree (k=3) requires at least 4 points
+    # guard against small datasets to avoid (m>k) errors
+    if len(df) < 4:
+        return create_empty_spectral_features()
+    
+    wavelength = df["CENTRALWAVELNG"].values
+    flux = df["FLAM"].values
+    
+    try:
+        spline = UnivariateSpline(wavelength, flux, s=0.5 * len(wavelength))
+        continuum = spline(wavelength)
+    except Exception:
+        # fallback to empty result if spline fails for any reason
+        return create_empty_spectral_features()
+    
+    flux_norm = flux / continuum
+    flux_smooth = savgol_filter(flux_norm, window_length=9, polyorder=2)
+    
+    return extract_spectral_features_binned(wavelength, flux_smooth)
 
 
+# ------------------------------
 # Eclipse Data Preprocessing
+# ------------------------------
 def preprocess_eclipse(df):
-
-    df = df[[
-        "Central Wave.\n(microns)",
-        "Band Width\n(microns)",
-        "Eclipse Depth\n(%)"
-    ]].rename(columns={
-        "Central Wave.\n(microns)": "wave_length",
-        "Band Width\n(microns)": "band_width",
-        "Eclipse Depth\n(%)": "eclipse_depth"
-    })
-
-    df = df.dropna()
-    df = df.sort_values("wave_length")
-
-    # Normalize eclipse depth
-    df["depth_norm"] = (df["eclipse_depth"] - df["eclipse_depth"].mean()) / df["eclipse_depth"].std()
-
-    # Feature engineering
-    features = {
-        "mean_depth": df["depth_norm"].mean(),
-        "std_depth": df["depth_norm"].std(),
-        "max_depth": df["depth_norm"].max(),
-        "min_depth": df["depth_norm"].min(),
-        "mean_bandwidth": df["band_width"].mean(),
-        "spectral_coverage": df["wave_length"].max() - df["wave_length"].min()
-    }
-
-    return pd.DataFrame([features])
+    required = ["CENTRALWAVELNG", "ESPECLIPDEP", "ESPECLIPDEPERR1", "ESPECLIPDEPERR2"]
+    missing = set(required) - set(df.columns)
+    if missing:
+        raise KeyError(f"missing {missing}")
+    df = df[required]
+    
+    # Convert to numeric 
+    for col in df.columns:
+        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+    
+    # Drop rows missing core data
+    df = df.dropna(subset=["CENTRALWAVELNG", "ESPECLIPDEP"])
+    df = df.sort_values("CENTRALWAVELNG")
+    
+    if len(df) < 2:
+        return create_empty_spectral_features()
+    
+    wavelength = df["CENTRALWAVELNG"].values
+    depth = df["ESPECLIPDEP"].values
+    depth_err = df["ESPECLIPDEPERR1"].fillna(0).values + df["ESPECLIPDEPERR2"].fillna(0).values
+    
+    return extract_spectral_features_binned(wavelength, depth, depth_err)
 
 
-# Trasmission Data Preprocessing
+# --------------------------------
+# Transmission Data Preprocessing
+# --------------------------------
 def preprocess_transmission(df):
+    cols = [
+        "CENTRALWAVELNG", "PL_TRANDEP", "PL_TRANDEPERR1", "PL_TRANDEPERR2",
+        "PL_RATROR", "PL_RATRORERR1", "PL_RATRORERR2",
+        "PL_RADJ", "PL_RADJERR1", "PL_RADJERR2",
+        "ST_RAD", "ST_RADERR1", "ST_RADERR2"
+    ]
+    
+    # ensure required columns are present
+    missing = set(cols) - set(df.columns)
+    if missing:
+        raise KeyError(f"missing {missing}")
+    df = df[cols]
+    
+    # Convert to numeric 
+    for col in df.columns:
+        df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
+    
+    # Drop rows missing core numeric data
+    df = df.dropna(subset=["CENTRALWAVELNG", "PL_TRANDEP", "PL_RATROR", "PL_RADJ"])
+    df = df.sort_values("CENTRALWAVELNG")
+    
+    if len(df) < 2:
+        return create_empty_spectral_features()
+    
+    wavelength = df["CENTRALWAVELNG"].values
+    depth = df["PL_TRANDEP"].values
+    depth_err = df["PL_TRANDEPERR1"].fillna(0).values + df["PL_TRANDEPERR2"].fillna(0).values
+    
+    return extract_spectral_features_binned(wavelength, depth, depth_err)
 
-    df = df[[
-        "Planet Rad. (+err)",
-        "Planet Rad. (-err)",
-        "Planet Rad. Prov.",
-        "Transit Mid-Point\n(days)",
-        "Transit Mid-Point (+err)"
-    ]].rename(columns={
-        "Planet Rad. (+err)": "rad_plus",
-        "Planet Rad. (-err)": "rad_minus",
-        "Planet Rad. Prov.": "rad_prov",
-        "Transit Mid-Point\n(days)": "transit_mid",
-        "Transit Mid-Point (+err)": "transit_err"
-    })
 
-    df = df.dropna()
+# ======================================================================
+# Proper Spectral Binning (matches training data: 4 x 52 = 208 features)
+# ======================================================================
+def create_empty_spectral_features():
+    """Create empty feature array (208 zeros) for invalid/empty data"""
+    features_dict = {}
+    for i in range(208):
+        features_dict[f"lambda_{i}"] = 0.0
+    return pd.DataFrame([features_dict])
 
-    df["radius_uncertainty"] = df["rad_plus"] + df["rad_minus"]
-    df["transit_stability"] = 1 / (df["transit_err"] + 1e-6)
 
-    features = {
-        "mean_radius": df["rad_prov"].mean(),
-        "mean_uncertainty": df["radius_uncertainty"].mean(),
-        "transit_variability": df["transit_mid"].std(),
-        "mean_stability": df["transit_stability"].mean(),
-    }
+def bin_spectrum(wavelength, intensity, n_bins=52):
+    """
+    Bin spectral data into n_bins equally-spaced bins.
+    Returns binned intensity and error estimates.
+    """
+    wl_min, wl_max = wavelength.min(), wavelength.max()
+    bin_edges = np.linspace(wl_min, wl_max, n_bins + 1)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    
+    binned_intensity = np.zeros(n_bins)
+    binned_width = np.zeros(n_bins)
+    binned_noise = np.zeros(n_bins)
+    
+    for i in range(n_bins):
+        mask = (wavelength >= bin_edges[i]) & (wavelength < bin_edges[i+1])
+        if mask.sum() > 0:
+            binned_intensity[i] = np.mean(intensity[mask])
+            binned_width[i] = bin_edges[i+1] - bin_edges[i]
+            binned_noise[i] = np.std(intensity[mask]) if len(intensity[mask]) > 1 else 0.0
+        else:
+            binned_intensity[i] = 0.0
+            binned_width[i] = bin_edges[i+1] - bin_edges[i]
+            binned_noise[i] = 0.0
+    
+    return binned_intensity, binned_width, binned_noise, bin_centers
 
-    return pd.DataFrame([features])
+
+def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
+    """
+    Extract 208-dimensional features by binning spectrum into 4 components.
+    Matches the training data structure:
+    - instrument_spectrum (52 dims): binned flux
+    - instrument_width (52 dims): wavelength bin widths
+    - instrument_noise (52 dims): flux uncertainty/noise
+    - instrument_wlgrid (52 dims): wavelength bin centers
+    """
+    # Normalize intensity
+    if intensity.max() > 0:
+        intensity = (intensity - intensity.mean()) / (intensity.std() + 1e-8)
+    
+    if intensity_err is None:
+        intensity_err = np.abs(np.gradient(intensity))
+    
+    # Bin spectrum
+    binned_flux, bin_widths, binned_noise, bin_centers = bin_spectrum(
+        wavelength, intensity, n_bins=52
+    )
+    
+    # Normalize all components
+    binned_flux = (binned_flux - np.mean(binned_flux)) / (np.std(binned_flux) + 1e-8)
+    binned_noise = (binned_noise - np.mean(binned_noise)) / (np.std(binned_noise) + 1e-8)
+    bin_centers = (bin_centers - np.mean(bin_centers)) / (np.std(bin_centers) + 1e-8)
+    bin_widths = (bin_widths - np.mean(bin_widths)) / (np.std(bin_widths) + 1e-8)
+    
+    # Concatenate all components into 208 features
+    features = np.concatenate([
+        binned_flux,      # 52
+        bin_widths,       # 52
+        binned_noise,     # 52
+        bin_centers       # 52
+    ]).astype(np.float32)  # Total: 208
+    
+    # Create DataFrame with lambda_X column names (matches training format)
+    features_dict = {f"lambda_{i}": float(features[i]) for i in range(208)}
+    return pd.DataFrame([features_dict])
+
 
 def extract_spectral_features(wavelength, flux):
-
-    return pd.DataFrame([{
-        "flux_mean": np.mean(flux),
-        "flux_std": np.std(flux),
-        "flux_max": np.max(flux),
-        "flux_min": np.min(flux),
-        "spectral_range": np.max(wavelength) - np.min(wavelength),
-        "slope": np.polyfit(wavelength, flux, 1)[0]
-    }])
+    """
+    Fallback for direct imaging - uses binned features.
+    """
+    return extract_spectral_features_binned(wavelength, flux, intensity_err=None)
