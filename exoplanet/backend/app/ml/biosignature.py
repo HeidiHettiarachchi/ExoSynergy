@@ -454,16 +454,15 @@ class BiosignatureDetector:
     # ATMOSPHERE SIMILARITY  (all 9 bodies returned)
     # ---------------------------------------------------
 
-    def _cosine(self, a: Dict[str, float], b: Dict[str, float]) -> float:
+    def _similarity(self, a: Dict[str, float], b: Dict[str, float]) -> float:
         keys = set(a) | set(b)
-        dot  = sum(a.get(k, 0) * b.get(k, 0) for k in keys)
-        mag1 = math.sqrt(sum(a.get(k, 0) ** 2 for k in keys))
-        mag2 = math.sqrt(sum(b.get(k, 0) ** 2 for k in keys))
-        return 0.0 if mag1 == 0 or mag2 == 0 else dot / (mag1 * mag2)
+        dist = math.sqrt(sum((a.get(k, 0) - b.get(k, 0)) ** 2 for k in keys))
+        similarity = 1 / (1 + dist)
+        return similarity
 
     def _atmosphere_similarity(self, g: Dict[str, float]) -> List[AtmosphereSimilarity]:
         sims = [
-            AtmosphereSimilarity(planet=p, similarity=round(self._cosine(g, ref) * 100, 1))
+            AtmosphereSimilarity(planet=p, similarity=round(self._similarity(g, ref) * 100, 1))
             for p, ref in self.SOLAR_SYSTEM.items()
         ]
         sims.sort(key=lambda x: x.similarity, reverse=True)

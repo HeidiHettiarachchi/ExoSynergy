@@ -8,23 +8,21 @@ import { TbSettingsAutomation, TbChartDots3 } from "react-icons/tb";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 
+// Interfaces
 interface GasProfile {
   [gas: string]: number;
 }
-
 interface Biosignature {
   name: string;
   detected: boolean;
   reason: string;
   gases_involved: string[];
 }
-
 interface PlanetSimilarity {
   planet: string;
   score: number;
   similarity: number;
 }
-
 interface Habitability {
   score: number;
   grade: string;
@@ -42,7 +40,6 @@ interface Habitability {
     similar_atmospheres?: PlanetSimilarity[];
   }
 }
-
 interface AnalysisResult {
   major_gases: Record<string, number>;
   trace_gases: Record<string, number>;
@@ -143,41 +140,14 @@ export default function SpectrumAnalysis(): JSX.Element {
     }
   };
 
-  // Spectrum data analysis
-  // const handleAnalyze = async (): Promise<void> => {
-  //   if (!selectedFile) {
-  //     setError("");
-  //     return;
-  //   }
+  // Filter gases
+const sortedGases =
+  analysisResult?.gas_profile
+    ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
+    : [];
 
-  //   setLoading(true);
-  //   setError(null);
-  //   setProcessStatus("Running Atmospheric Analysis...");
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("file", selectedFile);
-
-  //     const res: Response = await fetch(`http://127.0.0.1:8000/analyze/${dataType}`, {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     const data: AnalysisResult = await res.json();
-
-  //     if (!res.ok) throw new Error((data as any).detail || "Failed Analysing Spectrum Data");
-
-  //     setAnalysisResult(data);
-  //     setProcessStatus("Atmospheric Profiling Completed");
-
-  //   } catch (err: any) {
-  //     setError(err.message || "Failed Analysing Spectrum Data");
-  //     setProcessStatus("Failed Analysing Spectrum Data");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
+const topGases = sortedGases.slice(0, 2).map(g => g[0]);     // Highest 2
+const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
 
   return (
     <div className="spectrumDashboard">
@@ -211,11 +181,13 @@ export default function SpectrumAnalysis(): JSX.Element {
 
             <div className="function-col ">
 
-            {/* ================= PREPROCESS PANEL ================= */}
+            {/* ================= DATA LOADING PANEL ================= */}
             <div className="glass-effect preprocessing-panel">
                 <div className="panel-heading">
-                  <TbSettingsAutomation className="icons" />
-                  <h2>Spectrum Preprocessing</h2>
+                  <div className="sec-icon">
+                    <TbSettingsAutomation style={{ color: "#2195f380", width: "30px", height: "30px" }} />
+                  </div>
+                  <h2>Spectrum Submission</h2>
                 </div>
 
                 <label className={`upload-box ${fileUploaded ? "uploaded" : ""}`}>
@@ -265,24 +237,15 @@ export default function SpectrumAnalysis(): JSX.Element {
                   <TbChartDots3 style={{ width: "20px", height: "20px" }} />
                   {loading ? "Processing..." : "Load & Analyze Data"}
                 </button>
-
             </div>
 
-            <div>
-              {/* ================= ATMOSPHERIC VISUALIZATION ================= */}
+            {/* ================= ATMOSPHERIC VISUALIZATION ================= */}
+            <div style={{marginTop: "1px"}}>
               <div className="atmo-panel preprocessing-panel">
 
-                <div className="panel-heading" style={{ marginTop: "10px" }}>
+                <div className="panel-heading" style={{ margin: "25px auto", alignItems: "center"}}>
                   <h2>Atmospheric Gas Profile</h2>
                 </div>
-
-                {/* button hides itself once analysis has been performed */}
-                {/* {analysisResult === null && (
-                  <button className="buttons" onClick={handleAnalyze} disabled={loading || !fileUploaded}
-                    style={{ marginTop: "10px", opacity: "0.7" }}>
-                    Predict Gases
-                  </button>
-                )} */}
 
                 <div className="atmo-content">
 
@@ -299,12 +262,12 @@ export default function SpectrumAnalysis(): JSX.Element {
                       <div className="planet-light"></div>
                     </div>
 
-                    <div className="label exosphere">
-                      <span className="dot"></span> EXOSPHERE (H, He)
+                    <div className="label stratosphere">
+                      <span className="dot"></span> UPPER ATMOSPHERE ({topGases.join(", ")})
                     </div>
 
-                    <div className="label stratosphere">
-                      <span className="dot blue"></span> STRATOSPHERE (CH4, CO2)
+                    <div className="label exosphere">
+                      <span className="dot blue"></span> ATMOSPHERIC LAYER ({traceGases.join(", ")})
                     </div>
                   </div>
 
@@ -339,13 +302,13 @@ export default function SpectrumAnalysis(): JSX.Element {
                       );
                     })}
                   </div>
-
                 </div>
+
               </div>
             </div>
             </div>
 
-              {/* ================= HABITABILITY & BIOSIGNATURES ================= */}
+            {/* ================= HABITABILITY & BIOSIGNATURES ================= */}
             <div className="function-col-2">
               <div className="glass-effect preprocessing-panel" style={{ animation: "none", boxShadow: "none" }}>
 
@@ -359,18 +322,14 @@ export default function SpectrumAnalysis(): JSX.Element {
                   </p>
                 ) : (
 
-                  <div className="function-col-2">
-
-                    {/* ================= LEFT SIDE : SCORE ================= */}
+                  <div>
+                    {/* ================= TOP SEC : SCORE ================= */}
                     <div
                       className="preprocessing-panel glass-effect"
-                      style={{ animation: "none", boxShadow: "none", alignItems: "center" }}
-                    >
+                      style={{ animation: "none", boxShadow: "none", alignItems: "center", marginTop: "8px", padding: "40px 30px" }}>
 
                       <div className="score-circle">
-
                         <svg viewBox="0 0 120 120">
-
                           <defs>
                             <linearGradient id="habitGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" stopColor="#6fd4ffd1" />
@@ -395,7 +354,6 @@ export default function SpectrumAnalysis(): JSX.Element {
                             strokeWidth="10"
                             fill="none"
                           />
-
                           <circle
                             cx="60"
                             cy="60"
@@ -418,48 +376,34 @@ export default function SpectrumAnalysis(): JSX.Element {
 
                         <div className="score-text">
                           <h1>{(analysisResult?.habitability?.score ?? 0).toFixed(1)}</h1>
-                          <span>Habitability Index</span>
+                          <span>Atmospheric<br /> Habitability <br /> Index</span>
                         </div>
-
                       </div>
 
                       <div style={{ width: "100%" }}>
-
-                        <div
-                          className="row-card grade-box"
-                          style={{
-                            background: "#185dbe63",
-                            marginBottom: "10px",
-                            padding: "10px",
-                          }}
-                        >
+                        <div className="row-card grade-box" style={{background: "#185dbe63", marginBottom: "10px", padding: "12px"}}>
                           <p>Grade</p>
                           <p style={{ fontWeight: "100" }}>
                             {analysisResult?.habitability?.grade ?? "N/A"}
                           </p>
                         </div>
 
-                        <div
-                          className="row-card grade-box"
-                          style={{ background: "#20a9c853" }}
-                        >
+                        <div className="row-card grade-box" style={{ background: "#20a9c853" }}>
                           <p>Habitability</p>
                           <p style={{ fontWeight: "100" }}>
                             {analysisResult?.habitability?.category ?? "Unknown"}
                           </p>
                         </div>
-
                       </div>
 
                     </div>
 
-                    {/* ================= RIGHT SIDE : BIOSIGNATURE SEC ================= */}
+                    {/* ================= BOTTOM SEC : BIOSIGNATURE SEC ================= */}
                     <div className="biosignature-section">
 
                       <h3>Detected Biosignatures</h3>
 
-                      <div className="biosignature-list">
-                        
+                      <div className="biosignature-list">                        
                          {(analysisResult?.habitability?.biosignatures ?? []).map((b, index) => (
                           <div
                             key={index}
@@ -488,7 +432,6 @@ export default function SpectrumAnalysis(): JSX.Element {
                             </div>
                           </div>
                         ))}
-
                       </div>
 
                       <div className="biosignature-card biosignature-reason">
@@ -500,7 +443,6 @@ export default function SpectrumAnalysis(): JSX.Element {
                       </div>
 
                     </div>
-
                   </div>
                 )}
               </div>
@@ -508,6 +450,7 @@ export default function SpectrumAnalysis(): JSX.Element {
               {/* ======================= Atmospheric Similarity Section ======================== */}
               <div className="glass-effect preprocessing-panel" style={{ animation: "none", boxShadow: "none" }}>
                 <div className="panel-heading">
+                  
                   <h2 style={{ textAlign: "center", margin: "auto" }}>
                     Atmospheric & Similarity Analysis
                   </h2>
@@ -520,11 +463,11 @@ export default function SpectrumAnalysis(): JSX.Element {
                 ) : (
                   <>
                     {analysisResult?.habitability?.profile && (
-                      <div className= "function-col-2" style={{marginTop: "13px"}}>
+                      <div style={{marginTop: "13px"}}>
 
                         {/* Atmospheric Profile */}
-                        <div className="profile-card">
-                          <h3 style={{marginBottom: "8px", color: "#ffffffa0"}}>Atmospheric Profile</h3>
+                        <div className="profile-card" style={{padding: "40px 20px"}}>
+                          <h3 style={{marginBottom: "8px", color: "#ffffff76"}}>Atmospheric Profile</h3>
 
                           <div className="row-card grade-box"
                             style={{background: "#185dbe63", marginBottom: "10px", padding: "10px", marginTop: "20px"}}>
@@ -537,11 +480,13 @@ export default function SpectrumAnalysis(): JSX.Element {
                             <p className="sub-title">Gas Fingerprint</p>
 
                             <div className="gas-badges">
-                              {analysisResult.habitability.profile.dominant_gas_fingerprint
-                                .split(",")
-                                .map((gas, i) => (
-                                  <div key={i} className="gas-badge">
-                                    {gas.trim()}
+                              {Object.entries(analysisResult.gas_profile)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 5)
+                                .map(([gas, value], i) => (
+                                  <div key={i} className={`gas-badge gas-color-${i % 6}`}>
+                                    <span className="gas-name">{gas}</span>
+                                    <span className="gas-percent">{value.toFixed(2)}%</span>
                                   </div>
                                 ))}
                             </div>
@@ -570,7 +515,7 @@ export default function SpectrumAnalysis(): JSX.Element {
 
                         {/* Solar System Similarity */}
                         {analysisResult?.habitability?.profile?.similar_atmospheres && (
-                          <div className="profile-card">
+                          <div className="profile-card"  style={{marginTop: "13px"}}>
 
                             <h3 style={{marginBottom: "25px", color: "#ffffffa0"}}>
                               Atmospheric Similarity

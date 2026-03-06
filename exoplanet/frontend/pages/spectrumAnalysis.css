@@ -3,7 +3,6 @@
   width: 100%;
   overflow: auto;
 }
-
 /* Hero section */
 .dashboard-hero {
   position: relative;
@@ -11,7 +10,6 @@
   min-height: 100vh;
   overflow: hidden;
 }
-
 /* Video background */
 .bg-video-sa {
   position: absolute;
@@ -21,15 +19,13 @@
   object-fit: cover;
   z-index: 1;
 }
-
 /* Overlay */
 .dashboard-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(0,0,0,0.4), rgba(0,0,0,0.9));
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.43), rgba(0, 0, 0, 0.726));
   z-index: 2;
 }
-
 /* Content wrapper */
 .dashboard-content {
   position: relative;
@@ -39,7 +35,6 @@
   align-items: center;
   justify-content: center;
 }
-
 /* Glass Panel */
 .glass-effect {
   background: rgba(10, 15, 30, 0.44);
@@ -53,12 +48,10 @@
   box-shadow: 0 0 40px rgba(0, 120, 255, 0.15);
   animation: glowPulse 4s ease-in-out infinite alternate;
 }
-
 @keyframes glowPulse {
   from { box-shadow: 0 0 25px rgba(0, 120, 255, 0.15); }
   to { box-shadow: 0 0 45px rgba(0, 120, 255, 0.35); }
 }
-
 /* System label */
 .system-tag {
   color: #7da6ff;
@@ -67,7 +60,6 @@
   margin-bottom: 14px;
   font-weight: 600;
 }
-
 /* Main title */
 .dashboard-title {
   font-size: 56px;
@@ -76,7 +68,6 @@
   line-height: 1.1;
   text-shadow: 0 0 20px rgba(120,180,255,0.4);
 }
-
 .dashboard-title span {
   display: block;
   font-size: 42px;
@@ -84,15 +75,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-/* Divider */
 .divider-line {
   width: 120px;
   height: 2px;
   background: linear-gradient(90deg, transparent, #4facfe, transparent);
   margin: 25px auto;
 }
-
 .divider2 {
   border: none;
   border-top: 0.5px solid #cccccc4b;
@@ -123,7 +111,7 @@
 /* Preprocessing Panel */
 .preprocessing-panel {
   position: relative;
-  border: 1px solid rgba(153, 153, 153, 0.36); 
+  border: 2px solid rgba(153, 153, 153, 0.174); 
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -142,6 +130,17 @@
 .panel-heading h2 { 
   font-size: 1.4rem; 
   font-weight: 600; 
+}
+.sec-icon {
+  width: 40px;
+  height: 40px;
+  background: #2195f32f;
+  border-radius: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 5px;
+  border: 1px solid rgba(230, 230, 230, 0.073);
 }
 /* Icons */
 .icons { height: 28px; width: 28px; color: rgba(240, 240, 240, 0.74); display: flex;}
@@ -205,7 +204,6 @@
   animation: pop 0.3s ease-in-out;
 }
 @keyframes pop { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
-/* Status Card */
 .status-card {
   display: flex;
   align-items: center;
@@ -221,7 +219,6 @@
 .status-card.success { background: rgba(40, 180, 75, 0.15); color: #2eb82e9f; }
 .status-card.error { background: rgba(255, 50, 50, 0.15); color: #ff3333b7; }
 .status-icon { font-size: 1.6rem; }
-/* Row count card */
 .row-card {
   background: rgba(33, 150, 243, 0.08);
   border: 1px solid rgba(33, 150, 243, 0.25);
@@ -238,7 +235,6 @@
   animation: fadeInUp 0.5s forwards;
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-/*  Progress Bar */
 .progress-container { display: flex; flex-direction: column; gap: 0.5rem; }
 .progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; }
 .progress-percent { color: #7da6ff; font-weight: 600; }
@@ -255,7 +251,6 @@
   box-shadow: 0 0 10px #4facfe, 0 0 20px #00f2fe;
   transition: width 0.25s ease;
 }
-/* Buttons */
 .buttons {
   width: 100%;
   box-sizing: border-box;
@@ -337,19 +332,17 @@
 .ring-1 { width: 120%; height: 120%; }
 .ring-2 { width: 150%; height: 135%; border-color: rgba(0, 170, 255, 0.15); }
 .ring-3 { width: 180%; height: 155%; border-color: rgba(0, 255, 255, 0.2); }
-/* Planet */
 .planet {
   width: 70%;
   max-width: 320px;
   aspect-ratio: 1/1;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #6fd3ff, #0a2a66 70%);
+  background: radial-gradient(circle at 30% 30%, #0f7099, #062153 70%);
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 60px rgba(0,150,255,0.4);
-  opacity: 0.75;
+  /* opacity: 0.90; */
 }
-/* Texture */
 .planet-texture {
   position: absolute;
   inset: 0;
@@ -362,7 +355,7 @@
 .planet-glow {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(circle, rgba(0,180,255,0.25), transparent 60%);
+  background: radial-gradient(circle, rgba(1, 86, 122, 0.373), transparent 60%);
 }
 /* Light */
 .planet-light {
@@ -375,14 +368,14 @@
   border-radius: 50%;
   filter: blur(25px);
 }
-/* Labels */
 .label {
   position: absolute;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(6px);
-  padding: 6px 10px;
+  padding: 8px 8px;
+  color: #ffffff80;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 12px;
   border: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
@@ -403,13 +396,13 @@
 }
 .stratosphere {
   bottom: 20%;
-  left: 0%;
+  left: 2%;
 }
 /* Gas Predictions */
 .gas-list {
   display: grid;
   grid-template-columns: 1fr 1fr;   
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   align-items: start;
   z-index: 10;
@@ -474,8 +467,9 @@
 }
 .score-circle {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 180px;
+  height: 180px;
+  margin: 10px 0;
 }
 .score-circle svg {
   width: 100%;
@@ -490,14 +484,15 @@
   justify-content: center;
 }
 .score-text h1 {
-  font-size: 32px;
+  font-size: 30px;
   color: #6fd4ffd1;
   margin: 0;
 }
 .score-text span {
-  font-size: 12px;
+  font-size: 15px;
   opacity: 0.7;
-  color: rgba(255, 255, 255, 0.707);
+  color: rgba(255, 255, 255, 0.582);
+  margin-top: 8px;
 }
 .grade-box {
   width: 100%;
@@ -523,13 +518,13 @@
 }
 .biosignature-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill);
   gap: 15px;
 }
 .biosignature-card {
-  background: #185dbe27;
+  background: #0149ae15;
   border-radius: 12px;
-  padding: 15px;
+  padding: 20px;
   color: #ffffffa0;
 }
 .biosignature-status.detected {
@@ -549,6 +544,7 @@
   background-color: #da30306f;
   border-radius: 16px;
   padding: 6px;
+  opacity: 0.7;
 }
 .biosignature-reason {
   margin-top: 8px;
@@ -575,14 +571,13 @@
   padding:20px;
   border:1px solid rgba(255,255,255,0.08);
 }
-
 .gas-section{
   margin-top: 25px;
 }
 .sub-title{
   font-size: 16px;
   color:#ffffffa0;
-  margin-bottom:10px;
+  margin-bottom: 15px;
 }
 .gas-badges {
   display: flex;
@@ -593,19 +588,29 @@
   justify-content: center;
 }
 .gas-badge {
-  min-width: 50px;
-  padding: 10px 8px;
+  width: 70px;
+  height: 60px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  border-radius: 12px;
   font-weight: 600;
-  color: #cfe6ff;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(120, 170, 255, 0.25);
-  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(6px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
+.gas-name{
+  font-size: 15px;
+  color: #ffffff76;
+  margin-bottom: 1px;
+}
+.gas-percent{
+  font-size: 12px;
+  color: #ffffff76;
+  opacity: 0.8;
+}
+
 .profile-stats{
   display:flex;
   align-items: center;
@@ -631,54 +636,9 @@
   border-radius:12px;
   font-size:14px;
 }
-/* 
-.atmosphere-card{
-  margin-top:40px;
-  display:flex;
-  flex-direction:column;
-  gap:25px;
-} */
-
-/* .section-title{
-  font-size:22px;
-  font-weight:600;
-  color:white;
-} */
-
-
-
-/* .profile-header{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:15px;
-} */
-
-/* .profile-label{
-  font-size:11px;
-  letter-spacing:1px;
-  color:#9aa4c7;
-} */
-
-
-/* Gas badges container */
-
-
-
-
-
-
-
-
-
-
-
-
-
 .similarity-row{
   margin-bottom:15px;
 }
-
 .similarity-top{
   display:flex;
   justify-content:space-between;
@@ -686,137 +646,6 @@
   margin-bottom:6px;
 }
 
-.similarity-bar{
-  height:6px;
-  background:#1c2a4a;
-  border-radius:10px;
-  overflow:hidden;
-}
-
-.similarity-fill{
-  height:100%;
-  background:#2fc4ff;
-  border-radius:10px;
-}
-
-
-
-
-/* 
-} */
-/* .bio-item {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 14px;
-  margin-bottom: 14px;
-} */
-
-/* .bio-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  margin-bottom: 6px;
-} */
-
-/* .bio-confidence {
-  color: #6fd4ff;
-}
-
-.bio-bar {
-  height: 6px;
-  background: #0f172a;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-
-.bio-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #4facfe, #00f2fe);
-  transition: width 0.6s ease;
-}
-
-.bio-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 6px;
-}
-
-
-
-.bio-reason {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-.summary-box {
-  margin-top: 20px;
-  padding: 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-}
-
-.no-bio {
-  opacity: 0.6;
-  font-size: 13px;
-} */
-
-
-
-
-
-
-/* .biosignature-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.biosignature-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.biosignature-status.detected {
-  color: #4ade80;
-  font-weight: 500;
-}
-
-.biosignature-status.not-detected {
-  color: #f87171;
-  font-weight: 500;
-}
-
-.biosignature-details p {
-  font-size: 0.9rem;
-  color: #334155;
-  margin: 4px 0;
-}
-
-.summary-box {
-  margin-top: 25px;
-  background: #e0f2fe;
-  padding: 15px;
-  border-radius: 10px;
-  border-left: 5px solid #3b82f6;
-}
-
-.summary-box h4 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.summary-box p {
-  font-size: 0.95rem;
-  color: #1e293b;
-  line-height: 1.5;
-} */
 
 
 
@@ -824,139 +653,3 @@
 
 
 
-/* BIOSIGNATURE SECTION */
-
-
-/* .biosignature-section h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #1e293b;
-} */
-
-/* .biosignature-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-.biosignature-card {
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.biosignature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-}
-
-.biosignature-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.biosignature-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.biosignature-status.detected {
-  color: #4ade80;
-  font-weight: 500;
-}
-
-.biosignature-status.not-detected {
-  color: #f87171;
-  font-weight: 500;
-}
-
-.biosignature-details p {
-  font-size: 0.9rem;
-  color: #334155;
-  margin: 4px 0;
-}
-
-.summary-box {
-  margin-top: 25px;
-  background: #e0f2fe;
-  padding: 15px;
-  border-radius: 10px;
-  border-left: 5px solid #3b82f6;
-}
-
-.summary-box h4 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.summary-box p {
-  font-size: 0.95rem;
-  color: #1e293b;
-  line-height: 1.5;
-}
-
-.biosignature-section {
-  margin-top: 30px;
-}
-
-.biosignature-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.biosignature-card {
-  padding: 16px;
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.biosignature-card.detected {
-  border-left: 4px solid #22c55e;
-}
-
-.biosignature-card.not-detected {
-  border-left: 4px solid #ef4444;
-}
-
-.biosignature-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.biosignature-name {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.biosignature-status {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 8px;
-}
-
-.biosignature-status.detected {
-  background: rgba(34,197,94,0.2);
-  color: #22c55e;
-}
-
-.biosignature-status.not-detected {
-  background: rgba(239,68,68,0.2);
-  color: #ef4444;
-}
-
-.biosignature-reason {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #cbd5f5;
-}
-
- */
