@@ -37,12 +37,20 @@ interface Habitability {
   planet_similarity?: PlanetSimilarity;
   profile: {
     planet_type: string;
-    dominant_gas_fingerprint:string;
+    dominant_gas_fingerprint: string;
+
     greenhouse_intensity: string;
+    greenhouse_heating_index?: number;
+
+    atmospheric_density?: string;
+    thermal_stability?: string;
+    temperature_potential?: string;
+
     toxicity_index: number;
     toxicity_label: string;
+
     similar_atmospheres?: PlanetSimilarity[];
-  }
+}
 }
 interface AnalysisResult {
   major_gases: Record<string, number>;
@@ -530,6 +538,40 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
                               </div>
                             </div>
                           </div>
+
+                          {/* Atmospheric Indicators */}
+{/* Atmospheric Conditions */}
+<div className="atmospheric-conditions">
+
+  <div className="condition-row">
+    <span className="condition-label">Greenhouse Heating Index</span>
+    <span className="condition-value">
+      {analysisResult.habitability.profile.greenhouse_heating_index?.toFixed(2)}
+    </span>
+  </div>
+
+  <div className="condition-row">
+    <span className="condition-label">Atmospheric Density</span>
+    <span className="condition-value">
+      {analysisResult.habitability.profile.atmospheric_density}
+    </span>
+  </div>
+
+  <div className="condition-row">
+    <span className="condition-label">Thermal Stability</span>
+    <span className="condition-value">
+      {analysisResult.habitability.profile.thermal_stability}
+    </span>
+  </div>
+
+  <div className="condition-row">
+    <span className="condition-label">Temperature Potential</span>
+    <span className="condition-value">
+      {analysisResult.habitability.profile.temperature_potential}
+    </span>
+  </div>
+
+</div>
                         </div>
 
                         {/* Solar System Similarity */}

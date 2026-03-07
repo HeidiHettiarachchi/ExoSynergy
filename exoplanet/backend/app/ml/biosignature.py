@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 import math
 
 
 # ---------------------------------------------------
-# DATA STRUCTURES
+# DATA STRUCTURES  — field names unchanged
 # ---------------------------------------------------
 
 @dataclass
@@ -26,6 +26,12 @@ class AtmosphericProfile:
     planet_type: str
     dominant_gas_fingerprint: str
     greenhouse_intensity_label: str
+
+    greenhouse_heating_index: float
+    atmospheric_density: str
+    thermal_stability: str
+    temperature_potential: str
+
     toxicity_index: float
     toxicity_label: str
     atmosphere_similarity: List[AtmosphereSimilarity]
@@ -48,40 +54,29 @@ class HabitabilityResult:
 
 class BiosignatureDetector:
 
-    # Solar system reference atmospheres (all values are fractions 0.0–1.0)
+    # Reference atmospheres — mole fractions (NASA Planetary Fact Sheets)
     SOLAR_SYSTEM = {
-        "Earth":       {"N2": 0.7808, "O2": 0.2095, "CO2": 0.000415,
-                        "H2O": 0.010,  "AR": 0.0093,  "CH4": 0.0000018},
-        "Venus":       {"CO2": 0.965,  "N2": 0.035,   "SO2": 0.00015,
-                        "H2O": 0.00002},
-        "Mars":        {"CO2": 0.953,  "N2": 0.027,   "AR": 0.016,
-                        "O2":  0.0013, "CO": 0.0008},
-        "Jupiter":     {"H2":  0.896,  "HE": 0.102,   "CH4": 0.0003,
-                        "NH3": 0.000026},
-        "Saturn":      {"H2":  0.963,  "HE": 0.032,   "CH4": 0.0045,
-                        "NH3": 0.000125},
-        "Titan":       {"N2":  0.9484, "CH4": 0.0514, "H2":  0.001},
-        "Uranus":      {"H2":  0.830,  "HE": 0.150,   "CH4": 0.023},
-        "Neptune":     {"H2":  0.800,  "HE": 0.190,   "CH4": 0.015},
-        "Early Earth": {"N2":  0.750,  "CO2": 0.120,  "CH4": 0.010,
-                        "H2O": 0.030,  "H2":  0.002,  "NH3": 0.00005},
+        "Earth":       {"N2": 0.7808, "O2": 0.2095, "CO2": 0.000415, "H2O": 0.010,  "O3": 0.000001},
+        "Venus":       {"CO2": 0.9650, "N2": 0.0350, "SO2": 0.00015},
+        "Mars":        {"CO2": 0.9530, "N2": 0.0270, "O2": 0.0013,   "CO": 0.0007},
+        "Jupiter":     {"H2": 0.8960,  "HE": 0.1020, "CH4": 0.0003},
+        "Saturn":      {"H2": 0.9630,  "HE": 0.0320, "CH4": 0.0045},
+        "Titan":       {"N2": 0.9484,  "CH4": 0.0514, "H2": 0.001},
+        "Uranus":      {"H2": 0.8300,  "HE": 0.1500, "CH4": 0.0230},
+        "Neptune":     {"H2": 0.8000,  "HE": 0.1900, "CH4": 0.0150},
+        "Early Earth": {"N2": 0.7500,  "CO2": 0.1200, "CH4": 0.0100, "H2O": 0.020},
     }
 
-    # Weighted scoring — reflects biological importance of each factor
+    # Factor keys match original exactly
     FACTOR_WEIGHTS = {
-        "oxygen":             0.30,   # most critical — metabolic requirement
-        "water":              0.25,   # single most agreed-upon prerequisite
-        "greenhouse_penalty": 0.20,   # runaway CO2 is lethal (Venus/Mars)
-        "low_toxicity":       0.15,   # SO2/H2S/CO kill life directly
-        "nitrogen_buffer":    0.10,   # stabilises pressure, dilutes reactives
-    }
-    # temperature and size are optional — only included when actually known
-    OPTIONAL_WEIGHTS = {
-        "temperature": 0.15,
-        "size":        0.10,
+        "oxygen":             0.30,
+        "water":              0.25,
+        "greenhouse_penalty": 0.20,
+        "low_toxicity":       0.15,
+        "nitrogen_buffer":    0.10,
     }
 
-    # Biosignature bonus weights (total capped at 20 pts)
+    # Biosignature bonus scores — weighted by scientific consensus strength
     BIOSIG_WEIGHTS = {
         "Oxygen-Methane Disequilibrium": 15,
         "Ozone Shield":                  10,
@@ -90,31 +85,35 @@ class BiosignatureDetector:
         "Water Vapor":                    3,
     }
 
-    # Score caps per atmosphere class
+    # Planetary class score caps
     SCORE_CAP = {
-        "giant":       10.0,   # H2+He > 0.85 — true gas giant, no surface
-        "sub_neptune": 35.0,   # H2+He 0.60–0.85 — possible but unlikely
-        "rocky":       100.0,  # H2+He < 0.60 — full scoring
+        "giant":       10.0,
+        "sub_neptune": 35.0,
+        "rocky":       100.0,
+    }
+
+    # CO2 pre-industrial reference (280 ppm) for log forcing
+    _CO2_REF = 0.000280
+
+    # NIOSH IDLH-based toxicity thresholds (mole fractions)
+    # https://www.cdc.gov/niosh/idlh/
+    _TOXICITY_PARAMS = {
+        "CO":  {"idlh": 0.001200, "weight": 0.40},   # 1200 ppm IDLH
+        "SO2": {"idlh": 0.000100, "weight": 0.80},   # 100 ppm IDLH
+        "H2S": {"idlh": 0.000300, "weight": 1.20},   # 300 ppm IDLH
+        "NH3": {"idlh": 0.003000, "weight": 0.20},   # 300 ppm IDLH (also biogenic)
     }
 
     # ---------------------------------------------------
-    # PUBLIC ENTRY POINT
+    # PUBLIC ENTRY
     # ---------------------------------------------------
 
-    def detect(
-        self,
-        gases: Dict[str, float],
-        planet_temp_k: Optional[float] = None,
-        planet_radius_rj: Optional[float] = None,
-    ) -> HabitabilityResult:
-
-        if not gases:
-            raise ValueError("gas_predictions cannot be empty.")
+    def detect(self, gases: Dict[str, float]) -> HabitabilityResult:
 
         g = self._normalize({k.strip().upper(): float(v) for k, v in gases.items()})
 
-        # Classify atmosphere type — used consistently everywhere
         h2_he = g.get("H2", 0) + g.get("HE", 0)
+
         if h2_he > 0.85:
             atm_class = "giant"
         elif h2_he > 0.60:
@@ -122,359 +121,405 @@ class BiosignatureDetector:
         else:
             atm_class = "rocky"
 
-        biosigs  = self._detect_biosignatures(g, atm_class)
-        factors  = self._score_factors(g, atm_class, planet_temp_k, planet_radius_rj)
-        score    = self._compute_score(factors, biosigs, atm_class, planet_temp_k, planet_radius_rj)
-        grade    = self._grade(score)
-        category = self._category(score)
-        profile  = self._build_profile(g)
-        summary  = self._summary(score, biosigs, factors)
+        biosigs = self._detect_biosignatures(g, atm_class)
+        factors = self._score_factors(g, atm_class)
+        score   = self._compute_score(factors, biosigs, atm_class)
 
         return HabitabilityResult(
-            score=round(score, 1),
-            grade=grade,
-            category=category,
-            biosignatures=biosigs,
-            factor_scores={k: round(v, 3) for k, v in factors.items()},
-            summary=summary,
-            profile=profile,
+            score         = round(score, 1),
+            grade         = self._grade(score),
+            category      = self._category(score),
+            biosignatures = biosigs,
+            factor_scores = {k: round(v, 3) for k, v in factors.items()},
+            summary       = self._summary(score, biosigs, factors),
+            profile       = self._build_profile(g),
         )
 
     # ---------------------------------------------------
-    # NORMALIZE — clamp negatives, normalise to fractions
+    # NORMALIZE
     # ---------------------------------------------------
 
     def _normalize(self, g: Dict[str, float]) -> Dict[str, float]:
-        g = {k: max(0.0, v) for k, v in g.items()}
+        g     = {k: max(0.0, v) for k, v in g.items()}
         total = sum(g.values())
         return g if total == 0 else {k: v / total for k, v in g.items()}
 
     # ---------------------------------------------------
     # BIOSIGNATURE DETECTION
-    # atm_class: "giant" | "sub_neptune" | "rocky"
     # ---------------------------------------------------
 
     def _detect_biosignatures(self, g: Dict[str, float], atm_class: str) -> List[BiosignatureResult]:
 
-        # True gas giants — no surface, detection not applicable
+        # Gas giants cannot support surface life and have abundant abiotic CH4,
+        # NH3, and H2O — biosignatures are physically meaningless here.
         if atm_class == "giant":
-            return [BiosignatureResult(
-                name="No Significant Biosignatures",
-                detected=False,
-                reason=(
-                    "Gas giant atmosphere — biosignature detection not applicable. "
-                    "No surface or liquid water context."
-                ),
-                gases_involved=[],
-            )]
+            return []
 
+        biosigs = []
+
+        # Sub-Neptunes: only Water Vapor is meaningful (Hycean world context).
+        # O2/O3/N2O/NH3 checks are suppressed — H2-dominated atmospheres
+        # produce abiotic NH3 and lack surface UV shielding context for O3.
+        if atm_class == "sub_neptune":
+            h2o = g.get("H2O", 0)
+            if h2o > 0.001:
+                biosigs.append(BiosignatureResult(
+                    name           = "Water Vapor",
+                    detected       = True,
+                    reason         = (
+                        f"H2O at {h2o*100:.2f}% — possible Hycean world candidate; "
+                        "water vapor detected in H2-rich envelope"
+                    ),
+                    gases_involved = ["H2O"],
+                ))
+            return biosigs
+
+        # ── Rocky worlds only below this point ────────────────────────────────
+
+        # ── Oxygen-Methane Disequilibrium ──────────────────────────────────────
+        # O2 + CH4 react rapidly (τ ≈ 10 yr). Coexistence requires continuous
+        # biological replenishment. Thresholds: Schwieterman et al. 2018.
         o2  = g.get("O2",  0)
         ch4 = g.get("CH4", 0)
-        o3  = g.get("O3",  0)
+        if o2 > 0.01 and ch4 > 0.000010:   # O2 > 1%, CH4 > 10 ppm
+            biosigs.append(BiosignatureResult(
+                name           = "Oxygen-Methane Disequilibrium",
+                detected       = True,
+                reason         = (
+                    f"O2 ({o2*100:.2f}%) and CH4 ({ch4*1e6:.1f} ppm) coexist — "
+                    "thermodynamically unstable without active biological replenishment"
+                ),
+                gases_involved = ["O2", "CH4"],
+            ))
+
+        # ── Ozone Shield ───────────────────────────────────────────────────────
+        # O3 > 1 ppm implies sustained oxygenic photosynthesis source.
+        # Threshold: Segura et al. 2005.
+        # Minimum O2 guard: O3 without meaningful O2 is abiotic photochemistry.
+        o3 = g.get("O3", 0)
+        if o3 > 0.000001 and o2 > 0.001:   # O3 > 1 ppm AND O2 > 0.1%
+            biosigs.append(BiosignatureResult(
+                name           = "Ozone Shield",
+                detected       = True,
+                reason         = (
+                    f"O3 at {o3*1e6:.2f} ppm — implies sustained O2 photochemistry "
+                    "and UV shielding compatible with surface life"
+                ),
+                gases_involved = ["O3"],
+            ))
+
+        # ── Nitrous Oxide ──────────────────────────────────────────────────────
+        # N2O has no significant abiotic source on rocky worlds.
+        # Threshold: Sagan et al. 1993, Rugheimer et al. 2015.
         n2o = g.get("N2O", 0)
+        if n2o > 0.0000001:   # > 0.1 ppb
+            biosigs.append(BiosignatureResult(
+                name           = "Nitrous Oxide",
+                detected       = True,
+                reason         = (
+                    f"N2O at {n2o*1e9:.1f} ppb — almost exclusively produced by "
+                    "microbial denitrification; strong biogenic indicator"
+                ),
+                gases_involved = ["N2O"],
+            ))
+
+        # ── Ammonia Signature ──────────────────────────────────────────────────
+        # NH3 is photolyzed rapidly on rocky worlds; persistence requires active source.
+        # Guard: suppress if H2 > 10% — abiotic NH3 is expected in H2-rich envelopes.
         nh3 = g.get("NH3", 0)
+        if nh3 > 0.000001 and g.get("H2", 0) < 0.10:   # > 1 ppm, low H2 context
+            biosigs.append(BiosignatureResult(
+                name           = "Ammonia Signature",
+                detected       = True,
+                reason         = (
+                    f"NH3 at {nh3*1e6:.2f} ppm — photolytically unstable; "
+                    "requires active biological or hydrothermal source"
+                ),
+                gases_involved = ["NH3"],
+            ))
+
+        # ── Water Vapor ────────────────────────────────────────────────────────
+        # Necessary (not sufficient). Threshold > 1000 ppm detectable.
         h2o = g.get("H2O", 0)
-
-        # Sub-Neptunes — run detection but append uncertainty caveat to every result
-        caveat = (
-            " (Detected on H₂-rich envelope — habitability context uncertain, "
-            "no confirmed rocky surface.)"
-            if atm_class == "sub_neptune" else ""
-        )
-
-        results = []
-
-        if o2 > 0.005 and ch4 > 0.0001:
-            results.append(BiosignatureResult(
-                name="Oxygen-Methane Disequilibrium",
-                detected=True,
-                reason=(
-                    f"O₂ ({o2*100:.3f}%) and CH₄ ({ch4*100:.4f}%) coexist in "
-                    f"atmospheric disequilibrium — simultaneous presence requires "
-                    f"constant biological replenishment.{caveat}"
+        if h2o > 0.001:   # > 0.1%
+            biosigs.append(BiosignatureResult(
+                name           = "Water Vapor",
+                detected       = True,
+                reason         = (
+                    f"H2O at {h2o*100:.2f}% — liquid water potential present; "
+                    "universal solvent and prerequisite for known life"
                 ),
-                gases_involved=["O2", "CH4"],
+                gases_involved = ["H2O"],
             ))
 
-        if o3 > 0.000001:
-            results.append(BiosignatureResult(
-                name="Ozone Shield",
-                detected=True,
-                reason=(
-                    f"O₃ ({o3*100:.6f}%) indicates sustained photochemical O₂ "
-                    f"conversion and UV shielding — consistent with an oxygen-producing biosphere.{caveat}"
-                ),
-                gases_involved=["O3", "O2"],
-            ))
-
-        if n2o > 0.000001:
-            results.append(BiosignatureResult(
-                name="Nitrous Oxide",
-                detected=True,
-                reason=(
-                    f"N₂O ({n2o*100:.5f}%) has no significant abiotic source at "
-                    f"detectable concentrations — strong marker of biological denitrification.{caveat}"
-                ),
-                gases_involved=["N2O"],
-            ))
-
-        if nh3 > 0.00001:
-            results.append(BiosignatureResult(
-                name="Ammonia Signature",
-                detected=True,
-                reason=(
-                    f"NH₃ ({nh3*100:.5f}%) is photochemically unstable — detectable "
-                    f"levels suggest active biological nitrogen fixation.{caveat}"
-                ),
-                gases_involved=["NH3"],
-            ))
-
-        if h2o > 0.0001:
-            results.append(BiosignatureResult(
-                name="Water Vapor",
-                detected=True,
-                reason=(
-                    f"H₂O ({h2o*100:.4f}%) — liquid water prerequisite detected. "
-                    f"Necessary but not sufficient alone.{caveat}"
-                ),
-                gases_involved=["H2O"],
-            ))
-
-        if not results:
-            results.append(BiosignatureResult(
-                name="No Significant Biosignatures",
-                detected=False,
-                reason="No atmospheric gas combinations strongly associated with biological activity detected.",
-                gases_involved=[],
-            ))
-
-        return results
+        return biosigs
 
     # ---------------------------------------------------
-    # HABITABILITY FACTORS  (0.0 – 1.0 each)
+    # FACTOR SCORING  (each → 0.0–1.0)
     # ---------------------------------------------------
 
-    def _score_factors(
-        self,
-        g: Dict[str, float],
-        atm_class: str,
-        temp_k: Optional[float],
-        radius_rj: Optional[float],
-    ) -> Dict[str, float]:
+    def _score_factors(self, g: Dict[str, float], atm_class: str) -> Dict[str, float]:
 
-        factors: Dict[str, float] = {}
+        factors = {}
 
-        if atm_class == "giant":
-            # Informational only — score is hard-capped separately
-            factors["water"]              = min(1.0, g.get("H2O", 0) * 20)
-            factors["oxygen"]             = min(1.0, g.get("O2",  0) * 5)
-            factors["nitrogen_buffer"]    = min(1.0, g.get("N2",  0) * 2)
-            factors["greenhouse_penalty"] = 1.0
-            factors["low_toxicity"]       = 1.0
-            return factors
+        # ── oxygen ─────────────────────────────────────────────────────────────
+        # Bell-curve centred on 0.21 (Earth). <5% hypoxic; >30% fire/oxidative risk.
+        o2 = g.get("O2", 0)
+        if o2 <= 0.0:
+            factors["oxygen"] = 0.0
+        elif o2 < 0.05:
+            factors["oxygen"] = (o2 / 0.05) * 0.3
+        elif o2 <= 0.30:
+            factors["oxygen"] = max(0.0, 1.0 - abs(o2 - 0.21) / 0.09)
+        else:
+            factors["oxygen"] = max(0.0, 1.0 - (o2 - 0.30) / 0.70)
 
+        # ── water ──────────────────────────────────────────────────────────────
+        # Optimal: 0.1–4% (Earth troposphere ≈ 1%). >5% → runaway risk.
         h2o = g.get("H2O", 0)
-        o2  = g.get("O2",  0)
-        n2  = g.get("N2",  0)
-        co  = g.get("CO",  0)
-        so2 = g.get("SO2", 0)
-        h2s = g.get("H2S", 0)
-        co2 = g.get("CO2", 0)
+        if h2o <= 0.0:
+            factors["water"] = 0.0
+        elif h2o <= 0.04:
+            factors["water"] = min(1.0, h2o / 0.01)
+        else:
+            factors["water"] = max(0.0, 1.0 - (h2o - 0.04) / 0.06)
 
-        factors["water"]              = min(1.0, h2o * 20)
-        factors["oxygen"]             = min(1.0, o2  * 5)
-        factors["nitrogen_buffer"]    = min(1.0, n2  * 2)
-        factors["greenhouse_penalty"] = max(0.0, 1.0 - co2 * 5)
+        # ── greenhouse_penalty ─────────────────────────────────────────────────
+        # Inverted from GHI: moderate warming → 1.0; extreme or none → 0.
+        # Uses logarithmic CO2 forcing (IPCC AR6 style).
+        ghi = self._greenhouse_heating_index(g)
+        if ghi < 0.005:
+            factors["greenhouse_penalty"] = 0.30              # Too cold
+        elif ghi <= 0.20:
+            factors["greenhouse_penalty"] = 0.30 + (ghi - 0.005) / 0.195 * 0.70
+        elif ghi <= 0.40:
+            factors["greenhouse_penalty"] = 1.0               # Sweet spot
+        elif ghi <= 0.80:
+            factors["greenhouse_penalty"] = max(0.0, 1.0 - (ghi - 0.40) / 0.40)
+        else:
+            factors["greenhouse_penalty"] = 0.0               # Runaway
 
-        co_p  = min(1.0, co  * 50)
-        so2_p = min(1.0, so2 * 100)
-        h2s_p = min(1.0, h2s * 200)
-        factors["low_toxicity"] = max(0.0, 1.0 - (co_p + so2_p + h2s_p) / 3)
+        # ── low_toxicity ───────────────────────────────────────────────────────
+        tox = self._toxicity_index(g)
+        factors["low_toxicity"] = max(0.0, 1.0 - tox)
 
-        # Temperature — only when actually known (explicit None check so 0K works)
-        if temp_k is not None:
-            if 260 <= temp_k <= 320:
-                factors["temperature"] = 1.0
-            elif 220 <= temp_k <= 380:
-                factors["temperature"] = 0.6
-            else:
-                factors["temperature"] = 0.2
-
-        # Planet size — only when actually known
-        if radius_rj is not None:
-            if radius_rj < 0.2:
-                factors["size"] = 1.0
-            elif radius_rj < 0.5:
-                factors["size"] = 0.8
-            elif radius_rj < 1.5:
-                factors["size"] = 0.4
-            else:
-                factors["size"] = 0.1
+        # ── nitrogen_buffer ────────────────────────────────────────────────────
+        # Optimal 0.70–0.80 (Earth = 0.78). Penalises excess above 0.78.
+        n2 = g.get("N2", 0)
+        if n2 <= 0.0:
+            factors["nitrogen_buffer"] = 0.0
+        elif n2 <= 0.78:
+            factors["nitrogen_buffer"] = min(1.0, n2 / 0.78)
+        else:
+            factors["nitrogen_buffer"] = max(0.0, 1.0 - (n2 - 0.78) / 0.22)
 
         return factors
 
     # ---------------------------------------------------
-    # WEIGHTED SCORE
+    # FINAL SCORE
     # ---------------------------------------------------
 
-    def _compute_score(
-        self,
-        factors: Dict[str, float],
-        biosigs: List[BiosignatureResult],
-        atm_class: str,
-        temp_k: Optional[float],
-        radius_rj: Optional[float],
-    ) -> float:
+    def _compute_score(self, factors: Dict[str, float],
+                       biosigs: List[BiosignatureResult],
+                       atm_class: str) -> float:
 
-        # Hard cap for true gas giants
-        if atm_class == "giant":
-            return self.SCORE_CAP["giant"]
-
-        # Viability gate — both O2 and water essentially absent → life impossible
-        water_f  = factors.get("water",  0)
-        oxygen_f = factors.get("oxygen", 0)
-        viability_capped = water_f < 0.05 and oxygen_f < 0.05
-
-        # Build weight map from core weights
-        weights = dict(self.FACTOR_WEIGHTS)
-
-        # Add optional weights only when data is actually available
-        if temp_k is not None:
-            weights["temperature"] = self.OPTIONAL_WEIGHTS["temperature"]
-        if radius_rj is not None:
-            weights["size"] = self.OPTIONAL_WEIGHTS["size"]
-
-        # Normalise so weights always sum to 1.0
-        total_w = sum(weights.values())
-        weights = {k: v / total_w for k, v in weights.items()}
-
-        # Weighted base score
-        base = sum(factors.get(k, 0) * w for k, w in weights.items()) * 100
-
-        # Biosig bonus — weighted by confidence, capped at 20 pts
-        bonus = min(
-            sum(self.BIOSIG_WEIGHTS.get(b.name, 5) for b in biosigs if b.detected),
-            20,
+        score = sum(
+            factors.get(name, 0) * weight * 100
+            for name, weight in self.FACTOR_WEIGHTS.items()
         )
 
-        score = min(base + bonus, 100.0)
+        for b in biosigs:
+            if b.detected:
+                score += self.BIOSIG_WEIGHTS.get(b.name, 0)
 
-        # Apply viability gate
-        if viability_capped:
-            score = min(score, 30.0)
-
-        # Apply sub-Neptune cap — uncertain habitability context
-        if atm_class == "sub_neptune":
-            score = min(score, self.SCORE_CAP["sub_neptune"])
-
-        return score
-
-    # ---------------------------------------------------
-    # GRADE & CATEGORY
-    # ---------------------------------------------------
-
-    def _grade(self, score: float) -> str:
-        if score >= 80: return "A"
-        if score >= 60: return "B"
-        if score >= 40: return "C"
-        if score >= 20: return "D"
-        return "E"
-
-    def _category(self, score: float) -> str:
-        if score >= 80: return "Highly Habitable"
-        if score >= 60: return "Potentially Habitable"
-        if score >= 40: return "Marginally Habitable"
-        if score >= 20: return "Unlikely Habitable"
-        return "Extremely Hostile"
+        cap = self.SCORE_CAP.get(atm_class, 100.0)
+        return min(score, cap)
 
     # ---------------------------------------------------
     # ATMOSPHERIC PROFILE
     # ---------------------------------------------------
 
     def _build_profile(self, g: Dict[str, float]) -> AtmosphericProfile:
-        tox = self._toxicity_index(g)
+
+        tox       = self._toxicity_index(g)
+        ghi       = self._greenhouse_heating_index(g)
+        density   = self._atmospheric_density(g)
+        stability = self._thermal_stability(g)
+        temp      = self._temperature_potential(ghi)
+
         return AtmosphericProfile(
-            planet_type               = self._planet_type(g),
-            dominant_gas_fingerprint  = self._fingerprint(g),
-            greenhouse_intensity_label= self._greenhouse_label(g),
-            toxicity_index            = round(tox, 4),
-            toxicity_label            = self._toxicity_label(tox),
-            atmosphere_similarity     = self._atmosphere_similarity(g),
+            planet_type                = self._planet_type(g),
+            dominant_gas_fingerprint   = self._fingerprint(g),
+            greenhouse_intensity_label = self._greenhouse_label(ghi),
+            greenhouse_heating_index   = round(ghi, 3),
+            atmospheric_density        = density,
+            thermal_stability          = stability,
+            temperature_potential      = temp,
+            toxicity_index             = round(tox, 4),
+            toxicity_label             = self._toxicity_label(tox),
+            atmosphere_similarity      = self._atmosphere_similarity(g),
         )
 
-    def _planet_type(self, g: Dict[str, float]) -> str:
-        h2  = g.get("H2",  0)
-        he  = g.get("HE",  0)
-        co2 = g.get("CO2", 0)
-        n2  = g.get("N2",  0)
-        so2 = g.get("SO2", 0)
-        o2  = g.get("O2",  0)
+    # ---------------------------------------------------
+    # GREENHOUSE HEATING INDEX  (0–1)
+    # ---------------------------------------------------
 
-        # Thresholds match atm_class thresholds exactly — no inconsistency
-        if h2 + he > 0.85: return "Gas Giant"
-        if h2 + he > 0.60: return "Ice Giant / Sub-Neptune"
-        if co2 > 0.70 and so2 > 0.0001: return "Venus-like (CO₂ + SO₂)"
-        if co2 > 0.70 and n2  < 0.05:   return "Mars-like (CO₂-dominated)"
-        if n2  > 0.40 and o2  > 0.10:   return "Earth-like"
+    def _greenhouse_heating_index(self, g: Dict[str, float]) -> float:
+        """
+        Physically grounded GHI:
+        - CO2: logarithmic forcing ΔF = 5.35 × ln(C/C₀), IPCC AR6,
+          normalised over [280 ppm → ~100% CO2] → 0–1
+        - H2O, CH4, O3: linear contributions capped at realistic maxima
+        """
+        co2 = max(g.get("CO2", 0), 1e-10)
+        co2_forcing = max(0.0, math.log(co2 / self._CO2_REF)) / 8.5  # ln(~100%/280ppm)≈8.5
+
+        h2o_forcing = min(1.0, g.get("H2O", 0) / 0.05) * 0.25
+        ch4_forcing = min(1.0, g.get("CH4", 0) / 0.001) * 0.15
+        o3_forcing  = min(1.0, g.get("O3",  0) / 0.00001) * 0.05
+
+        return min(1.0, co2_forcing * 0.55 + h2o_forcing + ch4_forcing + o3_forcing)
+
+    # ---------------------------------------------------
+    # TOXICITY INDEX  (0–1)
+    # ---------------------------------------------------
+
+    def _toxicity_index(self, g: Dict[str, float]) -> float:
+        """
+        NIOSH IDLH-grounded score. Each gas contributes proportionally
+        to how far its concentration exceeds its safe threshold.
+        """
+        tox = 0.0
+        for gas, params in self._TOXICITY_PARAMS.items():
+            conc = g.get(gas, 0)
+            tox += min(1.0, conc / params["idlh"]) * params["weight"]
+        return min(1.0, tox)
+
+    # ---------------------------------------------------
+    # PROFILE HELPERS
+    # ---------------------------------------------------
+
+    def _atmospheric_density(self, g: Dict[str, float]) -> str:
+        """Mean molecular weight proxy — heavier gases → denser atmosphere."""
+        mw = (
+            g.get("CO2", 0) * 44 +
+            g.get("N2",  0) * 28 +
+            g.get("O2",  0) * 32 +
+            g.get("H2O", 0) * 18 +
+            g.get("CH4", 0) * 16 +
+            g.get("H2",  0) *  2 +
+            g.get("HE",  0) *  4 +
+            g.get("SO2", 0) * 64 +
+            g.get("CO",  0) * 28 +
+            g.get("NH3", 0) * 17 +
+            g.get("H2S", 0) * 34 +
+            g.get("O3",  0) * 48
+        )
+        if mw > 30:  return "High"
+        if mw > 15:  return "Medium"
+        return "Low"
+
+    def _thermal_stability(self, g: Dict[str, float]) -> str:
+        """O2-CH4 reactive instability proportional to product of both fractions."""
+        instability = g.get("CH4", 0) * g.get("O2", 0) * 1000
+        if instability > 5.0:  return "Unstable"
+        if instability > 1.0:  return "Moderate"
+        return "Stable"
+
+    def _temperature_potential(self, ghi: float) -> str:
+        if ghi > 0.70:  return "Extreme Heat"
+        if ghi > 0.40:  return "Warm"
+        if ghi > 0.15:  return "Moderate"
+        if ghi > 0.05:  return "Cool"
+        return "Cold"
+
+    def _planet_type(self, g: Dict[str, float]) -> str:
+        h2_he = g.get("H2", 0) + g.get("HE", 0)
+        if h2_he > 0.85:
+            return "Gas Giant"
+        if h2_he > 0.60:
+            return "Hycean World Candidate" if g.get("H2O", 0) > 0.02 else "Ice Giant / Sub-Neptune"
+        if g.get("CO2", 0) > 0.70:
+            return "Venus-like (CO2-dominated)"
+        if g.get("N2", 0) > 0.50 and g.get("O2", 0) > 0.10:
+            return "Earth-like"
+        if g.get("N2", 0) > 0.80:
+            return "Titan-like (N2-dominated)"
+        if g.get("SO2", 0) > 0.01 or g.get("H2S", 0) > 0.01:
+            return "Volcanically Active Rocky"
         return "Rocky / Mixed Atmosphere"
 
     def _fingerprint(self, g: Dict[str, float]) -> str:
         top = sorted(g.items(), key=lambda x: x[1], reverse=True)[:3]
         return ", ".join(f"{k} {v*100:.1f}%" for k, v in top)
 
-    def _greenhouse_intensity(self, g: Dict[str, float]) -> float:
-        return min(1.0,
-            g.get("CO2", 0)
-            + g.get("CH4", 0) * 25
-            + g.get("H2O", 0) * 0.5
-            + g.get("N2O", 0) * 270
-        )
-
-    def _greenhouse_label(self, g: Dict[str, float]) -> str:
-        v = self._greenhouse_intensity(g)
-        if v < 0.05: return "Low"
-        if v < 0.20: return "Moderate"
-        if v < 0.50: return "High"
+    def _greenhouse_label(self, ghi: float) -> str:
+        if ghi < 0.05:  return "Low"
+        if ghi < 0.20:  return "Moderate"
+        if ghi < 0.50:  return "High"
         return "Extreme"
 
-    def _toxicity_index(self, g: Dict[str, float]) -> float:
-        return min(1.0,
-            g.get("CO",  0) * 50
-            + g.get("SO2", 0) * 100
-            + g.get("H2S", 0) * 200
-        )
-
     def _toxicity_label(self, val: float) -> str:
-        if val < 0.10: return "Low"
-        if val < 0.30: return "Moderate"
-        if val < 0.60: return "High"
+        if val < 0.10:  return "Low"
+        if val < 0.30:  return "Moderate"
+        if val < 0.60:  return "High"
         return "Extreme"
 
     # ---------------------------------------------------
-    # ATMOSPHERE SIMILARITY  (all 9 bodies returned)
+    # ATMOSPHERE SIMILARITY  (log-weighted cosine)
     # ---------------------------------------------------
 
     def _similarity(self, a: Dict[str, float], b: Dict[str, float]) -> float:
-        keys = set(a) | set(b)
-        dist = math.sqrt(sum((a.get(k, 0) - b.get(k, 0)) ** 2 for k in keys))
-        similarity = 1 / (1 + dist)
-        return similarity
+        """
+        Log-weighted cosine similarity.
+        log1p prevents dominant gases from masking trace biosignature differences
+        — critical for distinguishing Earth-like from Mars-like atmospheres.
+        """
+        keys  = set(a) | set(b)
+        def lw(d, k): return math.log1p(d.get(k, 0) * 1000)
+        dot   = sum(lw(a, k) * lw(b, k) for k in keys)
+        mag_a = math.sqrt(sum(lw(a, k) ** 2 for k in keys))
+        mag_b = math.sqrt(sum(lw(b, k) ** 2 for k in keys))
+        if mag_a == 0 or mag_b == 0:
+            return 0.0
+        return dot / (mag_a * mag_b)
 
     def _atmosphere_similarity(self, g: Dict[str, float]) -> List[AtmosphereSimilarity]:
         sims = [
-            AtmosphereSimilarity(planet=p, similarity=round(self._similarity(g, ref) * 100, 1))
+            AtmosphereSimilarity(
+                planet     = p,
+                similarity = round(self._similarity(g, ref) * 100, 1),
+            )
             for p, ref in self.SOLAR_SYSTEM.items()
         ]
         sims.sort(key=lambda x: x.similarity, reverse=True)
-        return sims  # all 9 returned — frontend decides how many to show
+        return sims
 
     # ---------------------------------------------------
-    # SUMMARY
+    # GRADE / CATEGORY / SUMMARY
     # ---------------------------------------------------
 
-    def _summary(self, score: float, biosigs: List[BiosignatureResult], factors: Dict[str, float]) -> str:
+    def _grade(self, score: float) -> str:
+        if score >= 80:  return "A"
+        if score >= 60:  return "B"
+        if score >= 40:  return "C"
+        if score >= 20:  return "D"
+        return "E"
+
+    def _category(self, score: float) -> str:
+        if score >= 80:  return "Highly Habitable"
+        if score >= 60:  return "Potentially Habitable"
+        if score >= 40:  return "Marginally Habitable"
+        if score >= 20:  return "Unlikely Habitable"
+        return "Extremely Hostile"
+
+    def _summary(self, score: float,
+                 biosigs: List[BiosignatureResult],
+                 factors: Dict[str, float]) -> str:
+
         detected = [b.name for b in biosigs if b.detected]
         limiting = [k for k, v in factors.items() if v < 0.4]
+
         return (
             f"Habitability score: {score:.1f}/100. "
             f"Biosignatures detected: {', '.join(detected) if detected else 'None'}. "
@@ -486,9 +531,5 @@ class BiosignatureDetector:
 # PUBLIC FUNCTION
 # ---------------------------------------------------
 
-def analyze_planet(
-    gas_predictions: Dict[str, float],
-    planet_temp_k: Optional[float] = None,
-    planet_radius_rj: Optional[float] = None,
-) -> HabitabilityResult:
-    return BiosignatureDetector().detect(gas_predictions, planet_temp_k, planet_radius_rj)
+def analyze_planet(gas_predictions: Dict[str, float]) -> HabitabilityResult:
+    return BiosignatureDetector().detect(gas_predictions)

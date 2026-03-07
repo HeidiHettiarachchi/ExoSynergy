@@ -75,18 +75,8 @@ async def preprocess_file(
         # -----------------------------
         try:
 
-            planet_temp = float(
-                astro_features.get("PL_EQTK") or astro_features.get("temp") or 0
-            ) or None
-
-            planet_radius = float(
-                astro_features.get("PL_RADJ") or astro_features.get("radius") or 0
-            ) or None
-
             bio_result = analyze_planet(
-                gas_predictions=gas_profile,
-                planet_temp_k=planet_temp,
-                planet_radius_rj=planet_radius
+                gas_predictions=gas_profile
             )
 
             habitability = {
@@ -110,6 +100,13 @@ async def preprocess_file(
                     "planet_type": bio_result.profile.planet_type,
                     "dominant_gas_fingerprint": bio_result.profile.dominant_gas_fingerprint,
                     "greenhouse_intensity": bio_result.profile.greenhouse_intensity_label,
+
+                    # NEW METRICS
+                    "greenhouse_heating_index": bio_result.profile.greenhouse_heating_index,
+                    "atmospheric_density": bio_result.profile.atmospheric_density,
+                    "thermal_stability": bio_result.profile.thermal_stability,
+                    "temperature_potential": bio_result.profile.temperature_potential,
+
                     "toxicity_index": bio_result.profile.toxicity_index,
                     "toxicity_label": bio_result.profile.toxicity_label,
 
