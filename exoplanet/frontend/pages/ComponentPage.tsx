@@ -12,7 +12,7 @@ function ComponentPage() {
 const navigate = useNavigate();
 
 const handleExpDetect = () => {
-  navigate('/exoplanetDetection');
+  window.open('https://exoplanet-hybrid-detection-frontend.onrender.com/', '_blank');
 }
 
 const handleMineral = () => {
