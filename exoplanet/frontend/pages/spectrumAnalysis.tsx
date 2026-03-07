@@ -7,6 +7,10 @@ import planetVid from "../src/assets/Vid.mp4";
 import { TbSettingsAutomation, TbChartDots3 } from "react-icons/tb";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
+import { TbTemperature } from "react-icons/tb";
+import { MdOutlineScience } from "react-icons/md";
+import { GiRingedPlanet } from "react-icons/gi";
+
 
 // Interfaces
 interface GasProfile {
@@ -466,13 +470,18 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
                       <div style={{marginTop: "13px"}}>
 
                         {/* Atmospheric Profile */}
-                        <div className="profile-card" style={{padding: "40px 20px"}}>
-                          <h3 style={{marginBottom: "8px", color: "#ffffff76"}}>Atmospheric Profile</h3>
+                        <div className="profile-card" style={{padding: "30px 20px"}}>
+                          <h3 style={{marginBottom: "20px", color: "#ffffff76"}}>Atmospheric Profile</h3>
 
-                          <div className="row-card grade-box"
-                            style={{background: "#185dbe63", marginBottom: "10px", padding: "10px", marginTop: "20px"}}>
-                            <p>Planet Type:</p>
-                            <p>{analysisResult.habitability.profile.planet_type}</p>
+                          <div className="planet-type-row">
+                            <div className="planet-type-left">
+                              <GiRingedPlanet className="planet-type-icon" />
+                              <span className="planet-type-label">Planet Type</span>
+                            </div>
+
+                            <div className="planet-type-value">
+                              {analysisResult.habitability.profile.planet_type}
+                            </div>
                           </div>
 
                           {/* Gas Fingerprint */}
@@ -494,21 +503,31 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
 
                           {/* Greenhouse + Toxicity */}
                           <div className="profile-stats">
+                            <div className="stat-card greenhouse-card">
+                              <div className="stat-icon">
+                                <TbTemperature />
+                              </div>
 
-                            <div className="stat-box">
-                              <p className="sub-title">Green House</p>
-
-                              <span className="greenhouse-badge">
-                                {analysisResult.habitability.profile.greenhouse_intensity}
-                              </span>
+                              <div className="stat-info">
+                                <p className="stat-title">Greenhouse Effect</p>
+                                <span className="stat-value">
+                                  {analysisResult.habitability.profile.greenhouse_intensity}
+                                </span>
+                              </div>
                             </div>
 
-                            <div className="stat-box">
-                              <p className="sub-title">Toxicity</p>
-                              <span className="toxicity-badge">
-                                {analysisResult.habitability.profile.toxicity_label} (
-                                {analysisResult.habitability.profile.toxicity_index})
-                              </span>
+                            <div className="stat-card toxicity-card">
+                              <div className="stat-icon">
+                                <MdOutlineScience />
+                              </div>
+
+                              <div className="stat-info">
+                                <p className="stat-title">Toxicity Level</p>
+                                <span className="stat-value">
+                                  {analysisResult.habitability.profile.toxicity_label} 
+                                  ({analysisResult.habitability.profile.toxicity_index})
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -525,19 +544,18 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
                               .slice(0, 4)
                               .map((planet, i) => (
                                 <div key={i} className="similarity-row">
-                                  <div className="similarity-top">
-                                    <span style={{color: "#ffffffa0"}}>{planet.planet}</span>
-                                    <span style={{color: "#ffffffa0"}}>{planet.similarity.toFixed(1)}%</span>
-                                  </div>
-
-                                  <div className="gas-bar">
-                                    <div
-                                      className="gas-fill"
-                                      style={{ width: `${planet.similarity}%` }}
-                                    />
-                                  </div>
-
+                                <div className="similarity-top">
+                                  <span className="planet-name">{planet.planet}</span>
+                                  <span className="similarity-value">{planet.similarity.toFixed(1)}%</span>
                                 </div>
+
+                                <div className="similarity-bar">
+                                  <div
+                                    className="similarity-fill"
+                                    style={{ width: `${planet.similarity}%` }}
+                                  />
+                                </div>
+                              </div>
 
                               ))}
 

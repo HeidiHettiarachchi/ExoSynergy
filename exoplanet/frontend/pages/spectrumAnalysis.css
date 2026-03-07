@@ -565,6 +565,39 @@
   font-size: 12px;
 }
 
+.planet-type-row{
+  width:65%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin: auto;
+  padding:18px 15px;
+  border-left:4px solid #1a8ed0;
+  background:rgba(79,182,255,0.07);
+  border-radius:8px;
+}
+.planet-type-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.planet-type-icon{
+  font-size:24px;
+  color :#1a8ed0;
+}
+.planet-type-label{
+  font-size:14px;
+  color:#ffffffa6;
+}
+.planet-type-value{
+  font-size:15px;
+  font-weight:600;
+  background:rgba(79,182,255,0.15);
+  padding:4px 12px;
+  border-radius:20px;
+  color:#1a8ed0;
+}
+
 .profile-card{
   background:#0c1428;
   border-radius:14px;
@@ -613,37 +646,93 @@
 
 .profile-stats{
   display:flex;
-  align-items: center;
-  justify-content: center;
-  gap:20px;
+  justify-content:center;
+  gap:10px;
   margin-top:30px;
 }
-.stat-box p{
+.stat-card{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:20px 18px;
+  border-radius:16px;
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(255,255,255,0.08);
+  transition:0.3s;
+}
+.stat-card:hover{
+  transform:translateY(-3px);
+}
+.stat-icon{
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.stat-title{
   font-size:15px;
-  color:#ffffffa1;
+  color:#ffffff9c;
+  margin-bottom:2px;
 }
-.greenhouse-badge{
-  background:#5e4a10;
-  color:#ffcc00;
-  padding:5px 12px;
-  border-radius:12px;
-  font-size:14px;
+.stat-value{
+  font-size:16px;
+  font-weight:600;
+  color:white;
 }
-.toxicity-badge{
-  background:#0e2a4a;
-  color:#4fb6ff;
-  padding:5px 12px;
-  border-radius:12px;
-  font-size:14px;
+.greenhouse-card{
+  background:linear-gradient(135deg,#3a2b00,#9b7a00);
+  color:#ffd24d;
 }
+.greenhouse-card .stat-icon{
+  color:#ffd24d;
+}
+.toxicity-card{
+  background:linear-gradient(135deg,#001c38,#1f6fb2);
+  color:#5cc3ff;
+}
+.toxicity-card .stat-icon{
+  color:#5cc3ff;
+}
+
 .similarity-row{
-  margin-bottom:15px;
+  margin-bottom:14px;
+  padding:10px 30px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:10px;
+  transition:0.25s;
+}
+.similarity-row:hover{
+  background:rgba(255,255,255,0.05);
+  transform:translateY(-1px);
 }
 .similarity-top{
   display:flex;
   justify-content:space-between;
-  font-size:14px;
-  margin-bottom:6px;
+  font-size:15px;
+  margin-bottom:8px;
+  margin-top: 4px;
+}
+.planet-name{
+  color:#ffffffc2;
+  font-weight:500;
+}
+.similarity-value{
+  color:#6fd4ff;
+  font-weight:600;
+}
+.similarity-bar{
+  height:8px;
+  background:#0f172a;
+  border-radius:8px;
+  overflow:hidden;
+}
+.similarity-fill{
+  height:100%;
+  border-radius:8px;
+  background:linear-gradient(90deg,#6fd4ff,#185dbe);
+  transition:width 0.6s ease;
+  box-shadow:0 0 8px rgba(111,212,255,0.4);
 }
 
 
