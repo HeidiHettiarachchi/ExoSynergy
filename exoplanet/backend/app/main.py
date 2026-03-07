@@ -1,15 +1,14 @@
 import os
-import io
+# import io
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
-from spectrumAnalysis.services.preprocess import preprocess_spectrum
 from datetime import datetime
+from spectrumAnalysis.services.preprocess import preprocess_spectrum
 from app.rules.rule_engine import apply_physics_adjustments
-
 from app.ml.inference import load_model, predict_major_gases
-from app.ml.biosignature import analyze_planet                  # NEW
+from app.ml.biosignature import analyze_planet                 
 
 app = FastAPI()
 MODEL_LOADED = False
@@ -25,9 +24,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw_data")
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed_data")
 
-os.makedirs(RAW_DIR, exist_ok=True)
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-
+# os.makedirs(RAW_DIR, exist_ok=True)
+# os.makedirs(PROCESSED_DIR, exist_ok=True)
 
 @app.post("/preprocess")
 async def preprocess_file(
@@ -41,11 +39,10 @@ async def preprocess_file(
         with open(raw_path, "wb") as f:
             f.write(content)
 
-        # ensure the uploaded file is CSV
         try:
             raw_df = pd.read_csv(raw_path)
         except Exception as read_err:
-            print(f"[preprocess] failed to read CSV {raw_path}: {read_err}")
+            print(f"[Failed to read CSV {raw_path}: {read_err}")
             raise
 
         raw_row_count = len(raw_df)
@@ -70,9 +67,6 @@ async def preprocess_file(
             data_type=data_type
         )
 
-        # -----------------------------
-        # Biosignature + Habitability
-        # -----------------------------
         try:
 
             bio_result = analyze_planet(
@@ -101,7 +95,6 @@ async def preprocess_file(
                     "dominant_gas_fingerprint": bio_result.profile.dominant_gas_fingerprint,
                     "greenhouse_intensity": bio_result.profile.greenhouse_intensity_label,
 
-                    # NEW METRICS
                     "greenhouse_heating_index": bio_result.profile.greenhouse_heating_index,
                     "atmospheric_density": bio_result.profile.atmospheric_density,
                     "thermal_stability": bio_result.profile.thermal_stability,

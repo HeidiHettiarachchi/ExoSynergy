@@ -4,14 +4,12 @@ from scipy.interpolate import UnivariateSpline
 from scipy.signal import savgol_filter
 
 def preprocess_spectrum(input_csv_path_or_df, data_type):
-    # Accept either a file path / file-like object or a pre-loaded DataFrame
+   
     if isinstance(input_csv_path_or_df, pd.DataFrame):
         df = input_csv_path_or_df.copy()
     else:
-        # when it's a file-like object the stream should be at the beginning
         df = pd.read_csv(input_csv_path_or_df)
     
-    # Strip column names
     df.columns = df.columns.str.strip()
     
     try:
@@ -36,8 +34,6 @@ def preprocess_direct_imaging(df):
     df = df[["CENTRALWAVELNG", "FLAM"]].dropna()
     df = df[df["FLAM"] > 0].sort_values("CENTRALWAVELNG")
     
-    # UnivariateSpline with default degree (k=3) requires at least 4 points
-    # guard against small datasets to avoid (m>k) errors
     if len(df) < 4:
         return create_empty_spectral_features()
     
@@ -48,7 +44,6 @@ def preprocess_direct_imaging(df):
         spline = UnivariateSpline(wavelength, flux, s=0.5 * len(wavelength))
         continuum = spline(wavelength)
     except Exception:
-        # fallback to empty result if spline fails for any reason
         return create_empty_spectral_features()
     
     flux_norm = flux / continuum
@@ -56,22 +51,21 @@ def preprocess_direct_imaging(df):
     
     return extract_spectral_features_binned(wavelength, flux_smooth)
 
-
 # ------------------------------
 # Eclipse Data Preprocessing
 # ------------------------------
 def preprocess_eclipse(df):
     required = ["CENTRALWAVELNG", "ESPECLIPDEP", "ESPECLIPDEPERR1", "ESPECLIPDEPERR2"]
     missing = set(required) - set(df.columns)
+
     if missing:
         raise KeyError(f"missing {missing}")
+    
     df = df[required]
     
-    # Convert to numeric 
     for col in df.columns:
         df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
     
-    # Drop rows missing core data
     df = df.dropna(subset=["CENTRALWAVELNG", "ESPECLIPDEP"])
     df = df.sort_values("CENTRALWAVELNG")
     
@@ -84,7 +78,6 @@ def preprocess_eclipse(df):
     
     return extract_spectral_features_binned(wavelength, depth, depth_err)
 
-
 # --------------------------------
 # Transmission Data Preprocessing
 # --------------------------------
@@ -96,13 +89,12 @@ def preprocess_transmission(df):
         "ST_RAD", "ST_RADERR1", "ST_RADERR2"
     ]
     
-    # ensure required columns are present
     missing = set(cols) - set(df.columns)
+
     if missing:
         raise KeyError(f"missing {missing}")
     df = df[cols]
     
-    # Convert to numeric 
     for col in df.columns:
         df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
     
@@ -120,11 +112,8 @@ def preprocess_transmission(df):
     return extract_spectral_features_binned(wavelength, depth, depth_err)
 
 
-# ======================================================================
-# Proper Spectral Binning (matches training data: 4 x 52 = 208 features)
-# ======================================================================
+# Spectral Binning 
 def create_empty_spectral_features():
-    """Create empty feature array (208 zeros) for invalid/empty data"""
     features_dict = {}
     for i in range(208):
         features_dict[f"lambda_{i}"] = 0.0
@@ -132,10 +121,7 @@ def create_empty_spectral_features():
 
 
 def bin_spectrum(wavelength, intensity, n_bins=52):
-    """
-    Bin spectral data into n_bins equally-spaced bins.
-    Returns binned intensity and error estimates.
-    """
+
     wl_min, wl_max = wavelength.min(), wavelength.max()
     bin_edges = np.linspace(wl_min, wl_max, n_bins + 1)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -159,14 +145,7 @@ def bin_spectrum(wavelength, intensity, n_bins=52):
 
 
 def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
-    """
-    Extract 208-dimensional features by binning spectrum into 4 components.
-    Matches the training data structure:
-    - instrument_spectrum (52 dims): binned flux
-    - instrument_width (52 dims): wavelength bin widths
-    - instrument_noise (52 dims): flux uncertainty/noise
-    - instrument_wlgrid (52 dims): wavelength bin centers
-    """
+
     # Normalize intensity
     if intensity.max() > 0:
         intensity = (intensity - intensity.mean()) / (intensity.std() + 1e-8)
@@ -187,11 +166,11 @@ def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
     
     # Concatenate all components into 208 features
     features = np.concatenate([
-        binned_flux,      # 52
-        bin_widths,       # 52
-        binned_noise,     # 52
-        bin_centers       # 52
-    ]).astype(np.float32)  # Total: 208
+        binned_flux,      
+        bin_widths,       
+        binned_noise,     
+        bin_centers       
+    ]).astype(np.float32) 
     
     # Create DataFrame with lambda_X column names (matches training format)
     features_dict = {f"lambda_{i}": float(features[i]) for i in range(208)}
@@ -199,7 +178,4 @@ def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
 
 
 def extract_spectral_features(wavelength, flux):
-    """
-    Fallback for direct imaging - uses binned features.
-    """
     return extract_spectral_features_binned(wavelength, flux, intensity_err=None)

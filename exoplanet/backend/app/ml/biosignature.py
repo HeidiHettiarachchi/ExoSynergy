@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 import math
 
 
@@ -108,8 +108,26 @@ class BiosignatureDetector:
     # PUBLIC ENTRY
     # ---------------------------------------------------
 
-    def detect(self, gases: Dict[str, float]) -> HabitabilityResult:
-
+    def detect(self, gases: Dict[str, float],
+               transmission_data: Optional[Dict[str, float]] = None) -> HabitabilityResult:
+        """
+        Parameters
+        ----------
+        gases : dict
+            Gas mole fractions from ML model prediction.
+        transmission_data : dict, optional
+            Physical parameters from transmission spectroscopy preprocessing.
+            Expected keys (all optional):
+              mean_planet_radius      – planet radius in Jupiter radii (PL_RADJ)
+              mean_stellar_radius     – stellar radius in solar radii  (ST_RAD)
+              mean_rad_ratio          – Rp/Rs radius ratio             (PL_RATROR)
+              mean_transit_depth      – transit depth fraction         (PL_TRANDEP)
+              mean_transit_depth_uncertainty
+              mean_radius_uncertainty
+            When provided, atmospheric_density, planet_type, and
+            temperature_potential are refined using physical constraints.
+            Eclipse and direct-imaging paths pass None → original logic unchanged.
+        """
         g = self._normalize({k.strip().upper(): float(v) for k, v in gases.items()})
 
         h2_he = g.get("H2", 0) + g.get("HE", 0)
@@ -132,7 +150,7 @@ class BiosignatureDetector:
             biosignatures = biosigs,
             factor_scores = {k: round(v, 3) for k, v in factors.items()},
             summary       = self._summary(score, biosigs, factors),
-            profile       = self._build_profile(g),
+            profile       = self._build_profile(g, transmission_data),
         )
 
     # ---------------------------------------------------
@@ -339,16 +357,18 @@ class BiosignatureDetector:
     # ATMOSPHERIC PROFILE
     # ---------------------------------------------------
 
-    def _build_profile(self, g: Dict[str, float]) -> AtmosphericProfile:
+    def _build_profile(self, g: Dict[str, float],
+                       transmission_data: Optional[Dict[str, float]] = None) -> AtmosphericProfile:
 
+        td        = transmission_data or {}
         tox       = self._toxicity_index(g)
         ghi       = self._greenhouse_heating_index(g)
-        density   = self._atmospheric_density(g)
+        density   = self._atmospheric_density(g, td)
         stability = self._thermal_stability(g)
-        temp      = self._temperature_potential(ghi)
+        temp      = self._temperature_potential(ghi, td)
 
         return AtmosphericProfile(
-            planet_type                = self._planet_type(g),
+            planet_type                = self._planet_type(g, td),
             dominant_gas_fingerprint   = self._fingerprint(g),
             greenhouse_intensity_label = self._greenhouse_label(ghi),
             greenhouse_heating_index   = round(ghi, 3),
@@ -399,21 +419,48 @@ class BiosignatureDetector:
     # PROFILE HELPERS
     # ---------------------------------------------------
 
-    def _atmospheric_density(self, g: Dict[str, float]) -> str:
-        """Mean molecular weight proxy — heavier gases → denser atmosphere."""
+    def _atmospheric_density(self, g: Dict[str, float],
+                             td: Dict[str, float] = {}) -> str:
+        """
+        Transmission path: use transit depth and radius ratio to estimate
+        atmospheric scale height proxy → more physically accurate density class.
+
+        Transit depth = (Rp/Rs)² → tells us how much atmosphere blocks light.
+        Radius ratio (Rp/Rs) combined with planet radius gives bulk density proxy.
+
+        Eclipse / direct-imaging path (td empty): falls back to mean molecular
+        weight calculation as before.
+        """
+        rad_ratio    = td.get("mean_rad_ratio", 0)
+        planet_rad   = td.get("mean_planet_radius", 0)    # Jupiter radii
+        stellar_rad  = td.get("mean_stellar_radius", 0)   # Solar radii
+        transit_dep  = td.get("mean_transit_depth", 0)    # Fraction
+
+        if rad_ratio > 0 and planet_rad > 0:
+            # Bulk density proxy: larger planet with small radius ratio → puffy / low density
+            # Jupiter = 1.0 Rj. Rocky super-Earths typically < 0.3 Rj.
+            # Scale height signal: high transit depth relative to radius ratio²
+            # suggests an extended, low-density atmosphere.
+            rp_rs_sq = rad_ratio ** 2
+            depth_excess = transit_dep - rp_rs_sq if transit_dep > 0 else 0
+
+            if planet_rad > 0.8:                    # Jupiter-sized or larger
+                return "Low"                        # H2/He dominated, low mean MW
+            elif planet_rad > 0.4:                  # Saturn–Neptune range
+                if depth_excess > 0.002:
+                    return "Low"                    # Extended puffy atmosphere
+                return "Medium"
+            else:                                   # Super-Earth / rocky range
+                if depth_excess > 0.001:
+                    return "Medium"                 # Some atmospheric puffiness
+                return "High"                       # Dense rocky atmosphere
+
+        # ── Fallback: mean molecular weight (eclipse / direct imaging) ─────────
         mw = (
-            g.get("CO2", 0) * 44 +
-            g.get("N2",  0) * 28 +
-            g.get("O2",  0) * 32 +
-            g.get("H2O", 0) * 18 +
-            g.get("CH4", 0) * 16 +
-            g.get("H2",  0) *  2 +
-            g.get("HE",  0) *  4 +
-            g.get("SO2", 0) * 64 +
-            g.get("CO",  0) * 28 +
-            g.get("NH3", 0) * 17 +
-            g.get("H2S", 0) * 34 +
-            g.get("O3",  0) * 48
+            g.get("CO2", 0) * 44 + g.get("N2",  0) * 28 + g.get("O2",  0) * 32 +
+            g.get("H2O", 0) * 18 + g.get("CH4", 0) * 16 + g.get("H2",  0) *  2 +
+            g.get("HE",  0) *  4 + g.get("SO2", 0) * 64 + g.get("CO",  0) * 28 +
+            g.get("NH3", 0) * 17 + g.get("H2S", 0) * 34 + g.get("O3",  0) * 48
         )
         if mw > 30:  return "High"
         if mw > 15:  return "Medium"
@@ -426,14 +473,89 @@ class BiosignatureDetector:
         if instability > 1.0:  return "Moderate"
         return "Stable"
 
-    def _temperature_potential(self, ghi: float) -> str:
-        if ghi > 0.70:  return "Extreme Heat"
-        if ghi > 0.40:  return "Warm"
-        if ghi > 0.15:  return "Moderate"
-        if ghi > 0.05:  return "Cool"
+    def _temperature_potential(self, ghi: float,
+                               td: Dict[str, float] = {}) -> str:
+        """
+        Transmission path: planet radius gives a size-based temperature class.
+        Larger planets (Jovian) are gas giants — intrinsically hot from formation
+        or irradiation. Smaller rocky planets rely on greenhouse effect alone.
+
+        Combined approach: radius sets a floor/ceiling, GHI refines within rocky range.
+        Eclipse / direct-imaging (td empty): GHI-only as before.
+        """
+        planet_rad = td.get("mean_planet_radius", 0)   # Jupiter radii
+
+        if planet_rad > 0:
+            if planet_rad > 1.5:
+                # Hot Jupiter / super-Jupiter — always hot regardless of GHI
+                # (irradiation + internal heat dominate)
+                return "Extreme Heat"
+            elif planet_rad > 0.8:
+                # Jupiter / Saturn scale — warm from irradiation + gravity
+                return "Warm"
+            elif planet_rad > 0.35:
+                # Neptune / sub-Neptune — moderate, GHI still matters
+                if ghi > 0.40:   return "Warm"
+                if ghi > 0.15:   return "Moderate"
+                return "Cool"
+            else:
+                # Rocky / super-Earth — GHI is the primary driver
+                if ghi > 0.70:   return "Extreme Heat"
+                if ghi > 0.40:   return "Warm"
+                if ghi > 0.15:   return "Moderate"
+                if ghi > 0.05:   return "Cool"
+                return "Cold"
+
+        # ── Fallback: GHI-only (eclipse / direct imaging) ─────────────────────
+        if ghi > 0.70:   return "Extreme Heat"
+        if ghi > 0.40:   return "Warm"
+        if ghi > 0.15:   return "Moderate"
+        if ghi > 0.05:   return "Cool"
         return "Cold"
 
-    def _planet_type(self, g: Dict[str, float]) -> str:
+    def _planet_type(self, g: Dict[str, float],
+                     td: Dict[str, float] = {}) -> str:
+        """
+        Transmission path: planet radius (PL_RADJ) provides direct physical
+        classification that overrides the gas-composition heuristic.
+        Radius boundaries from Fulton gap / Chen & Kipping 2017:
+          > 1.0  Rj  → Gas Giant
+          0.35–1.0 Rj → Sub-Neptune / Ice Giant
+          0.15–0.35 Rj → Super-Earth
+          < 0.15 Rj   → Rocky Earth-scale
+        Eclipse / direct-imaging (td empty): composition heuristic as before.
+        """
+        planet_rad = td.get("mean_planet_radius", 0)   # Jupiter radii
+
+        if planet_rad > 0:
+            h2_he = g.get("H2", 0) + g.get("HE", 0)
+
+            if planet_rad > 1.0:
+                return "Gas Giant"
+
+            elif planet_rad > 0.35:
+                # Sub-Neptune range — check for Hycean signature
+                if h2_he > 0.50 and g.get("H2O", 0) > 0.02:
+                    return "Hycean World Candidate"
+                if g.get("CO2", 0) > 0.50:
+                    return "Venus-like (CO2-dominated)"
+                return "Ice Giant / Sub-Neptune"
+
+            elif planet_rad > 0.15:
+                # Super-Earth range
+                if g.get("CO2", 0) > 0.70:
+                    return "Venus-like (CO2-dominated)"
+                if g.get("N2", 0) > 0.50 and g.get("O2", 0) > 0.10:
+                    return "Earth-like"
+                if g.get("SO2", 0) > 0.01 or g.get("H2S", 0) > 0.01:
+                    return "Volcanically Active Rocky"
+                return "Rocky / Mixed Atmosphere"
+
+            else:
+                # Small rocky world
+                return "Rocky / Mixed Atmosphere"
+
+        # ── Fallback: composition heuristic (eclipse / direct imaging) ─────────
         h2_he = g.get("H2", 0) + g.get("HE", 0)
         if h2_he > 0.85:
             return "Gas Giant"
@@ -531,5 +653,24 @@ class BiosignatureDetector:
 # PUBLIC FUNCTION
 # ---------------------------------------------------
 
-def analyze_planet(gas_predictions: Dict[str, float]) -> HabitabilityResult:
-    return BiosignatureDetector().detect(gas_predictions)
+def analyze_planet(gas_predictions: Dict[str, float],
+                   transmission_data: Optional[Dict[str, float]] = None) -> HabitabilityResult:
+    """
+    Parameters
+    ----------
+    gas_predictions : dict
+        Gas mole fractions from ML model.
+    transmission_data : dict, optional
+        Pass the output of preprocess_transmission() here for transmission
+        spectroscopy observations. Leave as None for eclipse or direct imaging
+        — those paths use composition-only logic unchanged.
+
+    Example
+    -------
+    # Transmission observation:
+    result = analyze_planet(gas_preds, transmission_data=preprocess_transmission(df))
+
+    # Eclipse or direct imaging observation:
+    result = analyze_planet(gas_preds)
+    """
+    return BiosignatureDetector().detect(gas_predictions, transmission_data)
