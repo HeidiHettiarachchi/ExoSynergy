@@ -1,7 +1,9 @@
 import { useState } from "react";
 import ImageUploader from "./component/ImageUploader";
-import MineralResultsDisplay from "./component/MineralResultsDisplay";
+import ResultDetailsPanel from "./component/ResultDetailsPanel";
+import PlanetMineralGlobe from "./component/Planetmineralglobe";
 import "./MineralClassification.css";
+// import MineralResultsDisplay from "./component/MineralResultsDisplay";
 
 export default function MineralClassification() {
   const [results, setResults] = useState<any>(null);
@@ -28,7 +30,21 @@ export default function MineralClassification() {
       }
 
       const data = await response.json();
-      setResults(data);
+      console.log("[MineralClassification] inference response:", data);
+      // Normalize backend response: if the backend returns the class distribution array
+      // directly, wrap it under statistics.class_distribution so the rest of the UI
+      // (which expects results.statistics.class_distribution) works unchanged.
+      if (Array.isArray(data)) {
+        setResults({ statistics: { class_distribution: data } });
+      } else if (data && Array.isArray(data.statistics?.class_distribution)) {
+        setResults(data);
+      } else if (data && Array.isArray(data.class_distribution)) {
+        // sometimes the backend may return a top-level class_distribution
+        setResults({ statistics: { class_distribution: data.class_distribution } });
+      } else {
+        // fallback: set raw data and let PlanetMineralGlobe attempt normalization
+        setResults(data);
+      }
     } catch (error) {
       console.error("Error during inference:", error);
       setResults({
@@ -56,30 +72,26 @@ export default function MineralClassification() {
 
           {/* Main Content Grid */}
           <div className="mineral-grid">
-            {/* Upload Section */}
-            <div>
-              <div className="mineral-card">
-                <div className="mineral-card-header">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <h2>Upload Sample Image</h2>
-                </div>
-                <ImageUploader
-                  onImageUpload={handleImageUpload}
-                  loading={loading}
+            {/* Upload Section - full width */}
+            <div style={{ gridColumn: "1 / -1", marginBottom: 12 }}>
+              <ImageUploader onImageUpload={handleImageUpload} loading={loading} />
+            </div>
+
+
+            {/* Planet globe (right, larger) */}
+            <div className="mineral-card" style={{ minHeight: 640, gridColumn: "1 / -1" }}>
+              <div style={{ width: "100%", height: "100%" }}>
+                <PlanetMineralGlobe
+                  results={Array.isArray(results) ? results : (results?.statistics?.class_distribution ?? results?.class_distribution ?? null)}
+                  onResults={(data:any) => { setResults(data); }}
+                  onUploadState={(b:boolean) => setLoading(b)}
                 />
               </div>
             </div>
 
-            {/* Results Section */}
-            <div className="mineral-card">
-              <MineralResultsDisplay results={results} loading={loading} />
+            {/* Result details full-width below globe */}
+            <div className="mineral-card" style={{ gridColumn: "1 / -1", marginTop: 12 }}>
+              <ResultDetailsPanel results={results} loading={loading} />
             </div>
           </div>
         </div>

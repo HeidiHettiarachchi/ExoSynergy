@@ -1,14 +1,61 @@
 import { useState } from "react";
 import "./MineralResultsDisplay.css";
 
+// Aggregate and clean up class_distribution entries that may contain
+// many repeated rows from the backend. This groups by mineral name
+// (case-insensitive), sums percentage (or pixel_count if percentage
+// missing), and returns a sorted array suitable for display.
 function normalizeName(rawName: string) {
   if (!rawName) return "Unknown";
-  const cleaned = rawName
-    .normalize("NFKD")
-    .replace(/[\u200B\u200C\u200D\uFEFF]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  // remove zero-width / BOM characters, collapse whitespace, trim
+    const cleaned = rawName
+      .normalize("NFKD")
+      // remove common invisible / zero-width characters and BOM
+      .replace(/[\u200B\u200C\u200D\uFEFF]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
   return cleaned || "Unknown";
+}
+
+function aggregateDistribution(
+  dist: Array<{ mineral_name: string; percentage?: number; pixel_count?: number }>,
+  totalPixels?: number
+) {
+  if (!Array.isArray(dist)) return [];
+  const map = new Map<string, { name: string; percentage: number; pixel_count: number; count: number }>();
+  let hasPercentage = false;
+
+  for (const entry of dist) {
+    const raw = entry?.mineral_name ?? "";
+    const name = normalizeName(raw);
+    const key = name.toLowerCase();
+    const pct = typeof entry.percentage === "number" ? entry.percentage : NaN;
+    const px = typeof entry.pixel_count === "number" ? entry.pixel_count : 0;
+    if (!Number.isNaN(pct)) hasPercentage = true;
+
+    const existing = map.get(key);
+    if (existing) {
+      existing.pixel_count += px;
+      existing.percentage += Number.isNaN(pct) ? 0 : pct;
+      existing.count += 1;
+    } else {
+      map.set(key, { name, percentage: Number.isNaN(pct) ? 0 : pct, pixel_count: px, count: 1 });
+    }
+  }
+
+  const arr = Array.from(map.values()).map((v) => {
+    // If percentages weren't provided by backend (all zeros), but we have
+    // pixel counts and totalPixels, derive a percentage.
+    let finalPct = v.percentage;
+    if (!hasPercentage && totalPixels && totalPixels > 0) {
+      finalPct = (v.pixel_count / totalPixels) * 100;
+    }
+    return { name: v.name, percentage: finalPct, pixel_count: v.pixel_count, count: v.count };
+  });
+
+  // Sort descending by percentage
+  arr.sort((a, b) => b.percentage - a.percentage);
+  return arr;
 }
 
 interface Detection {
@@ -44,10 +91,7 @@ interface ResultsDisplayProps {
   loading: boolean;
 }
 
-export default function MineralResultsDisplay({
-  results,
-  loading,
-}: ResultsDisplayProps) {
+export default function ResultDetailsPanel({ results, loading }: ResultsDisplayProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"annotated" | "segmentation">(
     "annotated"
@@ -127,9 +171,7 @@ export default function MineralResultsDisplay({
           </div>
           <div className="stat-card">
             <p className="stat-label">Avg Confidence</p>
-            <p className="stat-value">
-              {(statistics.confidence_stats.mean * 100).toFixed(1)}%
-            </p>
+            <p className="stat-value">{(statistics.confidence_stats.mean * 100).toFixed(1)}%</p>
           </div>
           <div className="stat-card">
             <p className="stat-label">Image Size</p>
@@ -159,41 +201,24 @@ export default function MineralResultsDisplay({
               <div className="tab-switcher">
                 <button
                   onClick={() => setActiveTab("annotated")}
-                  className={`tab-button ${
-                    activeTab === "annotated" ? "active" : ""
-                  }`}
-                >
+                  className={`tab-button ${activeTab === "annotated" ? "active" : ""}`}>
                   Annotated
                 </button>
                 <button
                   onClick={() => setActiveTab("segmentation")}
-                  className={`tab-button ${
-                    activeTab === "segmentation" ? "active" : ""
-                  }`}
-                >
+                  className={`tab-button ${activeTab === "segmentation" ? "active" : ""}`}>
                   Segmentation
                 </button>
               </div>
             )}
           </div>
 
-          <div
-            className="image-viewer"
-            onClick={() => setIsImageModalOpen(true)}
-          >
+          <div className="image-viewer" onClick={() => setIsImageModalOpen(true)}>
             {activeTab === "annotated" && annotated_image && (
-              <img
-                src={`data:image/png;base64,${annotated_image}`}
-                alt="Annotated analysis"
-                className="result-image"
-              />
+              <img src={`data:image/png;base64,${annotated_image}`} alt="Annotated analysis" className="result-image" />
             )}
             {activeTab === "segmentation" && segmentation_map && (
-              <img
-                src={`data:image/png;base64,${segmentation_map}`}
-                alt="Segmentation map"
-                className="result-image"
-              />
+              <img src={`data:image/png;base64,${segmentation_map}`} alt="Segmentation map" className="result-image" />
             )}
             <div className="image-overlay">
               <div className="overlay-content">
@@ -212,40 +237,18 @@ export default function MineralResultsDisplay({
 
           {/* Image Modal */}
           {isImageModalOpen && (
-            <div
-              className="modal-backdrop"
-              onClick={() => setIsImageModalOpen(false)}
-            >
-              <button
-                onClick={() => setIsImageModalOpen(false)}
-                className="modal-close"
-              >
+            <div className="modal-backdrop" onClick={() => setIsImageModalOpen(false)}>
+              <button onClick={() => setIsImageModalOpen(false)} className="modal-close">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <div
-                className="modal-image-container"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="modal-image-container" onClick={(e) => e.stopPropagation()}>
                 {activeTab === "annotated" && annotated_image && (
-                  <img
-                    src={`data:image/png;base64,${annotated_image}`}
-                    alt="Full size"
-                    className="modal-image"
-                  />
+                  <img src={`data:image/png;base64,${annotated_image}`} alt="Full size" className="modal-image" />
                 )}
                 {activeTab === "segmentation" && segmentation_map && (
-                  <img
-                    src={`data:image/png;base64,${segmentation_map}`}
-                    alt="Full size"
-                    className="modal-image"
-                  />
+                  <img src={`data:image/png;base64,${segmentation_map}`} alt="Full size" className="modal-image" />
                 )}
               </div>
             </div>
@@ -256,75 +259,43 @@ export default function MineralResultsDisplay({
       {/* Detections List */}
       {detections && detections.length > 0 && (
         <div className="results-section">
-          <h4 className="section-title">
-            Detected Mineral Regions ({detections.length})
-          </h4>
+          <h4 className="section-title">Detected Mineral Regions ({detections.length})</h4>
           <div className="detections-list">
             {detections.slice(0, 20).map((detection, index) => (
               <div key={index} className="detection-item">
                 <div className="detection-info">
                   <h4>{detection.mineral_name}</h4>
-                  <p>
-                    Area: {detection.area.toLocaleString()} px | Position: (
-                    {detection.center.x}, {detection.center.y})
-                  </p>
+                  <p>Area: {detection.area.toLocaleString()} px | Position: ({detection.center.x}, {detection.center.y})</p>
                 </div>
-                <span className="detection-class">
-                  Class {detection.mineral_class}
-                </span>
+                <span className="detection-class">Class {detection.mineral_class}</span>
               </div>
             ))}
             {detections.length > 20 && (
-              <p className="more-detections">
-                + {detections.length - 20} more detections
-              </p>
+              <p className="more-detections">+ {detections.length - 20} more detections</p>
             )}
           </div>
         </div>
       )}
 
-      {/* Mineral Distribution (aggregated unique entries) */}
+      {/* Mineral Distribution (aggregated) */}
       {statistics && statistics.class_distribution.length > 0 && (
         <div className="results-section">
           <h4 className="section-title">Mineral Composition Distribution</h4>
           <div className="distribution-list">
             {(() => {
-              const totalPixels = statistics.image_size ? statistics.image_size.width * statistics.image_size.height : undefined;
-              const map = new Map<string, { name: string; percentage: number; pixel_count: number; count: number }>();
-              let hasPercentage = false;
-              for (const e of statistics.class_distribution) {
-                const raw = e?.mineral_name ?? "";
-                const name = normalizeName(raw);
-                const key = name.toLowerCase();
-                const pct = typeof e.percentage === "number" ? e.percentage : NaN;
-                const px = typeof e.pixel_count === "number" ? e.pixel_count : 0;
-                if (!Number.isNaN(pct)) hasPercentage = true;
-                const existing = map.get(key);
-                if (existing) {
-                  existing.percentage += Number.isNaN(pct) ? 0 : pct;
-                  existing.pixel_count += px;
-                  existing.count += 1;
-                } else {
-                  map.set(key, { name, percentage: Number.isNaN(pct) ? 0 : pct, pixel_count: px, count: 1 });
-                }
-              }
-
-              const arr = Array.from(map.values()).map((v) => {
-                let finalPct = v.percentage;
-                if (!hasPercentage && totalPixels && totalPixels > 0) {
-                  finalPct = (v.pixel_count / totalPixels) * 100;
-                }
-                return { name: v.name, percentage: finalPct, pixel_count: v.pixel_count, count: v.count };
-              }).sort((a, b) => b.percentage - a.percentage);
-
-              const TOP_N = 10;
-              const top = arr.slice(0, TOP_N);
-              const rest = arr.slice(TOP_N);
+              const aggregated = aggregateDistribution(statistics.class_distribution as any);
+              // If the backend provided percentages (0-100) we used them; if
+              // pixel_count values were used as fallback, they may not sum to
+              // 100. We simply display the relative numbers as provided.
+              const TOP_N = 12;
+              const top = aggregated.slice(0, TOP_N);
+              const rest = aggregated.slice(TOP_N);
               const restSum = rest.reduce((s, r) => s + r.percentage, 0);
 
               return (
                 <>
                   {top.map((m, idx) => {
+                    // Clamp width to [0,100] in case of noisy input
                     const pct = Math.max(0, Math.min(100, m.percentage));
                     return (
                       <div key={`${m.name}-${idx}`} className="distribution-item">

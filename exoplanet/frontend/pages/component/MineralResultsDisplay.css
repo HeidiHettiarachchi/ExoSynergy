@@ -1,5 +1,7 @@
 .results-display {
   width: 100%;
+  /* inherit the app/base font stack so this panel matches the rest of the site */
+  font-family: inherit;
 }
 
 .loading-state {
@@ -342,7 +344,8 @@
 .detection-class {
   color: #a78bfa;
   font-size: 0.85rem;
-  font-family: monospace;
+  /* match base web font instead of forcing monospace */
+  font-family: inherit;
 }
 
 .more-detections {
@@ -358,8 +361,7 @@
   gap: 1rem;
 }
 
-.distribution-item {
-}
+/* .distribution-item intentionally left without styles; items inherit layout from parent */
 
 .distribution-header {
   display: flex;
