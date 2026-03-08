@@ -7,10 +7,7 @@ MODEL_PATH = "app/ml/gas_model.pt"
 _model = None
 _expected_input_dim = None
 
-ALL_GASES = [
-    "H2O","CO2","CH4","CO","NH3",
-    "H2","He","N2","O2","O3","SO2","H2S"
-]
+ALL_GASES = ["H2O","CO2","CH4","CO","NH3","H2","He","N2","O2","O3","SO2","H2S"]
 
 def load_model(input_dim):
     global _model, _expected_input_dim

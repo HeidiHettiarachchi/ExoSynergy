@@ -98,7 +98,6 @@ def preprocess_transmission(df):
     for col in df.columns:
         df.loc[:, col] = pd.to_numeric(df[col], errors="coerce")
     
-    # Drop rows missing core numeric data
     df = df.dropna(subset=["CENTRALWAVELNG", "PL_TRANDEP", "PL_RATROR", "PL_RADJ"])
     df = df.sort_values("CENTRALWAVELNG")
     
