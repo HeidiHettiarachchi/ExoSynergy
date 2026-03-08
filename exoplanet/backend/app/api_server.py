@@ -42,6 +42,7 @@ sys.path.append(str(project_root))
 from src import config
 from src.logger import get_logger
 from inference_script import load_trained_model, preprocess_image, run_inference
+from planetary_gatekeeper import load_gatekeeper
 
 # Mineral class to name mapping (Mars CRISM minerals)
 MINERAL_NAMES = {
@@ -110,8 +111,9 @@ app.add_middleware(
 # Initialize logger
 logger = get_logger("CRISM.API")
 
-# Load model once at startup
+# Load model and gatekeeper once at startup
 MODEL = None
+GATEKEEPER = None
 
 # Response Models
 class BoundingBox(BaseModel):
@@ -162,14 +164,19 @@ class PredictionResponse(BaseModel):
 
 
 def initialize_model():
-    """Load model once at server startup."""
-    global MODEL
+    """Load model and gatekeeper once at server startup."""
+    global MODEL, GATEKEEPER
     try:
         MODEL = load_trained_model()
         logger.info("✅ Model loaded successfully")
+        
+        # Load planetary gatekeeper with permissive threshold
+        GATEKEEPER = load_gatekeeper(threshold=0.45)
+        logger.info("✅ Planetary gatekeeper loaded (threshold=0.45)")
+        
         return True
     except Exception as e:
-        logger.error(f"❌ Failed to load model: {e}")
+        logger.error(f"❌ Failed to load model/gatekeeper: {e}")
         return False
 
 
@@ -312,6 +319,25 @@ async def predict(
         pil_image = Image.open(io.BytesIO(contents)).convert('RGB')
         original_np = np.array(pil_image)
         original_size = original_np.shape[:2]
+        
+        # Stage 1: Planetary Gatekeeper - reject non-planetary images
+        if GATEKEEPER is not None:
+            logger.info("🔍 Running planetary gatekeeper check...")
+            gatekeeper_result = GATEKEEPER.check_image(pil_image, return_scores=True)
+            
+            if not gatekeeper_result["accepted"]:
+                logger.warning(f"❌ Image rejected by gatekeeper: {gatekeeper_result['reason']}")
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Image rejected: Not a planetary/geological image",
+                        "reason": gatekeeper_result["reason"],
+                        "confidence": gatekeeper_result["confidence"],
+                        "suggestion": "Please upload Mars CRISM satellite imagery or similar planetary geological images"
+                    }
+                )
+            
+            logger.info(f"✅ Gatekeeper passed (confidence: {gatekeeper_result['confidence']:.3f})")
         
         # Save temporarily
         temp_path = f'temp_upload_{image.filename}'
