@@ -1,5 +1,6 @@
 import "./ComponentPage.css";
 import exodetect from "../src/assets/exodetect.jpg";
+import mineralPlanet from "../src/assets/exoplanet_minerals.jpg";
 import { useNavigate } from "react-router-dom";
 
 function ComponentPage() {
@@ -19,6 +20,10 @@ function ComponentPage() {
 
   const handleAtmos = () => {
     navigate("/atmosphereProfile");
+  };
+
+  const handleMineralClassification = () => {
+    navigate("/mineralClassification");
   };
 
   return (
@@ -83,6 +88,25 @@ function ComponentPage() {
               </h3>
               <p className="card-description">Gear up for the pitch</p>
               <button className="card-button" onClick={handleStellar}>
+                Explore →
+              </button>
+            </div>
+
+            {/* Card 5 */}
+            <div className="card">
+              <img
+                className="card-image"
+                src={mineralPlanet}
+                alt="Mineral Classification"
+              />
+              <h3 className="card-title">Mineral Classification</h3>
+              <p className="card-description">
+                Advanced AI-powered mineral identification and classification
+              </p>
+              <button
+                className="card-button"
+                onClick={handleMineralClassification}
+              >
                 Explore →
               </button>
             </div>

@@ -41,11 +41,6 @@ const Header = () => {
               </a>
             </li>
             <li>
-              <a href="/mineralClassification" className="nav-link">
-                Mineral Classification
-              </a>
-            </li>
-            <li>
               <a href="/contact" className="nav-link">
                 Contact Us
               </a>
