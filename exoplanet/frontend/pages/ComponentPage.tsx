@@ -20,7 +20,7 @@ const handleMineral = () => {
 }
 
 const handleStellar = () => {   
-    navigate('/stellarAnalysis');
+    window.open('https://frontend-production-449c.up.railway.app/', '_blank');
 }
 
 const handleAtmos = () => {     
@@ -61,7 +61,8 @@ const handleAtmos = () => {
             {/* Card 4 */}
             <div className="card">
               <img className="card-image" src="https://iili.io/33etvls.png" alt="Soccer" />
-              <h3 className="card-title">Stellar Type & Metallicity Predictor</h3>
+              <h3 className="card-title">Stellar Classification and Habitability Predictor.
+</h3>
               <p className="card-description">Gear up for the pitch</p>
               <button className="card-button" onClick={handleStellar}>Explore →</button>
             </div>
