@@ -160,6 +160,7 @@ Component 04 – Identifying extraterrestrial minerals and resources using spect
 --------------------------------------------------
 Owner : C I Abeywickrama  
 GitHub Repo:
+Hosted Link:https://mineral-identification-frontend.onrender.com
 
 This component focuses on automatically identifying planetary minerals and generating detailed mineral maps using deep learning applied to hyperspectral data. It supports planetary research by enabling fast, consistent, and scalable surface analysis without manual interpretation.
 
