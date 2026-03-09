@@ -1,6 +1,7 @@
 import React from 'react';
 import './ComponentPage.css';
 import exodetect from '../src/assets/exodetect.jpg';
+import Atmo from '../src/assets/Atmo.jpg';
 import ExoDetection from './ExoDetection';
 import ExtraMineral from './ExtraMineral';  
 import AtmosProfile from './AtmosProfile';
@@ -52,16 +53,16 @@ const handleAtmos = () => {
 
             {/* Card 3 */}
             <div className="card">
-              <img className="card-image" src="https://iili.io/33etvls.png" alt="Trail Running" />
+              <img className="card-image" src={Atmo} alt="Planrt Atmosphere" />
               <h3 className="card-title">Atmospheric Spectrum Analyzer</h3>
-              <p className="card-description">Everything you need for adventure</p>
+              <p className="card-description">Atmospheric Spectrum Analysis for Biosignatures and Profiling</p>
               <button className="card-button" onClick={handleAtmos}>Explore →</button>
             </div>
 
             {/* Card 4 */}
             <div className="card">
               <img className="card-image" src="https://iili.io/33etvls.png" alt="Soccer" />
-              <h3 className="card-title">Stellar Classification and Habitability Predictor.
+              <h3 className="card-title">Stellar Classification and Suitability Predictor.
 </h3>
               <p className="card-description">Gear up for the pitch</p>
               <button className="card-button" onClick={handleStellar}>Explore →</button>
