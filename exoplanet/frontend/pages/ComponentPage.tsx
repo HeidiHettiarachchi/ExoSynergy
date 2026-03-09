@@ -12,11 +12,11 @@ function ComponentPage() {
 const navigate = useNavigate();
 
 const handleExpDetect = () => {
-  window.open('https://exoplanet-hybrid-detection-frontend.onrender.com/', '_blank');
+  window.open('https://exoplanet-detection-sp06.onrender.com/', '_blank');
 }
 
 const handleMineral = () => {
-  navigate('/extraMineral');
+  window.open('https://mineral-identification-frontend.onrender.com/', '_blank');
 }
 
 const handleStellar = () => {   
@@ -24,7 +24,7 @@ const handleStellar = () => {
 }
 
 const handleAtmos = () => {     
-    navigate('/atmosphereProfile');
+    window.open('https://atmospheric-analysis-frontend-production.up.railway.app/atmosphereProfile/', '_blank');
 }
 
 
