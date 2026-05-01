@@ -23,7 +23,7 @@ const handleMineral = () => {
 }
 
 const handleStellar = () => {   
-    window.open('https://frontend-production-449c.up.railway.app/', '_blank');
+    window.open('https://star-suitability-predictor-production-5e6f.up.railway.app/', '_blank');
 }
 
 const handleAtmos = () => {     
