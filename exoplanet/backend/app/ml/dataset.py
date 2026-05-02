@@ -10,19 +10,37 @@ ALL_GASES = [
 
 
 class ABCDataset(Dataset):
-    def __init__(self, file_path):
+    def __init__(self, file_path, stats=None):
         with h5py.File(file_path, "r") as f:
             X_data = np.array(f['X'], dtype=np.float32)
             y_data = np.array(f['y'], dtype=np.float32)
 
-        # Sanity check labels
-        y_data = np.clip(y_data, 0, None)           # no negatives
-        row_sums = y_data.sum(axis=1, keepdims=True)
-        row_sums[row_sums == 0] = 1
-        y_data = y_data / row_sums * 100.0           # ensure every row sums to 100%
+        # PROCESSING (LOG SPACE)
+        y_data = np.clip(y_data, 1e-12, None)
+        y_data = np.log10(y_data)
 
+        # FEATURE NORMALIZATION
+        if stats is None:
+            self.mean = X_data.mean(axis=0, keepdims=True)
+            self.std = X_data.std(axis=0, keepdims=True) + 1e-8
+        else:
+            self.mean = stats['mean']
+            self.std = stats['std']
+
+        X_data = (X_data - self.mean) / self.std
+
+        # CLIP EXTREME VALUES
+        X_data = np.clip(X_data, -5, 5)
+
+        # CONVERT TO TENSORS
         self.X = torch.tensor(X_data, dtype=torch.float32)
         self.y = torch.tensor(y_data, dtype=torch.float32)
+
+    def get_stats(self):
+        return {
+            'mean': self.mean,
+            'std': self.std
+        }
 
     def __len__(self):
         return len(self.X)

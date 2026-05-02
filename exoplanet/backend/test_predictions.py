@@ -23,26 +23,23 @@ def test_different_inputs_produce_different_predictions():
     
     # Initialize model
     print("\n1. Loading model...")
-    input_dim = 208
+    input_dim = 208  # 52 flux + 52 widths + 52 noise + 52 centers
     load_model(input_dim)
     print(f"   ✓ Model loaded with input dimension: {input_dim}")
     
     # Load test data
     raw_dir = os.path.join(os.path.dirname(__file__), 'app', 'data', 'raw_data')
-    direct_file = os.path.join(raw_dir, 'Spectrum-Direct Imaging.csv')
-    eclipse_file = os.path.join(raw_dir, 'Spectrum-Eclipse.csv')
-    transmission_file = os.path.join(raw_dir, 'Spectrum-Transmission.csv')
     
     predictions = {}
     
-    # Test each data type
-    test_cases = [
-        ('direct', direct_file, 'Direct Imaging'),
-        ('eclipse', eclipse_file, 'Eclipse'),
-        ('transmission', transmission_file, 'Transmission')
-    ]
-    
     print("\n2. Testing preprocessing and predictions for different spectrum types...\n")
+    
+    # Use existing test data files
+    test_cases = [
+        ('transmission', os.path.join(raw_dir, 'table_KELT-9-b-Changeat-Edwards-2021.csv'), 'KELT-9-b (Transmission)'),
+        ('eclipse', os.path.join(raw_dir, 'table_KELT-9-b-Changeat-Edwards-2021.csv'), 'KELT-9-b (Eclipse)'),
+        ('direct', os.path.join(raw_dir, 'table_Kepler-9-b-Edwards-et-al.-2023.csv'), 'Kepler-9-b (Direct)'),
+    ]
     
     for data_type, file_path, label in test_cases:
         if not os.path.exists(file_path):
@@ -68,7 +65,7 @@ def test_different_inputs_produce_different_predictions():
                 print(f"      ⚠ WARNING: {nan_count} NaN values in features")
             
             # Make prediction
-            gases = predict_major_gases(features_df)
+            gases = predict_major_gases(features_df, data_type)
             predictions[label] = gases
             
             # Display results

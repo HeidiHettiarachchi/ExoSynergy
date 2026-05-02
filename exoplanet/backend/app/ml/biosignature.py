@@ -76,17 +76,23 @@ class BiosignatureDetector:
         "rocky":       100.0,
     }
 
+    GAS_KEYS = [
+        "H2O", "CO2", "CH4", "CO", "NH3",
+        "H2",  "HE",  "N2",  "O2",  "O3",
+        "SO2", "H2S", "N2O"
+    ]
+
     _CO2_REF = 0.000280
 
     _TOXICITY_PARAMS = {
-        "CO":  {"idlh": 0.001200, "weight": 0.40},   # 1200 ppm IDLH
-        "SO2": {"idlh": 0.000100, "weight": 0.80},   # 100 ppm IDLH
-        "H2S": {"idlh": 0.000300, "weight": 1.20},   # 300 ppm IDLH
-        "NH3": {"idlh": 0.003000, "weight": 0.20},   # 300 ppm IDLH (also biogenic)
+        "CO":  {"idlh": 0.001200, "weight": 0.40},  
+        "SO2": {"idlh": 0.000100, "weight": 0.80}, 
+        "H2S": {"idlh": 0.000300, "weight": 1.20},   
+        "NH3": {"idlh": 0.003000, "weight": 0.20},  
     }
 
     def detect(self, gases: Dict[str, float],
-               transmission_data: Optional[Dict[str, float]] = None) -> HabitabilityResult:
+        transmission_data: Optional[Dict[str, float]] = None) -> HabitabilityResult:
         
         g = self._normalize({k.strip().upper(): float(v) for k, v in gases.items()})
 
@@ -118,9 +124,26 @@ class BiosignatureDetector:
     # ---------------------------------------------------
 
     def _normalize(self, g: Dict[str, float]) -> Dict[str, float]:
-        g     = {k: max(0.0, v) for k, v in g.items()}
+        g = {k.strip().upper(): max(0.0, v) for k, v in g.items()}
         total = sum(g.values())
-        return g if total == 0 else {k: v / total for k, v in g.items()}
+        normalized = g if total == 0 else {k: v / total for k, v in g.items()}
+        return {k: normalized.get(k, 0.0) for k in self.GAS_KEYS}
+
+    # ---------------------------------------------------
+    # BIOSIGNATURE HELPERS
+    # ---------------------------------------------------
+
+    def _is_oxygen_methane_disequilibrium(self, g: Dict[str, float]) -> bool:
+        return g.get("O2", 0) >= 0.01 and g.get("CH4", 0) >= 0.0001
+
+    def _is_ozone_shield(self, g: Dict[str, float]) -> bool:
+        return g.get("O3", 0) >= 1e-7 and g.get("O2", 0) >= 0.01
+
+    def _is_n2o_indicator(self, g: Dict[str, float]) -> bool:
+        return g.get("N2O", 0) >= 5e-7
+
+    def _is_ammonia_signature(self, g: Dict[str, float]) -> bool:
+        return g.get("NH3", 0) >= 5e-6 and g.get("H2", 0) < 0.05
 
     # ---------------------------------------------------
     # BIOSIGNATURE DETECTION
@@ -128,82 +151,107 @@ class BiosignatureDetector:
 
     def _detect_biosignatures(self, g: Dict[str, float], atm_class: str) -> List[BiosignatureResult]:
 
-        if atm_class == "giant":
-            return []
-
         biosigs = []
 
+        if atm_class == "giant":
+            return biosigs
+
         if atm_class == "sub_neptune":
-            h2o = g.get("H2O", 0)
-            if h2o > 0.001:
+            if self._is_oxygen_methane_disequilibrium(g):
                 biosigs.append(BiosignatureResult(
-                    name           = "Water Vapor",
+                    name           = "Oxygen-Methane Disequilibrium",
                     detected       = True,
                     reason         = (
-                        f"H2O at {h2o*100:.2f}% — possible Hycean world candidate; "
-                        "water vapor detected in H2-rich envelope"
+                        f"O2 ({g.get('O2',0)*100:.2f}%) and CH4 ({g.get('CH4',0)*100:.3f}%) coexist in a disequilibrium state. "
+                        "This can indicate ongoing chemical production."
+                    ),
+                    gases_involved = ["O2", "CH4"],
+                ))
+
+            if self._is_ozone_shield(g):
+                biosigs.append(BiosignatureResult(
+                    name           = "Ozone Shield",
+                    detected       = True,
+                    reason         = (
+                        f"O3 at {g.get('O3',0)*1e6:.2f} ppm suggests an oxygen-rich upper atmosphere. "
+                        "This is often associated with photosynthetic oxygen production."
+                    ),
+                    gases_involved = ["O3", "O2"],
+                ))
+
+            if self._is_n2o_indicator(g):
+                biosigs.append(BiosignatureResult(
+                    name           = "Nitrous Oxide",
+                    detected       = True,
+                    reason         = (
+                        f"N2O at {g.get('N2O',0)*1e6:.2f} ppm may indicate biological nitrogen cycling."
+                    ),
+                    gases_involved = ["N2O"],
+                ))
+
+            if g.get("H2O", 0) > 0.01:
+                biosigs.append(BiosignatureResult(
+                    name           = "Water Vapor Indicator",
+                    detected       = True,
+                    reason         = (
+                        f"H2O at {g.get('H2O',0)*100:.2f}% indicates a water-rich atmosphere. "
+                        "This is important for habitability, though not a direct biosignature."
                     ),
                     gases_involved = ["H2O"],
                 ))
+
             return biosigs
 
-        o2  = g.get("O2",  0)
-        ch4 = g.get("CH4", 0)
-        if o2 > 0.01 and ch4 > 0.000010:   
+        if self._is_oxygen_methane_disequilibrium(g):
             biosigs.append(BiosignatureResult(
                 name           = "Oxygen-Methane Disequilibrium",
                 detected       = True,
                 reason         = (
-                    f"O2 ({o2*100:.2f}%) and CH4 ({ch4*1e6:.1f} ppm) coexist — "
-                    "thermodynamically unstable without active biological replenishment"
+                    f"O2 ({g.get('O2',0)*100:.2f}%) and CH4 ({g.get('CH4',0)*100:.3f}%) coexist in a disequilibrium state. "
+                    "This combination is difficult to sustain without active replenishment."
                 ),
                 gases_involved = ["O2", "CH4"],
             ))
 
-        o3 = g.get("O3", 0)
-        if o3 > 0.000001 and o2 > 0.001:  
+        if self._is_ozone_shield(g):
             biosigs.append(BiosignatureResult(
                 name           = "Ozone Shield",
                 detected       = True,
                 reason         = (
-                    f"O3 at {o3*1e6:.2f} ppm — implies sustained O2 photochemistry "
-                    "and UV shielding compatible with surface life"
+                    f"O3 at {g.get('O3',0)*1e6:.2f} ppm indicates significant oxygen photochemistry. "
+                    "It is a secondary indicator of an oxygen-rich atmosphere."
                 ),
-                gases_involved = ["O3"],
+                gases_involved = ["O3", "O2"],
             ))
 
-        n2o = g.get("N2O", 0)
-        if n2o > 0.0000001:   # > 0.1 ppb
+        if self._is_n2o_indicator(g):
             biosigs.append(BiosignatureResult(
                 name           = "Nitrous Oxide",
                 detected       = True,
                 reason         = (
-                    f"N2O at {n2o*1e9:.1f} ppb — almost exclusively produced by "
-                    "microbial denitrification; strong biogenic indicator"
+                    f"N2O at {g.get('N2O',0)*1e6:.2f} ppm is a potential sign of biological nitrogen cycling."
                 ),
                 gases_involved = ["N2O"],
             ))
 
-        nh3 = g.get("NH3", 0)
-        if nh3 > 0.000001 and g.get("H2", 0) < 0.10:  
+        if self._is_ammonia_signature(g):
             biosigs.append(BiosignatureResult(
                 name           = "Ammonia Signature",
                 detected       = True,
                 reason         = (
-                    f"NH3 at {nh3*1e6:.2f} ppm — photolytically unstable; "
-                    "requires active biological or hydrothermal source"
+                    f"NH3 at {g.get('NH3',0)*1e6:.2f} ppm with low H2 suggests a transient nitrogen chemistry. "
+                    "This may be consistent with biological or volcanic sources."
                 ),
-                gases_involved = ["NH3"],
+                gases_involved = ["NH3", "H2"],
             ))
 
-        h2o = g.get("H2O", 0)
-        if h2o > 0.001:   # > 0.1%
+        if g.get("H2O", 0) > 0.01:
             biosigs.append(BiosignatureResult(
-                name           = "Water Vapor",
+                name           = "Water Vapor Indicator",
                 detected       = True,
                 reason         = (
-                    f"H2O at {h2o*100:.2f}% — liquid water potential present; "
-                    "universal solvent and prerequisite for known life"
+                    f"H2O at {g.get('H2O',0)*100:.2f}% indicates a moist atmosphere. "
+                    "Liquid water is a key requirement for life as we know it."
                 ),
                 gases_involved = ["H2O"],
             ))
@@ -223,30 +271,32 @@ class BiosignatureDetector:
             factors["oxygen"] = 0.0
         elif o2 < 0.05:
             factors["oxygen"] = (o2 / 0.05) * 0.3
-        elif o2 <= 0.30:
-            factors["oxygen"] = max(0.0, 1.0 - abs(o2 - 0.21) / 0.09)
+        elif o2 <= 0.25:
+            factors["oxygen"] = 0.3
+        elif o2 <= 0.35:
+            factors["oxygen"] = 0.2
         else:
-            factors["oxygen"] = max(0.0, 1.0 - (o2 - 0.30) / 0.70)
+            factors["oxygen"] = 0.1
 
         h2o = g.get("H2O", 0)
         if h2o <= 0.0:
             factors["water"] = 0.0
-        elif h2o <= 0.04:
-            factors["water"] = min(1.0, h2o / 0.01)
+        elif h2o <= 0.03:
+            factors["water"] = min(1.0, h2o / 0.03)
         else:
-            factors["water"] = max(0.0, 1.0 - (h2o - 0.04) / 0.06)
+            factors["water"] = max(0.0, 1.0 - (h2o - 0.03) / 0.07)
 
         ghi = self._greenhouse_heating_index(g)
-        if ghi < 0.005:
-            factors["greenhouse_penalty"] = 0.30              
-        elif ghi <= 0.20:
-            factors["greenhouse_penalty"] = 0.30 + (ghi - 0.005) / 0.195 * 0.70
-        elif ghi <= 0.40:
-            factors["greenhouse_penalty"] = 1.0              
-        elif ghi <= 0.80:
-            factors["greenhouse_penalty"] = max(0.0, 1.0 - (ghi - 0.40) / 0.40)
+        if ghi < 0.15:
+            factors["greenhouse_penalty"] = 0.15
+        elif ghi <= 0.35:
+            factors["greenhouse_penalty"] = 0.60
+        elif ghi <= 0.55:
+            factors["greenhouse_penalty"] = 1.0
+        elif ghi <= 0.75:
+            factors["greenhouse_penalty"] = 0.60
         else:
-            factors["greenhouse_penalty"] = 0.0          
+            factors["greenhouse_penalty"] = 0.10
 
         tox = self._toxicity_index(g)
         factors["low_toxicity"] = max(0.0, 1.0 - tox)
@@ -278,6 +328,11 @@ class BiosignatureDetector:
             if b.detected:
                 score += self.BIOSIG_WEIGHTS.get(b.name, 0)
 
+        if atm_class == "sub_neptune":
+            score *= 0.65
+        elif atm_class == "giant":
+            score *= 0.30
+
         cap = self.SCORE_CAP.get(atm_class, 100.0)
         return min(score, cap)
 
@@ -286,7 +341,7 @@ class BiosignatureDetector:
     # ---------------------------------------------------
 
     def _build_profile(self, g: Dict[str, float],
-                       transmission_data: Optional[Dict[str, float]] = None) -> AtmosphericProfile:
+        transmission_data: Optional[Dict[str, float]] = None) -> AtmosphericProfile:
 
         td        = transmission_data or {}
         tox       = self._toxicity_index(g)
@@ -313,15 +368,15 @@ class BiosignatureDetector:
     # ---------------------------------------------------
 
     def _greenhouse_heating_index(self, g: Dict[str, float]) -> float:
-       
-        co2 = max(g.get("CO2", 0), 1e-10)
-        co2_forcing = max(0.0, math.log(co2 / self._CO2_REF)) / 8.5  # ln(~100%/280ppm)≈8.5
+        co2 = max(g.get("CO2", 0), 1e-9)
+        ratio = max(co2 / self._CO2_REF, 1e-9)
+        co2_forcing = min(1.0, math.log(ratio) / math.log(1000)) * 0.45
 
-        h2o_forcing = min(1.0, g.get("H2O", 0) / 0.05) * 0.25
-        ch4_forcing = min(1.0, g.get("CH4", 0) / 0.001) * 0.15
-        o3_forcing  = min(1.0, g.get("O3",  0) / 0.00001) * 0.05
+        h2o_forcing = min(1.0, g.get("H2O", 0) / 0.03) * 0.25
+        ch4_forcing = min(1.0, g.get("CH4", 0) / 0.002) * 0.15
+        o3_forcing  = min(1.0, g.get("O3",  0) / 0.00002) * 0.05
 
-        return min(1.0, co2_forcing * 0.55 + h2o_forcing + ch4_forcing + o3_forcing)
+        return min(1.0, co2_forcing + h2o_forcing + ch4_forcing + o3_forcing)
 
     # ---------------------------------------------------
     # TOXICITY INDEX  (0–1)
@@ -336,31 +391,15 @@ class BiosignatureDetector:
         return min(1.0, tox)
 
     # ---------------------------------------------------
-    # PROFILE HELPERS
+    # PROFILE 
     # ---------------------------------------------------
 
     def _atmospheric_density(self, g: Dict[str, float],
                              td: Dict[str, float] = {}) -> str:
 
-        rad_ratio    = td.get("mean_rad_ratio", 0)
-        planet_rad   = td.get("mean_planet_radius", 0)    
-        stellar_rad  = td.get("mean_stellar_radius", 0)   
-        transit_dep  = td.get("mean_transit_depth", 0)    
-        if rad_ratio > 0 and planet_rad > 0:
-
-            rp_rs_sq = rad_ratio ** 2
-            depth_excess = transit_dep - rp_rs_sq if transit_dep > 0 else 0
-
-            if planet_rad > 0.8:                    
-                return "Low"                        
-            elif planet_rad > 0.4:                 
-                if depth_excess > 0.002:
-                    return "Low"                    
-                return "Medium"
-            else:                                  
-                if depth_excess > 0.001:
-                    return "Medium"                 
-                return "High"                       
+        h2_he = g.get("H2", 0) + g.get("HE", 0)
+        if h2_he > 0.80:
+            return "Low"
 
         mw = (
             g.get("CO2", 0) * 44 + g.get("N2",  0) * 28 + g.get("O2",  0) * 32 +
@@ -368,87 +407,67 @@ class BiosignatureDetector:
             g.get("HE",  0) *  4 + g.get("SO2", 0) * 64 + g.get("CO",  0) * 28 +
             g.get("NH3", 0) * 17 + g.get("H2S", 0) * 34 + g.get("O3",  0) * 48
         )
-        if mw > 30:  return "High"
-        if mw > 15:  return "Medium"
+
+        if g.get("CO2", 0) > 0.10 or g.get("H2O", 0) > 0.10:
+            return "High"
+        if mw > 25:
+            return "High"
+        if mw > 12:
+            return "Medium"
         return "Low"
 
     def _thermal_stability(self, g: Dict[str, float]) -> str:
-        """O2-CH4 reactive instability proportional to product of both fractions."""
         instability = g.get("CH4", 0) * g.get("O2", 0) * 1000
-        if instability > 5.0:  return "Unstable"
-        if instability > 1.0:  return "Moderate"
+        if instability > 2.0:
+            return "Unstable"
+        if instability > 0.5:
+            return "Moderate"
         return "Stable"
 
     def _temperature_potential(self, ghi: float,
                                td: Dict[str, float] = {}) -> str:
 
-        planet_rad = td.get("mean_planet_radius", 0)   
-
-        if planet_rad > 0:
-            if planet_rad > 1.5:
-                return "Extreme Heat"
-            elif planet_rad > 0.8:
-                return "Warm"
-            elif planet_rad > 0.35:
-                if ghi > 0.40:   return "Warm"
-                if ghi > 0.15:   return "Moderate"
-                return "Cool"
-            else:
-                if ghi > 0.70:   return "Extreme Heat"
-                if ghi > 0.40:   return "Warm"
-                if ghi > 0.15:   return "Moderate"
-                if ghi > 0.05:   return "Cool"
-                return "Cold"
-
-        if ghi > 0.70:   return "Extreme Heat"
-        if ghi > 0.40:   return "Warm"
-        if ghi > 0.15:   return "Moderate"
-        if ghi > 0.05:   return "Cool"
+        if ghi > 0.80:
+            return "Extreme Heat"
+        if ghi > 0.45:
+            return "Warm"
+        if ghi > 0.15:
+            return "Moderate"
+        if ghi > 0.05:
+            return "Cool"
         return "Cold"
 
     def _planet_type(self, g: Dict[str, float],
                      td: Dict[str, float] = {}) -> str:
 
-        planet_rad = td.get("mean_planet_radius", 0)  
-
-        if planet_rad > 0:
-            h2_he = g.get("H2", 0) + g.get("HE", 0)
-
-            if planet_rad > 1.0:
-                return "Gas Giant"
-
-            elif planet_rad > 0.35:
-                if h2_he > 0.50 and g.get("H2O", 0) > 0.02:
-                    return "Hycean World Candidate"
-                if g.get("CO2", 0) > 0.50:
-                    return "Venus-like (CO2-dominated)"
-                return "Ice Giant / Sub-Neptune"
-
-            elif planet_rad > 0.15:
-                if g.get("CO2", 0) > 0.70:
-                    return "Venus-like (CO2-dominated)"
-                if g.get("N2", 0) > 0.50 and g.get("O2", 0) > 0.10:
-                    return "Earth-like"
-                if g.get("SO2", 0) > 0.01 or g.get("H2S", 0) > 0.01:
-                    return "Volcanically Active Rocky"
-                return "Rocky / Mixed Atmosphere"
-
-            else:
-                return "Rocky / Mixed Atmosphere"
-
+        planet_rad = td.get("mean_planet_radius", 0)
         h2_he = g.get("H2", 0) + g.get("HE", 0)
-        if h2_he > 0.85:
+
+        if planet_rad > 1.0 or h2_he > 0.85:
             return "Gas Giant"
-        if h2_he > 0.60:
-            return "Hycean World Candidate" if g.get("H2O", 0) > 0.02 else "Ice Giant / Sub-Neptune"
+
+        if planet_rad > 0.35 or h2_he > 0.50:
+            if g.get("CO2", 0) > 0.50:
+                return "Venus-like (CO2-dominated)"
+            if g.get("H2O", 0) > 0.02 and h2_he > 0.30:
+                return "Hycean World Candidate"
+            return "Ice Giant / Sub-Neptune"
+
+        if planet_rad > 0.15:
+            if g.get("CO2", 0) > 0.70:
+                return "Venus-like (CO2-dominated)"
+            if g.get("N2", 0) > 0.50 and g.get("O2", 0) > 0.10:
+                return "Earth-like"
+            if g.get("SO2", 0) > 0.01 or g.get("H2S", 0) > 0.01:
+                return "Volcanically Active Rocky"
+            return "Rocky / Mixed Atmosphere"
+
         if g.get("CO2", 0) > 0.70:
             return "Venus-like (CO2-dominated)"
         if g.get("N2", 0) > 0.50 and g.get("O2", 0) > 0.10:
             return "Earth-like"
         if g.get("N2", 0) > 0.80:
             return "Titan-like (N2-dominated)"
-        if g.get("SO2", 0) > 0.01 or g.get("H2S", 0) > 0.01:
-            return "Volcanically Active Rocky"
         return "Rocky / Mixed Atmosphere"
 
     def _fingerprint(self, g: Dict[str, float]) -> str:
@@ -472,12 +491,14 @@ class BiosignatureDetector:
     # ---------------------------------------------------
 
     def _similarity(self, a: Dict[str, float], b: Dict[str, float]) -> float:
-       
-        keys  = set(a) | set(b)
-        def lw(d, k): return math.log1p(d.get(k, 0) * 1000)
-        dot   = sum(lw(a, k) * lw(b, k) for k in keys)
-        mag_a = math.sqrt(sum(lw(a, k) ** 2 for k in keys))
-        mag_b = math.sqrt(sum(lw(b, k) ** 2 for k in keys))
+        def vector(d):
+            return [math.log1p(d.get(k, 0) * 10000) for k in self.GAS_KEYS]
+
+        va = vector(a)
+        vb = vector(b)
+        dot = sum(x * y for x, y in zip(va, vb))
+        mag_a = math.sqrt(sum(x * x for x in va))
+        mag_b = math.sqrt(sum(y * y for y in vb))
         if mag_a == 0 or mag_b == 0:
             return 0.0
         return dot / (mag_a * mag_b)
@@ -524,10 +545,6 @@ class BiosignatureDetector:
             f"Limiting factors: {', '.join(limiting) if limiting else 'None'}."
         )
 
-
-# ---------------------------------------------------
-# PUBLIC FUNCTION
-# ---------------------------------------------------
 
 def analyze_planet(gas_predictions: Dict[str, float],
                    transmission_data: Optional[Dict[str, float]] = None) -> HabitabilityResult:

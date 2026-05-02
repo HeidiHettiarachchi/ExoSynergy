@@ -2,163 +2,179 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.utils.data import DataLoader, random_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
 from .model import GasMLP
 from .dataset import ABCDataset
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
+# -------------------------
 DATA_PATH  = "app/data/training_data.hdf5"
 MODEL_PATH = "app/ml/gas_model.pt"
 
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class LogSpaceMSELoss(nn.Module):
-    def __init__(self, epsilon=1e-2):   # FIX 1: raised epsilon from 1e-4 to 1e-2
-        super().__init__()              # small epsilon caused log(~0) → -inf → NaN
-        self.epsilon = epsilon
+GAS_NAMES = [
+    "H2O","CO2","CH4","CO","NH3",
+    "H2","He","N2","O2","O3","SO2","H2S"
+]
+
+# Loss 
+class PhysicsLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.register_buffer("weights", torch.tensor([
+            1.3, 1.3, 1.3, 1.3, 1.3,
+            1.0, 1.0, 1.1, 1.1, 1.2, 1.2, 1.2
+        ]))
 
     def forward(self, pred, target):
-        # FIX 2: clamp predictions before log to prevent log(negative) 
-        pred   = torch.clamp(pred,   min=self.epsilon)
-        target = torch.clamp(target, min=self.epsilon)
-        log_pred   = torch.log(pred)
-        log_target = torch.log(target)
-        return torch.mean((log_pred - log_target) ** 2)
+        loss = torch.nn.functional.smooth_l1_loss(
+            pred, target, reduction="none"
+        )
+        loss = loss * self.weights
+        return loss.mean()
 
 
-# -----------------------------
-# Dataset & Preprocessing
-# -----------------------------
-print(f"Loading dataset from {DATA_PATH}...")
-full_set = ABCDataset(DATA_PATH)
-print(f"✓ Loaded {len(full_set)} samples with {full_set.X.shape[1]} features")
+# Load dataset
+print("Loading dataset...")
+dataset = ABCDataset(DATA_PATH)
 
-# FIX 3: check for NaNs in labels BEFORE training
-nan_mask = torch.isnan(full_set.y).any(dim=1) | torch.isinf(full_set.y).any(dim=1)
-if nan_mask.any():
-    print(f"⚠ Removing {nan_mask.sum().item()} samples with NaN/Inf labels")
-    full_set.X = full_set.X[~nan_mask]
-    full_set.y = full_set.y[~nan_mask]
+print(f"Samples: {len(dataset)} | Features: {dataset.X.shape[1]}")
 
-print("Normalizing features...")
-X_mean = full_set.X.mean(dim=0)
-X_std  = full_set.X.std(dim=0)
-X_std[X_std == 0] = 1
-full_set.X = (full_set.X - X_mean) / X_std
+# Normalize X
+X_mean = dataset.X.mean(dim=0)
+X_std = dataset.X.std(dim=0) + 1e-8
 
-# FIX 4: check for NaNs in features after normalization
-feat_nan = torch.isnan(full_set.X).any(dim=1)
-if feat_nan.any():
-    print(f"⚠ Removing {feat_nan.sum().item()} samples with NaN features")
-    full_set.X = full_set.X[~feat_nan]
-    full_set.y = full_set.y[~feat_nan]
+dataset.X = (dataset.X - X_mean) / X_std
 
-print(f"✓ Features normalized: mean={full_set.X.mean():.6f}, std={full_set.X.std():.6f}")
-print(f"✓ Clean samples remaining: {len(full_set.X)}")
+# Normalize Y
+y_mean = dataset.y.mean(dim=0)
+y_std = dataset.y.std(dim=0) + 1e-8
 
-# Train / Validation Split
-train_size = int(0.8 * len(full_set.X))
-val_size   = len(full_set.X) - train_size
-train_set, val_set = random_split(full_set, [train_size, val_size])
+dataset.y = (dataset.y - y_mean) / y_std
+
+# Save scalers
+np.save("app/ml/x_mean.npy", X_mean.numpy())
+np.save("app/ml/x_std.npy", X_std.numpy())
+np.save("app/ml/y_mean.npy", y_mean.numpy())
+np.save("app/ml/y_std.npy", y_std.numpy())
+
+print("Normalization stats saved.")
+
+# Split
+train_size = int(0.8 * len(dataset))
+val_size = len(dataset) - train_size
+
+train_set, val_set = random_split(dataset, [train_size, val_size])
 
 train_loader = DataLoader(train_set, batch_size=256, shuffle=True)
-val_loader   = DataLoader(val_set,   batch_size=256, shuffle=False)
-print(f"✓ Split: {train_size} train, {val_size} validation")
+val_loader = DataLoader(val_set, batch_size=256, shuffle=False)
 
-# -----------------------------
-# Model
-# -----------------------------
-model = GasMLP(input_dim=full_set.X.shape[1])
+# Load Model
+model = GasMLP(input_dim=dataset.X.shape[1]).to(DEVICE)
 
-optimizer = torch.optim.Adam(
+optimizer = torch.optim.AdamW(
     model.parameters(),
-    lr=1e-3,
+    lr=7e-5,   
     weight_decay=1e-5
 )
 
+loss_fn = PhysicsLoss().to(DEVICE)
+
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
-    patience=10,
-    factor=0.5
+    patience=6,
+    factor=0.4
 )
 
-loss_fn = LogSpaceMSELoss(epsilon=1e-2)
+best_val = float("inf")
+patience = 20
+counter = 0
 
-# -----------------------------
-# Training Loop
-# -----------------------------
-best_val_loss      = float('inf')
-patience           = 25
-early_stop_counter = 0
+# Training loop
+for epoch in range(200):
 
-for epoch in range(300):
-
-    # -------- TRAIN --------
     model.train()
     train_loss = 0
 
     for X, y in train_loader:
+        X, y = X.to(DEVICE), y.to(DEVICE)
+
         pred = model(X)
+
         loss = loss_fn(pred, y)
 
         optimizer.zero_grad()
         loss.backward()
 
-        # FIX 5: gradient clipping prevents exploding gradients → NaN weights
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
 
         optimizer.step()
+
         train_loss += loss.item()
 
     train_loss /= len(train_loader)
 
-    # -------- VALIDATION --------
+    # Model Evaluation
     model.eval()
     val_loss = 0
-    y_true, y_pred = [], []
+
+    y_true_all, y_pred_all = [], []
 
     with torch.no_grad():
         for X, y in val_loader:
+            X, y = X.to(DEVICE), y.to(DEVICE)
+
             pred = model(X)
             loss = loss_fn(pred, y)
 
             val_loss += loss.item()
-            y_true.append(y.numpy())
-            y_pred.append(pred.numpy())
+
+            y_true_all.append(y.cpu().numpy())
+            y_pred_all.append(pred.cpu().numpy())
 
     val_loss /= len(val_loader)
     scheduler.step(val_loss)
 
-    y_true = np.vstack(y_true)
-    y_pred = np.vstack(y_pred)
+    y_true = np.vstack(y_true_all)
+    y_pred = np.vstack(y_pred_all)
 
-    # FIX 6: guard metrics calculation against any remaining NaNs
-    if np.isnan(y_pred).any():
-        print(f"Epoch {epoch:3d} | ⚠ NaN in predictions — skipping metrics")
-        continue
+    # METRICS
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    r2 = r2_score(y_true, y_pred)
 
-    mse  = mean_squared_error(y_true, y_pred)
-    rmse = np.sqrt(mse)
-    mae  = mean_absolute_error(y_true, y_pred)
-    r2   = r2_score(y_true, y_pred)
+    cos_sim = np.mean(
+        np.sum(y_true * y_pred, axis=1) /
+        (np.linalg.norm(y_true, axis=1) * np.linalg.norm(y_pred, axis=1) + 1e-8)
+    )
 
-    if (epoch + 1) % 10 == 0 or epoch < 5:
-        print(
-            f"Epoch {epoch:3d} | "
-            f"Train Loss: {train_loss:.6f} | "
-            f"Val Loss: {val_loss:.6f} | "
-            f"RMSE: {rmse:.6f} | "
-            f"MAE: {mae:.6f} | "
-            f"R2: {r2:.6f}"
-        )
+    per_gas_mae = np.mean(np.abs(y_true - y_pred), axis=0)
 
-    if val_loss < best_val_loss:
-        best_val_loss      = val_loss
+    # LOGGING
+    if epoch % 10 == 0 or epoch < 5:
+        print(f"\nEpoch {epoch}")
+        print(f"Train Loss: {train_loss:.5f} | Val Loss: {val_loss:.5f}")
+        print(f"MAE : {mae:.5f}")
+        print(f"RMSE: {rmse:.5f}")
+        print(f"R2  : {r2:.5f}")
+        print(f"Cosine Similarity: {cos_sim:.5f}")
+
+        print("\nPer-gas MAE:")
+        for i, gas in enumerate(GAS_NAMES):
+            print(f"{gas:5s}: {per_gas_mae[i]:.5f}")
+
+    # SAVE BEST MODEL
+    if val_loss < best_val:
+        best_val = val_loss
         torch.save(model.state_dict(), MODEL_PATH)
-        early_stop_counter = 0
+        counter = 0
     else:
-        early_stop_counter += 1
+        counter += 1
 
-    if early_stop_counter >= patience:
-        print(f"\nEarly stopping at epoch {epoch} (no improvement for {patience} epochs)")
+    if counter >= patience:
+        print(f"\nEarly stopping at epoch {epoch}")
         break
 
-print(f"\n✓ Training complete. Best model saved to: {MODEL_PATH}")
+print("\n✓ Training complete. Model saved.")

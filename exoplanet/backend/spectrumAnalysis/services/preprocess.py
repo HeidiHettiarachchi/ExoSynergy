@@ -11,7 +11,14 @@ def preprocess_spectrum(input_csv_path_or_df, data_type):
         df = pd.read_csv(input_csv_path_or_df)
     
     df.columns = df.columns.str.strip()
-    
+
+    # --------------------------------
+    #  Data type check
+    # --------------------------------
+
+    if data_type not in ["direct", "eclipse", "transmission"]:
+        raise ValueError("Invalid data_type. Use: direct | eclipse | transmission")
+
     try:
         if data_type == "direct":
             return preprocess_direct_imaging(df)
@@ -27,9 +34,10 @@ def preprocess_spectrum(input_csv_path_or_df, data_type):
         raise
 
 
-# ------------------------------
-# Direct Imaging Preprocessing
-# ------------------------------
+# --------------------------------
+# Preprocessing - Direct Imaging
+# --------------------------------
+
 def preprocess_direct_imaging(df):
     df = df[["CENTRALWAVELNG", "FLAM"]].dropna()
     df = df[df["FLAM"] > 0].sort_values("CENTRALWAVELNG")
@@ -52,8 +60,9 @@ def preprocess_direct_imaging(df):
     return extract_spectral_features_binned(wavelength, flux_smooth)
 
 # ------------------------------
-# Eclipse Data Preprocessing
+# Preprocessing - Eclipse
 # ------------------------------
+
 def preprocess_eclipse(df):
     required = ["CENTRALWAVELNG", "ESPECLIPDEP", "ESPECLIPDEPERR1", "ESPECLIPDEPERR2"]
     missing = set(required) - set(df.columns)
@@ -79,7 +88,7 @@ def preprocess_eclipse(df):
     return extract_spectral_features_binned(wavelength, depth, depth_err)
 
 # --------------------------------
-# Transmission Data Preprocessing
+# Preprocessing - Transmission 
 # --------------------------------
 def preprocess_transmission(df):
     cols = [
@@ -111,7 +120,8 @@ def preprocess_transmission(df):
     return extract_spectral_features_binned(wavelength, depth, depth_err)
 
 
-# Spectral Binning 
+# ============Spectral Binning ==============
+
 def create_empty_spectral_features():
     features_dict = {}
     for i in range(208):
@@ -145,7 +155,7 @@ def bin_spectrum(wavelength, intensity, n_bins=52):
 
 def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
 
-    # Normalize intensity
+    # ============ Normalize intensity ====================
     if intensity.max() > 0:
         intensity = (intensity - intensity.mean()) / (intensity.std() + 1e-8)
     
@@ -157,13 +167,13 @@ def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
         wavelength, intensity, n_bins=52
     )
     
-    # Normalize all components
+    # =======================Normalize all components =================================
     binned_flux = (binned_flux - np.mean(binned_flux)) / (np.std(binned_flux) + 1e-8)
     binned_noise = (binned_noise - np.mean(binned_noise)) / (np.std(binned_noise) + 1e-8)
     bin_centers = (bin_centers - np.mean(bin_centers)) / (np.std(bin_centers) + 1e-8)
     bin_widths = (bin_widths - np.mean(bin_widths)) / (np.std(bin_widths) + 1e-8)
     
-    # Concatenate all components into 208 features
+    # =============Concatenate all components into 208 features =========
     features = np.concatenate([
         binned_flux,      
         bin_widths,       
@@ -171,7 +181,7 @@ def extract_spectral_features_binned(wavelength, intensity, intensity_err=None):
         bin_centers       
     ]).astype(np.float32) 
     
-    # Create DataFrame with lambda_X column names (matches training format)
+    # ================= Create DataFrame with lambda_X column names ==============
     features_dict = {f"lambda_{i}": float(features[i]) for i in range(208)}
     return pd.DataFrame([features_dict])
 

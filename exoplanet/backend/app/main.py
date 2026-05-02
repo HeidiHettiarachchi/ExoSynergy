@@ -24,8 +24,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw_data")
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed_data")
 
-# os.makedirs(RAW_DIR, exist_ok=True)
-# os.makedirs(PROCESSED_DIR, exist_ok=True)
+os.makedirs(RAW_DIR, exist_ok=True)
+os.makedirs(PROCESSED_DIR, exist_ok=True)
 
 @app.post("/preprocess")
 async def preprocess_file(
@@ -55,7 +55,7 @@ async def preprocess_file(
 
         processed_df.to_csv(processed_path, index=False)
 
-        major = predict_major_gases(processed_df)
+        major = predict_major_gases(processed_df, data_type)
 
         spectral_features = processed_df.iloc[0].to_dict()
         astro_features = raw_df.iloc[0].to_dict()
@@ -143,7 +143,7 @@ async def preprocess_file(
 @app.on_event("startup")
 def startup():
     global MODEL_LOADED
-    input_dim = 208
+    input_dim = 312
     load_model(input_dim)
     MODEL_LOADED = True
     print("Gas prediction model loaded")
@@ -191,7 +191,7 @@ def physical_normalize(profile):
 
 
 def build_full_atmosphere_profile(major, spectral_features, astro_features, data_type):
-    """Combine prediction with a base atmosphere and physical adjustments."""
+    """Combine prediction with physical adjustments."""
     try:
         radius = float(
             astro_features.get("PL_RADJ") or astro_features.get("PL_RAD") or astro_features.get("radius") or 1.0
@@ -199,14 +199,10 @@ def build_full_atmosphere_profile(major, spectral_features, astro_features, data
     except Exception:
         radius = 1.0
 
-    planet = infer_planet_type(radius)
-
     try:
         adjusted_major = apply_physics_adjustments(major.copy(), spectral_features, astro_features, data_type)
     except Exception:
         adjusted_major = major
 
-    base = base_atmosphere(planet)
-    merged = hybrid_merge(base, adjusted_major)
-    normalized = physical_normalize(merged)
-    return normalized
+    # Return the adjusted predictions directly (more sensitive to input data)
+    return adjusted_major
