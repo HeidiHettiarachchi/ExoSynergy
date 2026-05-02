@@ -22,6 +22,7 @@ class AtmosphericProfile:
     dominant_gas_fingerprint: str
     greenhouse_intensity_label: str
     greenhouse_heating_index: float
+    greenhouse_effect: float  
     atmospheric_density: str
     thermal_stability: str
     temperature_potential: str
@@ -85,10 +86,12 @@ class BiosignatureDetector:
     _CO2_REF = 0.000280
 
     _TOXICITY_PARAMS = {
-        "CO":  {"idlh": 0.001200, "weight": 0.40},  
-        "SO2": {"idlh": 0.000100, "weight": 0.80}, 
-        "H2S": {"idlh": 0.000300, "weight": 1.20},   
-        "NH3": {"idlh": 0.003000, "weight": 0.20},  
+        "CO":  {"idlh": 0.001200, "lc50": 0.005000, "weight": 0.35, "description": "Carbon monoxide - binds hemoglobin"},
+        "SO2": {"idlh": 0.000100, "lc50": 0.002500, "weight": 0.25, "description": "Sulfur dioxide - respiratory irritant"},
+        "H2S": {"idlh": 0.000300, "lc50": 0.004400, "weight": 0.20, "description": "Hydrogen sulfide - neurotoxin"},
+        "NH3": {"idlh": 0.003000, "lc50": 0.009230, "weight": 0.15, "description": "Ammonia - corrosive and toxic"},
+        "CO2": {"idlh": 0.100000, "lc50": 0.500000, "weight": 0.03, "description": "Carbon dioxide - asphyxiant at high levels"},
+        "CH4": {"idlh": 0.050000, "lc50": 0.500000, "weight": 0.02, "description": "Methane - asphyxiant, explosive"},
     }
 
     def detect(self, gases: Dict[str, float],
@@ -349,12 +352,14 @@ class BiosignatureDetector:
         density   = self._atmospheric_density(g, td)
         stability = self._thermal_stability(g)
         temp      = self._temperature_potential(ghi, td)
+        ghe       = self._greenhouse_effect(g, td)  # New greenhouse effect calculation
 
         return AtmosphericProfile(
             planet_type                = self._planet_type(g, td),
             dominant_gas_fingerprint   = self._fingerprint(g),
             greenhouse_intensity_label = self._greenhouse_label(ghi),
             greenhouse_heating_index   = round(ghi, 3),
+            greenhouse_effect          = round(ghe, 3),  # New field
             atmospheric_density        = density,
             thermal_stability          = stability,
             temperature_potential      = temp,
@@ -368,27 +373,91 @@ class BiosignatureDetector:
     # ---------------------------------------------------
 
     def _greenhouse_heating_index(self, g: Dict[str, float]) -> float:
-        co2 = max(g.get("CO2", 0), 1e-9)
-        ratio = max(co2 / self._CO2_REF, 1e-9)
-        co2_forcing = min(1.0, math.log(ratio) / math.log(1000)) * 0.45
 
-        h2o_forcing = min(1.0, g.get("H2O", 0) / 0.03) * 0.25
-        ch4_forcing = min(1.0, g.get("CH4", 0) / 0.002) * 0.15
-        o3_forcing  = min(1.0, g.get("O3",  0) / 0.00002) * 0.05
+        try:
+            # CO2 forcing: ~3.7 W/m² per doubling, reference 280 ppm
+            co2_ppm = max(float(g.get("CO2", 0)) * 1e6, 1e-9)
+            co2_forcing = max(0.0, 3.7 * math.log2(co2_ppm / 280.0) / 5.35)  
 
-        return min(1.0, co2_forcing + h2o_forcing + ch4_forcing + o3_forcing)
+            # H2O forcing: Strong absorber, ~2.0 W/m² per 1% increase
+            h2o_pct = float(g.get("H2O", 0)) * 100
+            h2o_forcing = min(1.0, h2o_pct / 3.0) * 0.25  # Cap at 3% for normalization
+
+            # CH4 forcing: ~0.5 W/m² per doubling, reference 0.7 ppm
+            ch4_ppm = max(float(g.get("CH4", 0)) * 1e6, 1e-9)
+            ch4_forcing = max(0.0, 0.5 * math.log2(ch4_ppm / 0.7) / 3.0) 
+
+            # O3 forcing: ~0.4 W/m² per doubling, reference 30 ppb
+            o3_ppb = max(float(g.get("O3", 0)) * 1e9, 1e-9)
+            o3_forcing = max(0.0, 0.4 * math.log2(o3_ppb / 30.0) / 2.0)  
+
+            # N2O forcing: ~0.2 W/m² per doubling, reference 270 ppb
+            n2o_ppb = max(float(g.get("N2O", 0)) * 1e9, 1e-9)
+            n2o_forcing = max(0.0, 0.2 * math.log2(n2o_ppb / 270.0) / 1.5) 
+
+            total_forcing = co2_forcing + h2o_forcing + ch4_forcing + o3_forcing + n2o_forcing
+
+            # Normalize to 0-1 scale (Earth's GHI ~0.3-0.4)
+            return min(1.0, max(0.0, total_forcing / 2.0))
+        except Exception as e:
+            print(f"Error in GHI calculation: {e}, g={g}")
+            return 0.0
 
     # ---------------------------------------------------
-    # TOXICITY INDEX  (0–1)
+    # GREENHOUSE EFFECT STRENGTH (0–1) 
+    # ---------------------------------------------------
+
+    def _greenhouse_effect(self, g: Dict[str, float],
+                          td: Dict[str, float] = {}) -> float:
+
+        # Base greenhouse effect from CO2 and H2O
+        co2_effect = min(1.0, g.get("CO2", 0) / 0.01) * 0.4  # CO2 dominates
+        h2o_effect = min(1.0, g.get("H2O", 0) / 0.03) * 0.3  # H2O secondary
+
+        # Additional greenhouse gases
+        ch4_effect = min(1.0, g.get("CH4", 0) / 0.002) * 0.15
+        n2o_effect = min(1.0, g.get("N2O", 0) / 1e-6) * 0.1
+        o3_effect = min(1.0, g.get("O3", 0) / 2e-5) * 0.05
+
+        # Atmospheric pressure effect (higher pressure = stronger greenhouse)
+        pressure_factor = td.get("mean_pressure", 1.0)  
+        pressure_effect = min(1.0, math.log10(pressure_factor) / 2.0) * 0.1
+
+        total_effect = co2_effect + h2o_effect + ch4_effect + n2o_effect + o3_effect + pressure_effect
+
+        return min(1.0, max(0.0, total_effect))
+
+    # ---------------------------------------------------
+    # TOXICITY INDEX  
     # ---------------------------------------------------
 
     def _toxicity_index(self, g: Dict[str, float]) -> float:
+       
+        toxicity_score = 0.0
 
-        tox = 0.0
         for gas, params in self._TOXICITY_PARAMS.items():
             conc = g.get(gas, 0)
-            tox += min(1.0, conc / params["idlh"]) * params["weight"]
-        return min(1.0, tox)
+
+            # Use IDLH for immediate danger assessment
+            idlh_risk = min(1.0, conc / params["idlh"]) * params["weight"]
+
+            # Use LC50 for lethal concentration assessment
+            lc50_risk = min(1.0, conc / params["lc50"]) * params["weight"] * 0.5
+
+            # Combine risks with emphasis on IDLH for acute toxicity
+            gas_toxicity = (idlh_risk * 0.7) + (lc50_risk * 0.3)
+            toxicity_score += gas_toxicity
+
+        # Consider synergistic effects
+        # CO + H2S = enhanced neurotoxicity
+        co_h2s_synergy = g.get("CO", 0) * g.get("H2S", 0) * 1000 * 0.1
+
+        # SO2 + NH3 = acid-base reactions forming aerosols
+        so2_nh3_synergy = g.get("SO2", 0) * g.get("NH3", 0) * 5000 * 0.05
+
+        total_toxicity = min(1.0, toxicity_score + co_h2s_synergy + so2_nh3_synergy)
+
+        return total_toxicity
 
     # ---------------------------------------------------
     # PROFILE 
@@ -396,46 +465,117 @@ class BiosignatureDetector:
 
     def _atmospheric_density(self, g: Dict[str, float],
                              td: Dict[str, float] = {}) -> str:
-
-        h2_he = g.get("H2", 0) + g.get("HE", 0)
-        if h2_he > 0.80:
-            return "Low"
-
+      
+        # Calculate mean molecular weight
         mw = (
-            g.get("CO2", 0) * 44 + g.get("N2",  0) * 28 + g.get("O2",  0) * 32 +
-            g.get("H2O", 0) * 18 + g.get("CH4", 0) * 16 + g.get("H2",  0) *  2 +
-            g.get("HE",  0) *  4 + g.get("SO2", 0) * 64 + g.get("CO",  0) * 28 +
-            g.get("NH3", 0) * 17 + g.get("H2S", 0) * 34 + g.get("O3",  0) * 48
+            g.get("H2",  0) *  2.0 + g.get("HE",  0) *  4.0 +
+            g.get("N2",  0) * 28.0 + g.get("O2",  0) * 32.0 +
+            g.get("CO2", 0) * 44.0 + g.get("H2O", 0) * 18.0 +
+            g.get("CH4", 0) * 16.0 + g.get("CO",  0) * 28.0 +
+            g.get("NH3", 0) * 17.0 + g.get("SO2", 0) * 64.0 +
+            g.get("H2S", 0) * 34.0 + g.get("O3",  0) * 48.0 +
+            g.get("N2O", 0) * 44.0
         )
 
-        if g.get("CO2", 0) > 0.10 or g.get("H2O", 0) > 0.10:
-            return "High"
-        if mw > 25:
-            return "High"
-        if mw > 12:
-            return "Medium"
-        return "Low"
+        # Get environmental factors
+        pressure = td.get("mean_pressure", 1.0)  # bar
+        temp = td.get("mean_temperature", 288.0)  # K (Earth average)
+
+        # Ideal gas law: density = (P * MW) / (R * T)
+        # R = 8.314 J/mol·K, convert to kg/m³
+        density = (pressure * 1e5 * mw) / (8.314 * temp) * 1e-3  # kg/m³
+
+        # Categorize density
+        if density < 0.1:
+            return "Very Low (< 0.1 kg/m³)"  # Like Mars
+        elif density < 0.5:
+            return "Low (0.1-0.5 kg/m³)"  # Thin atmospheres
+        elif density < 1.5:
+            return "Moderate (0.5-1.5 kg/m³)"  # Earth-like
+        elif density < 5.0:
+            return "Dense (1.5-5.0 kg/m³)"  # Thick atmospheres
+        else:
+            return "Very Dense (> 5.0 kg/m³)"  # Venus-like or super-Earths
 
     def _thermal_stability(self, g: Dict[str, float]) -> str:
-        instability = g.get("CH4", 0) * g.get("O2", 0) * 1000
-        if instability > 2.0:
-            return "Unstable"
-        if instability > 0.5:
-            return "Moderate"
-        return "Stable"
+        
+        # Primary instability: CH4 + O2 → CO2 + H2O
+        ch4_o2_instability = g.get("CH4", 0) * g.get("O2", 0) * 1000
+
+        # Secondary instabilities
+        co_o2_instability = g.get("CO", 0) * g.get("O2", 0) * 500   # CO oxidation
+        h2_o2_instability = g.get("H2", 0) * g.get("O2", 0) * 200   # H2 combustion
+        nh3_o2_instability = g.get("NH3", 0) * g.get("O2", 0) * 100  # NH3 oxidation
+
+        # Photochemical instabilities (UV-driven)
+        o3_instability = g.get("O3", 0) * 1e6  # Ozone photolysis
+        so2_instability = g.get("SO2", 0) * 1e4  # Sulfur chemistry
+
+        total_instability = (
+            ch4_o2_instability + co_o2_instability + h2_o2_instability +
+            nh3_o2_instability + o3_instability + so2_instability
+        )
+
+        # Consider stabilizing factors
+        n2_buffer = g.get("N2", 0) * 0.5  # N2 dilutes reactive species
+        noble_gases = g.get("HE", 0) + g.get("AR", 0) * 0.3  # Inert diluents
+
+        net_instability = total_instability / (1 + n2_buffer + noble_gases)
+
+        if net_instability > 10.0:
+            return "Highly Unstable (Rapid chemical reactions expected)"
+        elif net_instability > 3.0:
+            return "Moderately Unstable (Active photochemistry)"
+        elif net_instability > 1.0:
+            return "Marginally Stable (Some disequilibrium)"
+        elif net_instability > 0.1:
+            return "Stable (Minor disequilibrium)"
+        else:
+            return "Highly Stable (Near equilibrium)"
 
     def _temperature_potential(self, ghi: float,
                                td: Dict[str, float] = {}) -> str:
+        
+        # Stellar flux (relative to Earth)
+        stellar_flux = td.get("stellar_flux", 1.0)  # Earth = 1.0
 
-        if ghi > 0.80:
-            return "Extreme Heat"
-        if ghi > 0.45:
-            return "Warm"
-        if ghi > 0.15:
-            return "Moderate"
-        if ghi > 0.05:
-            return "Cool"
-        return "Cold"
+        # Estimate based on atmospheric composition
+        base_albedo = 0.3  # Earth-like default
+        if td.get("albedo", 0) > 0:
+            base_albedo = td.get("albedo", 0.3)
+        else:
+            # Estimate from composition
+            cloud_albedo = min(0.3, td.get("H2O", 0) * 3)  # Water clouds
+            ice_albedo = min(0.2, td.get("CO2", 0) * 2) if ghi < 0.1 else 0
+            base_albedo = 0.1 + cloud_albedo + ice_albedo
+
+        # Greenhouse effect amplification
+        greenhouse_factor = 1 + ghi * 3  # GHI scales greenhouse effect
+
+        # Energy balance: T_eff^4 = (S/4) * (1-A) * (1 + G) / σ
+        # Simplified: T ∝ sqrt( (S * (1-A) * (1+G)) )
+        effective_temp_factor = math.sqrt(stellar_flux * (1 - base_albedo) * greenhouse_factor)
+
+        # Convert to temperature range
+        earth_equiv_temp = 255  # Effective temperature for Earth (K)
+        estimated_temp = earth_equiv_temp * effective_temp_factor
+
+        if estimated_temp > 1000:
+            return "Extreme Heat (>1000K) - Likely molten or highly ionized atmosphere"
+        elif estimated_temp > 500:
+            return "Very Hot (500-1000K) - Intense stellar heating or greenhouse effects"
+        elif estimated_temp > 373:
+            return "Hot (373-500K) - Above water boiling point"
+        elif estimated_temp > 323:
+            return "Warm (323-373K) - Moderate atmospheric temperatures"
+        elif estimated_temp > 273:
+            return "Temperate (273-323K) - Liquid water possible (if pressure suitable)"
+        elif estimated_temp > 200:
+            return "Cool (200-273K) - Ice formation likely"
+        elif estimated_temp > 100:
+            return "Cold (100-200K) - Cryogenic conditions"
+        else:
+            return "Extreme Cold (<100K) - Frozen atmospheric state"
 
     def _planet_type(self, g: Dict[str, float],
                      td: Dict[str, float] = {}) -> str:

@@ -27,6 +27,7 @@ PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed_data")
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
+# Input preprocessing
 @app.post("/preprocess")
 async def preprocess_file(
     file: UploadFile = File(...),
@@ -69,8 +70,18 @@ async def preprocess_file(
 
         try:
 
+            # Extract transmission data for atmospheric analysis
+            transmission_data = {
+                "mean_planet_radius": astro_features.get("PL_RADJ", astro_features.get("PL_RAD", 1.0)),
+                "mean_pressure": spectral_features.get("pressure", 1.0),  
+                "mean_temperature": spectral_features.get("temperature", 288.0), 
+                "stellar_flux": astro_features.get("stellar_flux", 1.0), 
+                "albedo": spectral_features.get("albedo", 0.3), 
+            }
+
             bio_result = analyze_planet(
-                gas_predictions=gas_profile
+                gas_predictions=gas_profile,
+                transmission_data=transmission_data
             )
 
             habitability = {
@@ -96,6 +107,7 @@ async def preprocess_file(
                     "greenhouse_intensity": bio_result.profile.greenhouse_intensity_label,
 
                     "greenhouse_heating_index": bio_result.profile.greenhouse_heating_index,
+                    "greenhouse_effect": bio_result.profile.greenhouse_effect,
                     "atmospheric_density": bio_result.profile.atmospheric_density,
                     "thermal_stability": bio_result.profile.thermal_stability,
                     "temperature_potential": bio_result.profile.temperature_potential,
@@ -150,7 +162,6 @@ def startup():
 
 
 def infer_planet_type(radius):
-    """Return a simple planet class based on radius (in Jupiter radii)."""
     try:
         radius = float(radius)
     except Exception:
@@ -165,7 +176,6 @@ def infer_planet_type(radius):
 
 
 def base_atmosphere(planet):
-    """Provide a very basic base atmospheric composition for a planet type."""
     if planet == "gas_giant":
         return {"H2": 90.0, "He": 10.0}
     elif planet == "sub_neptune":
@@ -175,7 +185,6 @@ def base_atmosphere(planet):
 
 
 def hybrid_merge(base, adjusted):
-    """Merge two gas profiles by summing values, favoring adjusted data."""
     merged = base.copy()
     for k, v in (adjusted or {}).items():
         merged[k] = merged.get(k, 0.0) + v
@@ -183,7 +192,6 @@ def hybrid_merge(base, adjusted):
 
 
 def physical_normalize(profile):
-    """Normalize a gas profile so that percentages sum to 100%."""
     total = sum(profile.values())
     if total > 0:
         return {k: v / total * 100.0 for k, v in profile.items()}
@@ -191,7 +199,6 @@ def physical_normalize(profile):
 
 
 def build_full_atmosphere_profile(major, spectral_features, astro_features, data_type):
-    """Combine prediction with physical adjustments."""
     try:
         radius = float(
             astro_features.get("PL_RADJ") or astro_features.get("PL_RAD") or astro_features.get("radius") or 1.0
@@ -204,5 +211,4 @@ def build_full_atmosphere_profile(major, spectral_features, astro_features, data
     except Exception:
         adjusted_major = major
 
-    # Return the adjusted predictions directly (more sensitive to input data)
     return adjusted_major

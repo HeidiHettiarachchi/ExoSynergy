@@ -23,7 +23,7 @@ def test_different_inputs_produce_different_predictions():
     
     # Initialize model
     print("\n1. Loading model...")
-    input_dim = 208  # 52 flux + 52 widths + 52 noise + 52 centers
+    input_dim = 312  # Model trained with 312 dims, features padded from 208
     load_model(input_dim)
     print(f"   ✓ Model loaded with input dimension: {input_dim}")
     

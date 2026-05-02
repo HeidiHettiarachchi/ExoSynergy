@@ -41,6 +41,7 @@ interface Habitability {
 
     greenhouse_intensity: string;
     greenhouse_heating_index?: number;
+    greenhouse_effect?: number;
 
     atmospheric_density?: string;
     thermal_stability?: string;
@@ -288,7 +289,7 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
                     {(analysisResult
                       ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
                       : ["H2O", "CO2", "CH4", "O2", "N2", "CO", "NH3"]  
-                    ).map((item, index) => {
+                    ).map((item) => {
                       const gas = analysisResult ? item[0] : item;
                       const value = analysisResult ? item[1] : null;
 
@@ -547,6 +548,13 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
     <span className="condition-label">Greenhouse Heating Index</span>
     <span className="condition-value">
       {analysisResult.habitability.profile.greenhouse_heating_index?.toFixed(2)}
+    </span>
+  </div>
+
+  <div className="condition-row">
+    <span className="condition-label">Greenhouse Effect</span>
+    <span className="condition-value">
+      {analysisResult.habitability.profile.greenhouse_effect?.toFixed(2)}
     </span>
   </div>
 

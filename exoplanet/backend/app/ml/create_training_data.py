@@ -42,7 +42,6 @@ def create_training_dataset_with_groundtruth(
         labels = []
         regimes = []
 
-        # 🔥 MAIN LOOP (file already open)
         for _, row in truth_subset.iterrows():
 
             planet_id = int(row['planet_ID'])
@@ -56,7 +55,7 @@ def create_training_dataset_with_groundtruth(
                 noise = g['instrument_noise'][()].flatten()
                 wl = g['instrument_wlgrid'][()].flatten()
 
-                # 🔹 Spectral features
+                # Spectral features
                 grad = np.gradient(spectrum)
                 curvature = np.gradient(grad)
 
@@ -69,13 +68,13 @@ def create_training_dataset_with_groundtruth(
                     wl
                 ]).astype(np.float32)
 
-                # 🔹 Normalize features (important for ML)
+                # Normalize features 
                 features = (features - np.mean(features)) / (np.std(features) + 1e-8)
 
                 specs.append(features)
 
                 # -----------------------------
-                # REAL CHEMISTRY (from CSV)
+                # REAL CHEMISTRY 
                 # -----------------------------
                 log_cols = ['log_H2O', 'log_CO2', 'log_CH4', 'log_CO', 'log_NH3']
 

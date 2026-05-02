@@ -15,7 +15,7 @@ class ABCDataset(Dataset):
             X_data = np.array(f['X'], dtype=np.float32)
             y_data = np.array(f['y'], dtype=np.float32)
 
-        # PROCESSING (LOG SPACE)
+        # PROCESSING 
         y_data = np.clip(y_data, 1e-12, None)
         y_data = np.log10(y_data)
 

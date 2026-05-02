@@ -61,7 +61,8 @@ GAS_CONSTRAINTS = {
 
 
 def load_model(input_dim):
-    """Load the gas prediction model and normalization statistics."""
+
+    # Loading the gas prediction model and normalizing statistics.
     global _model, _x_mean, _x_std, _y_mean, _y_std
     
     # Load model
@@ -99,7 +100,7 @@ def load_model(input_dim):
 
 
 def pad_features_to_312(features_array):
-    """Pad 208 features to 312 dimensions (model input size)."""
+    # Padding 208 features to 312 dimensions 
     if features_array.shape[1] == 312:
         return features_array
     
@@ -132,7 +133,7 @@ def inverse_normalize_output(y_log_space):
         return 10 ** y_log_space
     
     # Inverse normalization: y_original = y_normalized * y_std + y_mean
-    y_normalized = y_log_space  # Already in log10 space from model
+    y_normalized = y_log_space 
     y_original_log = y_normalized * _y_std + _y_mean
     
     # Convert from log10 space to linear
@@ -142,7 +143,7 @@ def inverse_normalize_output(y_log_space):
 
 
 def apply_observational_constraints(predictions, data_type):
-    """Apply observational-type-specific constraints to predictions."""
+    # Apply observational-type-specific constraints to predictions.
     if data_type not in GAS_CONSTRAINTS:
         data_type = "direct"  # Default
     
@@ -163,9 +164,8 @@ def apply_observational_constraints(predictions, data_type):
 
 
 def apply_physics_validation(predictions, data_type):
-    """Apply additional physics-based validation."""
-    
-    # Ensure H2 + He are dominant in atmospheres where they should be
+
+    # Apply additional physics-based validation.    
     h2_he_total = predictions.get("H2", 0) + predictions.get("He", 0)
     
     # For gas giants/hot atmospheres: H2 + He should typically be > 50%
@@ -190,19 +190,9 @@ def apply_physics_validation(predictions, data_type):
 
 
 def predict_major_gases(features_df, data_type="transmission"):
-    """
-    Predict major gas composition from spectral features.
-    
-    Args:
-        features_df: DataFrame with spectral features (208 features)
-        data_type: "direct", "eclipse", or "transmission"
-    
-    Returns:
-        Dictionary with gas percentages summing to 100%
-    """
     
     if data_type not in ["direct", "eclipse", "transmission"]:
-        data_type = "transmission"  # Default
+        data_type = "transmission" 
     
     # Get features as numpy array
     x = features_df.values

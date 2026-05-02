@@ -4,16 +4,16 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
 
     radius = astro_features.get("PL_RADJ", 1.0)      # Jupiter radii
     temp   = astro_features.get("PL_EQTK", 1000.0)   # Equilibrium temperature (K)
-    mass   = astro_features.get("PL_MASSJ", 1.0)      # Jupiter masses
+    mass   = astro_features.get("PL_MASSJ", 1.0)     # Jupiter masses
 
     # -------------------------------------------------------
-    # 
     # Gas giant (radius > 0.5 Rj, mass > 0.1 Mj)
     # -------------------------------------------------------
     if radius >= 0.5 and mass >= 0.1:
+
         # Suppress terrestrial gases that shouldn't dominate
-        adjusted["N2"]  = min(adjusted.get("N2", 0),  0.5)   # N2 shouldn't be >0.5% in gas giant
-        adjusted["O2"]  = min(adjusted.get("O2", 0),  0.01)  # O2 trace only
+        adjusted["N2"]  = min(adjusted.get("N2", 0),  0.5)   
+        adjusted["O2"]  = min(adjusted.get("O2", 0),  0.01)  
         adjusted["O3"]  = min(adjusted.get("O3", 0),  0.001)
 
         # Boost H2/He to compensate
@@ -29,7 +29,7 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
         # Hot gas giants (T > 1200K): CO dominates over CH4
         if temp > 1200:
             adjusted["CO"]  = max(adjusted.get("CO",  0), 0.05)
-            adjusted["CH4"] = min(adjusted.get("CH4", 0), 0.001)  # CH4 thermally dissociates
+            adjusted["CH4"] = min(adjusted.get("CH4", 0), 0.001)  
 
         # Water: should always be detectable in warm gas giants
         if temp > 500:
@@ -38,25 +38,22 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
     # -------------------------------------------------------
     # Sub-Neptune / mini-Neptune (0.1 < radius < 0.5)
     # -------------------------------------------------------
+    
     elif 0.1 < radius < 0.5:
-        # Can have significant H2/He but also heavier molecules
         adjusted["H2O"] = max(adjusted.get("H2O", 0), 0.1)
         adjusted["CH4"] = max(adjusted.get("CH4", 0), 0.01)
 
     # -------------------------------------------------------
     # Observational type adjustments
     # -------------------------------------------------------
+
     if data_type == "transmission":
-        # Transmission spectra are excellent for molecular absorption features
-        # Boost gases commonly detected in transmission
         adjusted["H2O"] = max(adjusted.get("H2O", 0), 0.01)  # Water vapor
         adjusted["CH4"] = max(adjusted.get("CH4", 0), 0.005)  # Methane
         adjusted["CO2"] = max(adjusted.get("CO2", 0), 0.001)  # CO2
         adjusted["NH3"] = max(adjusted.get("NH3", 0), 0.001)  # Ammonia
 
     elif data_type == "eclipse":
-        # Secondary eclipse spectra show thermal emission
-        # Boost gases that emit in thermal IR
         adjusted["CO"] = max(adjusted.get("CO", 0), 0.01)   # Carbon monoxide
         adjusted["H2O"] = max(adjusted.get("H2O", 0), 0.01)  # Water
         adjusted["CH4"] = max(adjusted.get("CH4", 0), 0.005) # Methane
@@ -64,8 +61,6 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
         adjusted["N2"] = min(adjusted.get("N2", 0), 0.1)  # N2 weak emitter
 
     elif data_type == "direct":
-        # Direct imaging often for young, hot planets
-        # Can detect a wide range, but often H2O, CO, CH4
         adjusted["H2O"] = max(adjusted.get("H2O", 0), 0.01)
         adjusted["CO"] = max(adjusted.get("CO", 0), 0.01)
         adjusted["CH4"] = max(adjusted.get("CH4", 0), 0.005)
@@ -74,6 +69,7 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
     # Enforce minimum physically acceptable compositions
     # -------------------------------------------------------
     if radius >= 0.5 and mass >= 0.1:
+
         # Gas giants: ensure H2 + He >= 60% if predicted is low
         h2_he = adjusted.get("H2", 0) + adjusted.get("He", 0)
         if h2_he < 60:
@@ -110,7 +106,7 @@ def apply_physics_adjustments(major, spectral_features, astro_features, data_typ
                     adjusted[k] *= scale
 
     # -------------------------------------------------------
-    # ALWAYS renormalize so percentages sum to 100%
+    # Renormalize so percentages sum to 100%
     # -------------------------------------------------------
     total = sum(adjusted.values())
     if total > 0:
