@@ -320,6 +320,7 @@
   justify-content: center;
   align-items: center;
   overflow: visible;  
+  
 }
 /* Rings */
 .ring {
@@ -565,7 +566,7 @@
   font-size: 12px;
 }
 
-.planet-type-row{
+/* .planet-type-row{
   width:65%;
   display:flex;
   justify-content:space-between;
@@ -596,7 +597,68 @@
   padding:4px 12px;
   border-radius:20px;
   color:#1a8ed0;
+} */
+
+
+
+
+.planet-container-3d {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: auto;
+  z-index: 5;
 }
+
+/* Mask video behind planet */
+.planet-container-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: 1;
+}
+
+/* Labels */
+.gas-label {
+  position: absolute;
+  color: white;
+  font-size: 13px;
+}
+
+.gas-label .line {
+  width: 60px;
+  height: 1px;
+  background: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+}
+
+.gas-tag {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(79,182,255,0.4);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Positions like your image */
+.gas-0 {
+  top: 15%;
+  left: -100px;
+}
+
+.gas-1 {
+  top: 10%;
+  right: -100px;
+}
+
+.gas-2 {
+  bottom: 0%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
+
 
 .profile-card{
   background:#0c1428;

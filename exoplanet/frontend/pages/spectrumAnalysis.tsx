@@ -11,6 +11,8 @@ import { TbTemperature } from "react-icons/tb";
 import { MdOutlineScience } from "react-icons/md";
 import { GiRingedPlanet } from "react-icons/gi";
 
+import * as THREE from "three";
+
 
 // Interfaces
 interface GasProfile {
@@ -74,6 +76,74 @@ export default function SpectrumAnalysis(): JSX.Element {
   const [rowCount, setRowCount] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [dataType, setDataType] = useState<string>("direct");
+
+
+
+const planetRef = useRef<HTMLDivElement | null>(null);
+const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+
+useEffect(() => {
+  if (!planetRef.current) return;
+
+  // prevent duplicate renderer (IMPORTANT)
+  if (rendererRef.current) {
+    planetRef.current.innerHTML = "";
+    rendererRef.current.dispose();
+  }
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+  camera.position.z = 2;
+
+  const renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+  });
+
+  renderer.setSize(300, 300);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  planetRef.current.innerHTML = "";
+  planetRef.current.appendChild(renderer.domElement);
+  rendererRef.current = renderer;
+
+  const geometry = new THREE.SphereGeometry(1, 64, 64);
+
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load("/src/assets/texture.png"); // ⚠️ FIXED PATH
+
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  const material = new THREE.MeshStandardMaterial({
+    map: texture,
+  });
+
+  const sphere = new THREE.Mesh(geometry, material);
+  scene.add(sphere);
+
+  const light = new THREE.DirectionalLight(0xffffff, 1.2);
+  light.position.set(3, 2, 5);
+  scene.add(light);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambient);
+
+  const animate = () => {
+    requestAnimationFrame(animate);
+    sphere.rotation.y += 0.002;
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+  return () => {
+    renderer.dispose();
+    geometry.dispose();
+    material.dispose();
+  };
+}, []);
+
 
   // Analysis
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -154,13 +224,13 @@ export default function SpectrumAnalysis(): JSX.Element {
   };
 
   // Filter gases
-const sortedGases =
-  analysisResult?.gas_profile
-    ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
-    : [];
+// const sortedGases =
+//   analysisResult?.gas_profile
+//     ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
+//     : [];
 
-const topGases = sortedGases.slice(0, 2).map(g => g[0]);     // Highest 2
-const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
+// const topGases = sortedGases.slice(0, 2).map(g => g[0]);     // Highest 2
+// const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
 
   return (
     <div className="spectrumDashboard">
@@ -264,24 +334,7 @@ const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
 
                   {/* Planet */}
                   <div className="planet-container">
-                    <div className="ring ring-1"></div>
-                    <div className="ring ring-2"></div>
-                    <div className="ring ring-3"></div>
-
-                    <div className="planet">
-                      <div className="planet-texture"></div>
-                      <div className="planet-clouds"></div>
-                      <div className="planet-glow"></div>
-                      <div className="planet-light"></div>
-                    </div>
-
-                    <div className="label stratosphere">
-                      <span className="dot"></span> UPPER ATMOSPHERE ({topGases.join(", ")})
-                    </div>
-
-                    <div className="label exosphere">
-                      <span className="dot blue"></span> ATMOSPHERIC LAYER ({traceGases.join(", ")})
-                    </div>
+                    <div ref={planetRef} className="planet-3d"></div>
                   </div>
 
                   {/* Gas Bars */}
