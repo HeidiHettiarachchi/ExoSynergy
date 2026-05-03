@@ -8,7 +8,7 @@ import Simulation from '../pages/Simulation';
 import ComponentPage from '../pages/ComponentPage';
 import Login from '../pages/Login';
 import './App.css';
-
+// comment
 function App() {
   return (
     <Router>
