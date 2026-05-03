@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 import "../pages/spectrumAnalysis.css";
-import planetVid from "../src/assets/Vid.mp4";
+import planetVid from "../src/assets/Vidbg.mp4";
 
 // Icons
 import { TbSettingsAutomation, TbChartDots3 } from "react-icons/tb";
@@ -11,8 +11,8 @@ import { TbTemperature } from "react-icons/tb";
 import { MdOutlineScience } from "react-icons/md";
 import { GiRingedPlanet } from "react-icons/gi";
 
+// 3D animation
 import * as THREE from "three";
-
 
 // Interfaces
 interface GasProfile {
@@ -77,76 +77,165 @@ export default function SpectrumAnalysis(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [dataType, setDataType] = useState<string>("direct");
 
+  // Analysis
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
+  // 3D Planet 
+  const [labelPositions, setLabelPositions] = useState<any[]>([]);
+  const planetRef = useRef<HTMLDivElement | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
-const planetRef = useRef<HTMLDivElement | null>(null);
-const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  // 3D Planet Effects
+  useEffect(() => {
+    if (!planetRef.current) return;
 
-useEffect(() => {
-  if (!planetRef.current) return;
+    if (rendererRef.current) {
+      planetRef.current.innerHTML = "";
+      rendererRef.current.dispose();
+    }
 
-  // prevent duplicate renderer (IMPORTANT)
-  if (rendererRef.current) {
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    camera.position.z = 1.9;
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+    });
+
+    renderer.setSize(390, 390);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
     planetRef.current.innerHTML = "";
-    rendererRef.current.dispose();
-  }
+    planetRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
-  const scene = new THREE.Scene();
+    // ================= PLANET =================
+    const geometry = new THREE.SphereGeometry(1, 64, 64);
 
-  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-  camera.position.z = 2;
+    const texture = new THREE.TextureLoader().load(
+      "/src/assets/texture.png"
+    );
 
-  const renderer = new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true,
-  });
+    texture.colorSpace = THREE.SRGBColorSpace;
 
-  renderer.setSize(300, 300);
-  renderer.setPixelRatio(window.devicePixelRatio);
+    const material = new THREE.MeshStandardMaterial({
+      map: texture,
+    });
 
-  planetRef.current.innerHTML = "";
-  planetRef.current.appendChild(renderer.domElement);
-  rendererRef.current = renderer;
+    const sphere = new THREE.Mesh(geometry, material);
 
-  const geometry = new THREE.SphereGeometry(1, 64, 64);
+    const gasAnchors: THREE.Vector3[] = [
+      new THREE.Vector3(2.82, 1.25, 0),   // 0
+      new THREE.Vector3(2.32, 0.28, 0.5), // 1
+      new THREE.Vector3(2.01, -0.3, 0.6), // 2
+      new THREE.Vector3(0.4, -0.5, 0.6),  // 3
+      new THREE.Vector3(0.4, 0.4, 0.2),  // 4
+    ];
+    scene.add(sphere);
 
-  const textureLoader = new THREE.TextureLoader();
-  const texture = textureLoader.load("/src/assets/texture.png"); // ⚠️ FIXED PATH
+    // ================= ATMOSPHERE GLOW =================
+    const glowGeo = new THREE.SphereGeometry(1.12, 64, 64);
+    const glowMat = new THREE.ShaderMaterial({
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      uniforms: {
+        glowColor: { value: new THREE.Color(0x00E1F5) },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
 
-  texture.colorSpace = THREE.SRGBColorSpace;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
 
-  const material = new THREE.MeshStandardMaterial({
-    map: texture,
-  });
+        void main() {
+          float intensity = pow(0.7 - dot(vNormal, normalize(vPosition)), 2.5);
+          gl_FragColor = vec4(glowColor, intensity);
+        }
+      `,
+    });
 
-  const sphere = new THREE.Mesh(geometry, material);
-  scene.add(sphere);
+    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+    scene.add(glowMesh);
 
-  const light = new THREE.DirectionalLight(0xffffff, 1.2);
-  light.position.set(3, 2, 5);
-  scene.add(light);
+    // ================= LIGHT =================
+    const light = new THREE.DirectionalLight(0xffffff, 1.2);
+    light.position.set(3, 2, 5);
+    scene.add(light);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-  scene.add(ambient);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+    // ================= MOUSE INTERACTION =================
+    let isDragging = false;
+    let prevX = 0;
+
+    planetRef.current.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      prevX = e.clientX;
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      const delta = e.clientX - prevX;
+      sphere.rotation.y += delta * 0.005;
+      glowMesh.rotation.y += delta * 0.005;
+      prevX = e.clientX;
+    });
 
   const animate = () => {
     requestAnimationFrame(animate);
-    sphere.rotation.y += 0.002;
+
+    if (!isDragging) {
+      sphere.rotation.y += 0.0015;
+    }
+
+    sphere.updateMatrixWorld();
+    camera.updateMatrixWorld();
+
+    const tempV = new THREE.Vector3();
+
+    const newPositions = gasAnchors.map((pos) => {
+      tempV.copy(pos);
+      tempV.project(camera);
+
+      const x = (tempV.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+      const y = (-tempV.y * 0.5 + 0.5) * renderer.domElement.clientHeight;
+
+      return {
+        x,
+        y,
+        visible: tempV.z < 1,
+        screenX: tempV.x,
+      };
+    });
+
+    setLabelPositions(newPositions);
     renderer.render(scene, camera);
   };
-
-  animate();
-
-  return () => {
-    renderer.dispose();
-    geometry.dispose();
-    material.dispose();
-  };
-}, []);
-
-
-  // Analysis
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+    animate();
+    return () => {
+      renderer.dispose();
+      geometry.dispose();
+      material.dispose();
+      
+    };
+  }, []);
 
   /* Video playback speed */
   useEffect(() => {
@@ -223,14 +312,14 @@ useEffect(() => {
     }
   };
 
-  // Filter gases
-// const sortedGases =
-//   analysisResult?.gas_profile
-//     ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
-//     : [];
+  // Sort Gases
+  const sortedGases = analysisResult?.gas_profile
+    ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
+    : [];
 
-// const topGases = sortedGases.slice(0, 2).map(g => g[0]);     // Highest 2
-// const traceGases = sortedGases.slice(2, 4).map(g => g[0]);   // Next 2
+  const top3Gases = sortedGases.slice(0, 3);
+  const next2Gases = sortedGases.slice(3, 5);
+
 
   return (
     <div className="spectrumDashboard">
@@ -326,22 +415,112 @@ useEffect(() => {
             <div style={{marginTop: "1px"}}>
               <div className="atmo-panel preprocessing-panel">
 
-                <div className="panel-heading" style={{ margin: "25px auto", alignItems: "center"}}>
+                <div className="panel-heading"
+                  style={{
+                    margin: "0px auto",
+                    marginBottom: "25px",
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "12px 0",
+                    background: "rgba(0, 1, 25, 0.63)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: "12px 12px 0 0",
+                  }}>
                   <h2>Atmospheric Gas Profile</h2>
                 </div>
 
-                <div className="atmo-content">
-
-                  {/* Planet */}
+                {/* Planet */}
                   <div className="planet-container">
                     <div ref={planetRef} className="planet-3d"></div>
+                    <div className="gas-overlay">
+
+                      {/* ================= RIGHT SIDE (TOP 3 GASES) ================= */}
+                      {top3Gases.map(([gas, value], i) => {
+                        const pos = labelPositions[i];
+                        if (!pos?.visible) return null;
+
+                        return (
+                          <div
+                            key={gas}
+                            className="gas-label-wrapper"
+                            style={{
+                              position: "absolute",
+                              left: pos.x,
+                              top: pos.y,
+                              transform: "translate(0px, 50%)", 
+                            }}
+                          >
+                            <svg className="gas-connector-svg" width="120" height="80">
+                              <g stroke="#e1eef4c4" strokeWidth="1" fill="none">
+                                <line x1="0" y1="0" x2="80" y2="0" />
+                                <line x1="80" y1="0" x2="80" y2="40" />
+                              </g>
+
+                              <circle cx="0" cy="0" r="5" fill="#6fd4ffb5" />
+                              <circle cx="0" cy="0" r="10" fill="#bce9fc56" opacity="0.5" />
+                            </svg>
+
+                            <div className="gas-tag-right">
+                              <span className="gas-name">{gas}</span>
+                              <span className="gas-value">{value.toFixed(1)}%</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {/* ================= LEFT SIDE (NEXT 2 GASES) ================= */}
+                      {next2Gases.map(([gas, value], i) => {
+                        const pos = labelPositions[i + 3];
+                        if (!pos?.visible) return null;
+
+                        return (
+                          <div
+                            key={gas}
+                            className="gas-label-wrapper"
+                            style={{
+                              position: "absolute",
+                              left: pos.x,
+                              top: pos.y,
+                              transform: "translate(0, 0)", 
+                            }}
+                          >
+                            {/* DOT + LINE SYSTEM */}
+                            <svg className="gas-connector-svg" width="140" height="80">
+
+                              <g stroke="#e1eef4c4" strokeWidth="1" fill="none">
+                                
+                                {/* L-SHAPE  */}
+                                <line x1="0" y1="0" x2="-70" y2="0" />
+                                <line x1="-70" y1="0" x2="-80" y2="-20" />
+                              </g>
+
+                              {/* DOT */}
+                              <circle cx="0" cy="0" r="5" fill="#6fd4ffb5" />
+                              <circle cx="0" cy="0" r="10" fill="#bce9fc56" opacity="0.5" />
+                            </svg>
+
+                            {/* LABEL  */}
+                            <div className="gas-tag-left">
+                              <span className="gas-name">{gas}</span>
+                              <span className="gas-value">{value.toFixed(2)}%</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
+
+                <div className="atmo-content">
 
                   {/* Gas Bars */}
                   <div className="gas-list">
                     {(analysisResult
-                      ? Object.entries(analysisResult.gas_profile).sort((a, b) => b[1] - a[1])
-                      : ["H2O", "CO2", "CH4", "O2", "N2", "CO", "NH3"]  
+                      ? Object.entries(analysisResult.gas_profile)
+                          .filter(([_, value]) => Number(value) > 0.001) // ✅ STRICT FILTER
+                          .sort((a, b) => Number(b[1]) - Number(a[1]))
+                      : ["H2O", "CO2", "CH4", "O2", "N2", "CO", "NH3"]
                     ).map((item) => {
                       const gas = analysisResult ? item[0] : item;
                       const value = analysisResult ? item[1] : null;
@@ -351,7 +530,11 @@ useEffect(() => {
                           <div className="gas-header">
                             <div>
                               <h4>{gas}</h4>
-                              <p>{analysisResult && value !== null ? `${(value as number).toFixed(3)}%` : "-"}</p>
+                              <p>
+                                {analysisResult && value !== null
+                                  ? `${Number(value).toFixed(3)}%`
+                                  : "-"}
+                              </p>
                             </div>
                           </div>
 
@@ -359,8 +542,11 @@ useEffect(() => {
                             <div
                               className="gas-fill"
                               style={{
-                                width: analysisResult && value !== null ? `${Math.min(value as number, 100)}%` : "0%",
-                                opacity: analysisResult ? 1 : 0.2
+                                width:
+                                  analysisResult && value !== null
+                                    ? `${Math.min(Number(value), 100)}%`
+                                    : "0%",
+                                opacity: analysisResult ? 1 : 0.2,
                               }}
                             />
                           </div>
@@ -369,7 +555,6 @@ useEffect(() => {
                     })}
                   </div>
                 </div>
-
               </div>
             </div>
             </div>
@@ -594,45 +779,45 @@ useEffect(() => {
                           </div>
 
                           {/* Atmospheric Indicators */}
-{/* Atmospheric Conditions */}
-<div className="atmospheric-conditions">
+                          {/* Atmospheric Conditions */}
+                          <div className="atmospheric-conditions">
 
-  <div className="condition-row">
-    <span className="condition-label">Greenhouse Heating Index</span>
-    <span className="condition-value">
-      {analysisResult.habitability.profile.greenhouse_heating_index?.toFixed(2)}
-    </span>
-  </div>
+                            <div className="condition-row">
+                              <span className="condition-label">Greenhouse Heating Index</span>
+                              <span className="condition-value">
+                                {analysisResult.habitability.profile.greenhouse_heating_index?.toFixed(2)}
+                              </span>
+                            </div>
 
-  <div className="condition-row">
-    <span className="condition-label">Greenhouse Effect</span>
-    <span className="condition-value">
-      {analysisResult.habitability.profile.greenhouse_effect?.toFixed(2)}
-    </span>
-  </div>
+                            <div className="condition-row">
+                              <span className="condition-label">Greenhouse Effect</span>
+                              <span className="condition-value">
+                                {analysisResult.habitability.profile.greenhouse_effect?.toFixed(2)}
+                              </span>
+                            </div>
 
-  <div className="condition-row">
-    <span className="condition-label">Atmospheric Density</span>
-    <span className="condition-value">
-      {analysisResult.habitability.profile.atmospheric_density}
-    </span>
-  </div>
+                            <div className="condition-row">
+                              <span className="condition-label">Atmospheric Density</span>
+                              <span className="condition-value">
+                                {analysisResult.habitability.profile.atmospheric_density}
+                              </span>
+                            </div>
 
-  <div className="condition-row">
-    <span className="condition-label">Thermal Stability</span>
-    <span className="condition-value">
-      {analysisResult.habitability.profile.thermal_stability}
-    </span>
-  </div>
+                            <div className="condition-row">
+                              <span className="condition-label">Thermal Stability</span>
+                              <span className="condition-value">
+                                {analysisResult.habitability.profile.thermal_stability}
+                              </span>
+                            </div>
 
-  <div className="condition-row">
-    <span className="condition-label">Temperature Potential</span>
-    <span className="condition-value">
-      {analysisResult.habitability.profile.temperature_potential}
-    </span>
-  </div>
+                            <div className="condition-row">
+                              <span className="condition-label">Temperature Potential</span>
+                              <span className="condition-value">
+                                {analysisResult.habitability.profile.temperature_potential}
+                              </span>
+                            </div>
 
-</div>
+                          </div>
                         </div>
 
                         {/* Solar System Similarity */}
