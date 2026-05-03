@@ -79,6 +79,7 @@ export default function SpectrumAnalysis(): JSX.Element {
 
   // Analysis
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const planetType = analysisResult?.habitability?.profile?.planet_type || "Unknown";
 
   // 3D Planet 
   const [labelPositions, setLabelPositions] = useState<any[]>([]);
@@ -320,6 +321,60 @@ export default function SpectrumAnalysis(): JSX.Element {
   const top3Gases = sortedGases.slice(0, 3);
   const next2Gases = sortedGases.slice(3, 5);
 
+  // Planet type description
+  const planetTypeData: Record<
+  string,
+  { image: string; description: string }
+  > = {
+    "Gas Giant": {
+      image: "/src/assets/planets/gasGiant.png",
+      description:
+        "Massive planet dominated by Hydrogen (H2) and Helium (He) with thick gaseous layers and no solid surface.",
+    },
+    "Ice Giant / Sub-Neptune": {
+      image: "/src/assets/planets/iceGiant.png",
+      description:
+        "Intermediate-sized planet rich in volatiles like Water (H2O), methane (CH4), and ammonia (NH3).",
+    },
+    "Earth-like": {
+      image: "/src/assets/planets/Earth.jpg",
+      description:
+        "Balanced Nitrogen-Oxygen atmosphere with potential for life-supporting conditions.",
+    },
+    "Venus-like (CO2-dominated)": {
+      image: "/src/assets/planets/Venus.jpg",
+      description:
+        "Dense CO2 atmosphere with extreme greenhouse heating and high pressure.",
+    },
+    "Rocky / Mixed Atmosphere": {
+      image: "/src/assets/planets/Rocky.png",
+      description:
+        "Solid surface with a mix of gases and variable environmental conditions.",
+    },
+    "Hycean World Candidate": {
+      image: "/src/assets/planets/Hycean.jpg",
+      description:
+        "Ocean-covered planet with a hydrogen-rich atmosphere, considered a strong candidate for hosting life.",
+    },
+    "Volcanically Active Rocky": {
+      image: "/src/assets/planets/Rocky.png",
+      description:
+        "Rocky planet with active volcanism, releasing gases like SO2 and H2S into the atmosphere.",
+    },
+    "Titan-like (N2-dominated)": {
+      image: "/src/assets/planets/Rocky.png",
+      description:
+        "Cold world dominated by nitrogen with thick hazy atmosphere, similar to Saturn’s moon Titan.",
+    },
+
+    "Unknown": {
+      image: "/src/assets/planets/Rocky.png",
+      description: "Planet classification is uncertain based on available data.",
+    },
+  };
+
+  const selectedPlanet = planetTypeData[planetType] || planetTypeData["Unknown"];
+
 
   return (
     <div className="spectrumDashboard">
@@ -340,7 +395,6 @@ export default function SpectrumAnalysis(): JSX.Element {
 
         <div className="dashboard-content">
           <div className="glass-effect">
-
             <p className="system-tag">SPECTRUM · ANALYSIS · PROFILING · MODULE</p>
 
             <h1 className="dashboard-title">
@@ -353,65 +407,229 @@ export default function SpectrumAnalysis(): JSX.Element {
 
             <div className="function-col ">
 
-            {/* ================= DATA LOADING PANEL ================= */}
-            <div className="glass-effect preprocessing-panel">
-                <div className="panel-heading">
-                  <div className="sec-icon">
-                    <TbSettingsAutomation style={{ color: "#2195f380", width: "30px", height: "30px" }} />
+          {/*================== Left Phase============================= */}
+            <div className="left-panel-stack">
+
+              {/* ================= DATA LOADING PANEL ================= */}
+              <div className="glass-effect preprocessing-panel">
+                  <div className="panel-heading">
+                    <div className="sec-icon">
+                      <TbSettingsAutomation style={{ color: "#2195f380", width: "30px", height: "30px" }} />
+                    </div>
+                    <h2>Spectrum Submission</h2>
                   </div>
-                  <h2>Spectrum Submission</h2>
-                </div>
 
-                <label className={`upload-box ${fileUploaded ? "uploaded" : ""}`}>
-                  <input type="file" accept=".csv" onChange={handleFileUpload} hidden />
-                  <div className="upload-icon">
-                    {fileUploaded ? <FaCheckCircle className="upload-success-icon" /> : <MdOutlineFileUpload className="icons" />}
-                  </div>
-                  <p className="upload-title">{fileUploaded ? "File Uploaded" : "Upload Spectrum Data"}</p>
-                  <p className="upload-subtitle">{fileUploaded ? selectedFile?.name : "Click to browse or drag & drop"}</p>
-                </label>
+                  <label className={`upload-box ${fileUploaded ? "uploaded" : ""}`}>
+                    <input type="file" accept=".csv" onChange={handleFileUpload} hidden />
+                    <div className="upload-icon">
+                      {fileUploaded ? <FaCheckCircle className="upload-success-icon" /> : <MdOutlineFileUpload className="icons" />}
+                    </div>
+                    <p className="upload-title">{fileUploaded ? "File Uploaded" : "Upload Spectrum Data"}</p>
+                    <p className="upload-subtitle">{fileUploaded ? selectedFile?.name : "Click to browse or drag & drop"}</p>
+                  </label>
 
-                <div className="row-card">
-                  <label>Data type:</label>
-                  <select value={dataType} onChange={(e) => setDataType(e.target.value)}>
-                    <option value="direct">Direct Imaging</option>
-                    <option value="eclipse">Eclipse</option>
-                    <option value="transmission">Transmission</option>
-                  </select>
-                </div>
-
-                {processStatus && (
-                  <div className={`status-card ${error ? "error" : "success"}`}>
-                    <p className="status-text">{processStatus}</p>
-                  </div>
-                )}
-
-                {rowCount !== null && (
                   <div className="row-card">
-                    <p>Total data points:</p>
-                    <span>{rowCount}</span>
+                    <label>Data type:</label>
+                    <select value={dataType} onChange={(e) => setDataType(e.target.value)}>
+                      <option value="direct">Direct Imaging</option>
+                      <option value="eclipse">Eclipse</option>
+                      <option value="transmission">Transmission</option>
+                    </select>
+                  </div>
+
+                  {processStatus && (
+                    <div className={`status-card ${error ? "error" : "success"}`}>
+                      <p className="status-text">{processStatus}</p>
+                    </div>
+                  )}
+
+                  {rowCount !== null && (
+                    <div className="row-card">
+                      <p>Total data points:</p>
+                      <span>{rowCount}</span>
+                    </div>
+                  )}
+
+                  {loading && (
+                    <div className="progress-container">
+                      <div className="progress-header">
+                        <span className="processing-text">Processing {selectedFile?.name}...</span>
+                        <span className="progress-percent">{progress}%</span>
+                      </div>
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${progress}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  <button className="buttons" onClick={handlePreprocess} disabled={loading || !fileUploaded}>
+                    <TbChartDots3 style={{ width: "20px", height: "20px" }} />
+                    {loading ? "Processing..." : "Load & Analyze Data"}
+                  </button>
+              </div>
+
+              {/* ================= PLANET TYPE WITH DESCRIPTION ================= */}
+              <div className="planet-type-card">
+              <div className="planet-type-image">
+                <img src={selectedPlanet.image} alt={planetType} />
+              </div>
+
+              {/* CONTENT */}
+              <div className="planet-type-content">
+                <div className="planet-type-title-row">
+                  <h3 style={{color: "white"}}>{planetType}</h3>
+                </div>
+
+                <p className="planet-type-description">
+                  {selectedPlanet.description}
+                </p>
+              </div>
+
+              </div>
+
+              {/* ================= BIOSIGNATURE & HABITABILITY SECTION ================= */}
+              <div className="glass-effect preprocessing-panel" style={{marginTop: "2px"}}>
+
+                <div className="panel-heading">
+                  <h2 style={{textAlign: "center", margin: "auto"}}>Biosignatures & Habitability</h2>
+                </div>
+
+                {!analysisResult?.habitability ? (
+                  <p className="preAnalysis-result">
+                    Run analysis to generate habitability report
+                  </p>
+                ) : (
+
+                  <div>
+                    {/* ================= TOP SEC : SCORE ================= */}
+                    <div
+                      className="preprocessing-panel glass-effect"
+                      style={{ animation: "none", boxShadow: "none", alignItems: "center", marginTop: "8px", padding: "40px 30px" }}>
+
+                      <div className="score-circle">
+                        <svg viewBox="0 0 120 120">
+                          <defs>
+                            <linearGradient id="habitGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#6fd4ffd1" />
+                              <stop offset="50%" stopColor="#20a9c853" />
+                              <stop offset="100%" stopColor="#185dbe" />
+                            </linearGradient>
+
+                            <filter id="glow">
+                              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                              <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                              </feMerge>
+                            </filter>
+                          </defs>
+
+                          <circle
+                            cx="60"
+                            cy="60"
+                            r="50"
+                            stroke="#1e293b"
+                            strokeWidth="10"
+                            fill="none"
+                          />
+                          <circle
+                            cx="60"
+                            cy="60"
+                            r="50"
+                            stroke="url(#habitGradient)"
+                            strokeWidth="10"
+                            fill="none"
+                            strokeDasharray={314}
+                            strokeDashoffset={
+                              314 -
+                              (314 * (analysisResult?.habitability?.score ?? 0)) / 100
+                            }
+                            strokeLinecap="round"
+                            transform="rotate(-90 60 60)"
+                            filter="url(#glow)"
+                            style={{ transition: "stroke-dashoffset 1s ease" }}
+                          />
+
+                        </svg>
+
+                        <div className="score-text">
+                          <h1>{(analysisResult?.habitability?.score ?? 0).toFixed(1)}</h1>
+                          <span>Atmospheric<br /> Habitability <br /> Index</span>
+                        </div>
+                      </div>
+
+                      <div style={{ width: "100%" }}>
+                        <div className="row-card grade-box" style={{background: "#185dbe63", marginBottom: "10px", padding: "12px"}}>
+                          <p>Grade</p>
+                          <p style={{ fontWeight: "100" }}>
+                            {analysisResult?.habitability?.grade ?? "N/A"}
+                          </p>
+                        </div>
+
+                        <div className="row-card grade-box" style={{ background: "#20a9c853" }}>
+                          <p>Habitability</p>
+                          <p style={{ fontWeight: "100" }}>
+                            {analysisResult?.habitability?.category ?? "Unknown"}
+                          </p>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* ================= BOTTOM SEC : BIOSIGNATURE SEC ================= */}
+                    <div className="biosignature-section">
+
+                      <h3>Detected Biosignatures</h3>
+
+                      <div className="biosignature-list">                        
+                         {(analysisResult?.habitability?.biosignatures ?? []).map((b, index) => (
+                          <div
+                            key={index}
+                            className= "biosignature-card" >
+
+                            <div style={{fontWeight: "600", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px"}}>
+                              <p style={{opacity: "0.9"}}>{b.name}</p>
+                              <span
+                                className={`biosignature-status ${
+                                  b.detected ? "detected" : "not-detected"
+                                }`}>
+                                {b.detected ? "Detected" : "Not Detected"}
+                              </span>
+                            </div>
+
+                            <div className="biosignature-reason">
+                              {b.reason}
+                            </div>
+
+                            <div className="biosignature-gases">
+                              {(b.gases_involved ?? []).map((gas, i) => (
+                                <span key={i} className="gas-chip">
+                                  {gas}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="biosignature-card biosignature-reason">
+                        <h4 style={{marginBottom: "8px", color: "#ffffffa0"}}>Scientific Summary</h4>
+                        <p>
+                          {analysisResult?.habitability?.summary ??
+                            "No summary generated."}
+                        </p>
+                      </div>
+
+                    </div>
                   </div>
                 )}
-
-                {loading && (
-                  <div className="progress-container">
-                    <div className="progress-header">
-                      <span className="processing-text">Processing {selectedFile?.name}...</span>
-                      <span className="progress-percent">{progress}%</span>
-                    </div>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${progress}%` }} />
-                    </div>
-                  </div>
-                )}
-
-                <button className="buttons" onClick={handlePreprocess} disabled={loading || !fileUploaded}>
-                  <TbChartDots3 style={{ width: "20px", height: "20px" }} />
-                  {loading ? "Processing..." : "Load & Analyze Data"}
-                </button>
+              </div>
             </div>
 
             {/* ================= ATMOSPHERIC VISUALIZATION ================= */}
+            <div>
+
+            {/*=================== PLANET SETION WITH GAS BARS ==========================*/}
             <div style={{marginTop: "1px"}}>
               <div className="atmo-panel preprocessing-panel">
 
@@ -557,148 +775,8 @@ export default function SpectrumAnalysis(): JSX.Element {
                 </div>
               </div>
             </div>
-            </div>
 
-            {/* ================= HABITABILITY & BIOSIGNATURES ================= */}
-            <div className="function-col-2">
-              <div className="glass-effect preprocessing-panel" style={{ animation: "none", boxShadow: "none" }}>
-
-                <div className="panel-heading">
-                  <h2 style={{textAlign: "center", margin: "auto"}}>Biosignatures & Habitability</h2>
-                </div>
-
-                {!analysisResult?.habitability ? (
-                  <p className="preAnalysis-result">
-                    Run analysis to generate habitability report
-                  </p>
-                ) : (
-
-                  <div>
-                    {/* ================= TOP SEC : SCORE ================= */}
-                    <div
-                      className="preprocessing-panel glass-effect"
-                      style={{ animation: "none", boxShadow: "none", alignItems: "center", marginTop: "8px", padding: "40px 30px" }}>
-
-                      <div className="score-circle">
-                        <svg viewBox="0 0 120 120">
-                          <defs>
-                            <linearGradient id="habitGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="#6fd4ffd1" />
-                              <stop offset="50%" stopColor="#20a9c853" />
-                              <stop offset="100%" stopColor="#185dbe" />
-                            </linearGradient>
-
-                            <filter id="glow">
-                              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                              <feMerge>
-                                <feMergeNode in="coloredBlur" />
-                                <feMergeNode in="SourceGraphic" />
-                              </feMerge>
-                            </filter>
-                          </defs>
-
-                          <circle
-                            cx="60"
-                            cy="60"
-                            r="50"
-                            stroke="#1e293b"
-                            strokeWidth="10"
-                            fill="none"
-                          />
-                          <circle
-                            cx="60"
-                            cy="60"
-                            r="50"
-                            stroke="url(#habitGradient)"
-                            strokeWidth="10"
-                            fill="none"
-                            strokeDasharray={314}
-                            strokeDashoffset={
-                              314 -
-                              (314 * (analysisResult?.habitability?.score ?? 0)) / 100
-                            }
-                            strokeLinecap="round"
-                            transform="rotate(-90 60 60)"
-                            filter="url(#glow)"
-                            style={{ transition: "stroke-dashoffset 1s ease" }}
-                          />
-
-                        </svg>
-
-                        <div className="score-text">
-                          <h1>{(analysisResult?.habitability?.score ?? 0).toFixed(1)}</h1>
-                          <span>Atmospheric<br /> Habitability <br /> Index</span>
-                        </div>
-                      </div>
-
-                      <div style={{ width: "100%" }}>
-                        <div className="row-card grade-box" style={{background: "#185dbe63", marginBottom: "10px", padding: "12px"}}>
-                          <p>Grade</p>
-                          <p style={{ fontWeight: "100" }}>
-                            {analysisResult?.habitability?.grade ?? "N/A"}
-                          </p>
-                        </div>
-
-                        <div className="row-card grade-box" style={{ background: "#20a9c853" }}>
-                          <p>Habitability</p>
-                          <p style={{ fontWeight: "100" }}>
-                            {analysisResult?.habitability?.category ?? "Unknown"}
-                          </p>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* ================= BOTTOM SEC : BIOSIGNATURE SEC ================= */}
-                    <div className="biosignature-section">
-
-                      <h3>Detected Biosignatures</h3>
-
-                      <div className="biosignature-list">                        
-                         {(analysisResult?.habitability?.biosignatures ?? []).map((b, index) => (
-                          <div
-                            key={index}
-                            className= "biosignature-card" >
-
-                            <div style={{fontWeight: "600", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px"}}>
-                              <p style={{opacity: "0.9"}}>{b.name}</p>
-                              <span
-                                className={`biosignature-status ${
-                                  b.detected ? "detected" : "not-detected"
-                                }`}>
-                                {b.detected ? "Detected" : "Not Detected"}
-                              </span>
-                            </div>
-
-                            <div className="biosignature-reason">
-                              {b.reason}
-                            </div>
-
-                            <div className="biosignature-gases">
-                              {(b.gases_involved ?? []).map((gas, i) => (
-                                <span key={i} className="gas-chip">
-                                  {gas}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="biosignature-card biosignature-reason">
-                        <h4 style={{marginBottom: "8px", color: "#ffffffa0"}}>Scientific Summary</h4>
-                        <p>
-                          {analysisResult?.habitability?.summary ??
-                            "No summary generated."}
-                        </p>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ======================= Atmospheric Similarity Section ======================== */}
+            {/* ======================= Atmospheric Similarity Section ======================== */}
               <div className="glass-effect preprocessing-panel" style={{ animation: "none", boxShadow: "none" }}>
                 <div className="panel-heading">
                   
@@ -720,33 +798,9 @@ export default function SpectrumAnalysis(): JSX.Element {
                         <div className="profile-card" style={{padding: "30px 20px"}}>
                           <h3 style={{marginBottom: "20px", color: "#ffffff76"}}>Atmospheric Profile</h3>
 
-                          <div className="planet-type-row">
-                            <div className="planet-type-left">
-                              <GiRingedPlanet className="planet-type-icon" />
-                              <span className="planet-type-label">Planet Type</span>
-                            </div>
+                          
 
-                            <div className="planet-type-value">
-                              {analysisResult.habitability.profile.planet_type}
-                            </div>
-                          </div>
 
-                          {/* Gas Fingerprint */}
-                          <div className="gas-section">
-                            <p className="sub-title">Gas Fingerprint</p>
-
-                            <div className="gas-badges">
-                              {Object.entries(analysisResult.gas_profile)
-                                .sort((a, b) => b[1] - a[1])
-                                .slice(0, 5)
-                                .map(([gas, value], i) => (
-                                  <div key={i} className={`gas-badge gas-color-${i % 6}`}>
-                                    <span className="gas-name">{gas}</span>
-                                    <span className="gas-percent">{value.toFixed(2)}%</span>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
 
                           {/* Greenhouse + Toxicity */}
                           <div className="profile-stats">
@@ -856,6 +910,16 @@ export default function SpectrumAnalysis(): JSX.Element {
                   </>
                 )}
               </div>
+            </div>
+
+            
+            </div>
+
+            {/* ================= HABITABILITY & BIOSIGNATURES ================= */}
+            <div >
+              
+
+              
             </div>
 
           </div>

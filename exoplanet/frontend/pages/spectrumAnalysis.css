@@ -45,13 +45,13 @@
   width: 95%;
   margin-top: 5%;
   text-align: center;
-  box-shadow: 0 0 40px rgba(0, 120, 255, 0.15);
+  /* box-shadow: 0 0 40px rgba(0, 120, 255, 0.15); */
   animation: glowPulse 4s ease-in-out infinite alternate;
 }
-@keyframes glowPulse {
+/* @keyframes glowPulse {
   from { box-shadow: 0 0 25px rgba(0, 120, 255, 0.15); }
   to { box-shadow: 0 0 45px rgba(0, 120, 255, 0.35); }
-}
+} */
 /* System label */
 .system-tag {
   color: #7da6ff;
@@ -318,14 +318,10 @@
   align-items: center;
   overflow: visible;  
 }
-.planet-container-3d::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  z-index: 1;
-}
 
+.gas-label-wrapper {
+  pointer-events: none;
+}
 .gas-tag-right {
   background: rgba(0, 0, 0, 0.356);
   border: 1px solid rgba(216, 243, 255, 0.423);
@@ -340,11 +336,8 @@
 }
 .gas-tag-left {
   position: absolute;
-
-  /* 👇 THIS is what aligns it LEFT of the dot */
   right: 50px;  
   top: -60px;
-
   background: rgba(0, 0, 0, 0.356);
   border: 1px solid rgba(216, 243, 255, 0.423);
   padding: 10px 16px;
@@ -352,33 +345,75 @@
   color: white;
   backdrop-filter: blur(6px);
   border-radius: 8px;
-
   box-shadow: 0 0 15px rgba(111, 212, 255, 0.2);
   white-space: nowrap;
 }
 .gas-name {
   font-weight: 600;
   margin-right: 7px;
+  font-size: 15px;
+  color: #ffffff76;
+  margin-bottom: 1px;
 }
 .gas-value {
   color: #ffffff9f;
 }
-
-/* Gas connector SVG */
 .gas-connector-svg {
   position: absolute;
   top: 0;
   left: 0;
-  overflow: visible; /* IMPORTANT */
+  overflow: visible; 
 }
-
-/* Anchor circle glow effect */
 .gas-connector-svg circle {
   filter: drop-shadow(0 0 6px rgba(111, 212, 255, 0.6));
 }
 
+.left-panel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.planet-type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;  padding: 20px;
+  border-radius: 16px;
+  background: rgba(10, 20, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+.planet-type-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+.planet-type-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.planet-type-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.planet-type-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
 
 
+.planet-type-description {
+  font-size: 16px;
+  color: #ffffffa0;
+  line-height: 1.5;
+}
 
 
 /* Gas Predictions */
@@ -557,107 +592,20 @@
 
 
 
-.gas-overlay {
+/* .gas-overlay {
   position: absolute;
   inset: 0;
   z-index: 20;
   pointer-events: none;
-}
-
-/* shared line */
-.gas-line {
-  width: 60px;
-  height: 1px;
-  background: linear-gradient(90deg, #6fd4ff, transparent);
-  position: absolute;
-}
+} */
 
 
 
 
 
-.gas-connector {
-  position: relative;
-  width: 70px;
-  height: 40px;
-}
-
-/* 🔵 Anchor circle (on planet surface) */
-.gas-dot {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: #6fd4ff;
-  border-radius: 50%;
-  left: 0;
-  top: 0;
-
-  box-shadow: 0 0 8px rgba(111, 212, 255, 0.8);
-}
-
-/* └ L-shaped line */
-.gas-line {
-  position: absolute;
-  left: 4px;
-  top: 4px;
-
-  width: 60px;
-  height: 1px;
-
-  background: linear-gradient(90deg, #6fd4ff, transparent);
-
-  transform-origin: left;
-}
-
-.gas-label-wrapper {
-  pointer-events: none;
-}
-
-.gas-anchor {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #6fd4ff 30%, transparent 70%);
-  box-shadow: 0 0 12px #6fd4ff;
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
-
-.gas-svg {
-  z-index: 5;
-}
 
 
 
-/* optional slight bend effect */
-.gas-line::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: -18px;
-
-  width: 1px;
-  height: 20px;
-
-  background: #6fd4ff;
-  opacity: 0.8;
-}
-
-
-
-/* Labels */
-.gas-label {
-  position: absolute;
-  color: white;
-  font-size: 13px;
-}
-
-.gas-label .line {
-  width: 60px;
-  height: 1px;
-  background: rgba(255,255,255,0.7);
-  margin-bottom: 6px;
-}
 
 
 
@@ -701,11 +649,7 @@
   backdrop-filter: blur(6px);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.gas-name{
-  font-size: 15px;
-  color: #ffffff76;
-  margin-bottom: 1px;
-}
+
 .gas-percent{
   font-size: 12px;
   color: #ffffff76;
@@ -810,13 +754,13 @@
 
 
 
-.atmospheric-conditions{
+/* .atmospheric-conditions{
   margin-top:30px;
   padding:18px;
   border-radius:12px;
   background:rgba(255,255,255,0.03);
   border:1px solid rgba(255,255,255,0.07);
-}
+} */
 
 .condition-row{
   display:flex;
@@ -839,4 +783,105 @@
   font-size:15px;
   font-weight:600;
   color:#ffffffd9;
+}
+
+
+
+
+
+
+/* ================= 🌡️ THERMOMETER (PRO VERSION) ================= */
+.thermometer {
+  width: 26px;
+  height: 130px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px);
+}
+
+.thermo-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+
+  /* 👇 toned-down scientific gradient */
+  background: linear-gradient(
+    to top,
+    #ff6a3d,   /* high heat */
+    #d9a441,   /* moderate */
+    #4fa3ff    /* low */
+  );
+
+  transition: height 1.2s ease;
+  box-shadow: 0 0 12px rgba(79,163,255,0.25);
+}
+
+/* subtle heat glow */
+.greenhouse-card.interactive:hover .thermo-fill {
+  box-shadow: 0 0 18px rgba(255,140,60,0.35);
+}
+
+
+/* ================= ☠️ TOXICITY BAR (PRO VERSION) ================= */
+.tox-wrapper {
+  width: 140px;
+}
+
+.tox-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 8px;
+
+  /* 👇 toned-down gradient */
+  background: linear-gradient(
+    90deg,
+    #2dcf9f,   /* safe */
+    #e0b84f,   /* caution */
+    #ff7a4f,   /* danger */
+    #ff4d4d    /* extreme */
+  );
+
+  opacity: 0.85;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.tox-indicator {
+  position: absolute;
+  top: -5px;
+  width: 14px;
+  height: 14px;
+
+  /* 👇 glass style dot */
+  background: radial-gradient(circle, #ffffff, #cbd5f5);
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 10px rgba(255,255,255,0.6),
+    0 0 20px rgba(79,163,255,0.2);
+
+  transform: translateX(-50%);
+  transition: left 1.2s ease;
+}
+
+/* hover effect */
+.toxicity-card.interactive:hover .tox-indicator {
+  box-shadow:
+    0 0 14px rgba(255,255,255,0.9),
+    0 0 30px rgba(79,163,255,0.3);
+}
+
+.thermometer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to top,
+    transparent,
+    transparent 18px,
+    rgba(255,255,255,0.05) 19px
+  );
+  pointer-events: none;
 }
