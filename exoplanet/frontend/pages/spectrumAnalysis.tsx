@@ -86,6 +86,20 @@ export default function SpectrumAnalysis(): JSX.Element {
   const planetRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
+  // Planet Similarity
+  const normalizePlanetName = (name: string) => {
+  return name.trim().toLowerCase();
+  };
+  const planetImages: Record<string, string> = {
+    earth: "/src/assets/planets/Earth.jpg",
+    venus: "/src/assets/planets/Venus.jpg",
+    mars: "/src/assets/planets/Venus.jpg",
+    jupiter: "/src/assets/planets/jupiter.png",
+    saturn: "/src/assets/planets/Saturn.png",
+    uranus: "/src/assets/planets/Uranus.png",
+    neptune: "/src/assets/planets/iceGiant.png",
+  };
+
   // 3D Planet Effects
   useEffect(() => {
     if (!planetRef.current) return;
@@ -776,12 +790,12 @@ export default function SpectrumAnalysis(): JSX.Element {
               </div>
             </div>
 
-            {/* ======================= Atmospheric Similarity Section ======================== */}
+            {/* ======================= ATMOSPHERIC PROFILING & SIMILARITY SEC ======================== */}
               <div className="glass-effect preprocessing-panel" style={{ animation: "none", boxShadow: "none" }}>
+
                 <div className="panel-heading">
-                  
                   <h2 style={{ textAlign: "center", margin: "auto" }}>
-                    Atmospheric & Similarity Analysis
+                    Atmospheric Profiling & Similarity Analysis
                   </h2>
                 </div>
 
@@ -796,11 +810,7 @@ export default function SpectrumAnalysis(): JSX.Element {
 
                         {/* Atmospheric Profile */}
                         <div className="profile-card" style={{padding: "30px 20px"}}>
-                          <h3 style={{marginBottom: "20px", color: "#ffffff76"}}>Atmospheric Profile</h3>
-
-                          
-
-
+                          <h3 style={{marginBottom: "20px", color: "#ffffff76"}}>Atmospheric Conditions</h3>                       
 
                           {/* Greenhouse + Toxicity */}
                           <div className="profile-stats">
@@ -832,7 +842,6 @@ export default function SpectrumAnalysis(): JSX.Element {
                             </div>
                           </div>
 
-                          {/* Atmospheric Indicators */}
                           {/* Atmospheric Conditions */}
                           <div className="atmospheric-conditions">
 
@@ -840,13 +849,6 @@ export default function SpectrumAnalysis(): JSX.Element {
                               <span className="condition-label">Greenhouse Heating Index</span>
                               <span className="condition-value">
                                 {analysisResult.habitability.profile.greenhouse_heating_index?.toFixed(2)}
-                              </span>
-                            </div>
-
-                            <div className="condition-row">
-                              <span className="condition-label">Greenhouse Effect</span>
-                              <span className="condition-value">
-                                {analysisResult.habitability.profile.greenhouse_effect?.toFixed(2)}
                               </span>
                             </div>
 
@@ -875,34 +877,78 @@ export default function SpectrumAnalysis(): JSX.Element {
                         </div>
 
                         {/* Solar System Similarity */}
-                        {analysisResult?.habitability?.profile?.similar_atmospheres && (
-                          <div className="profile-card"  style={{marginTop: "13px"}}>
+                        <div className="similarity-container">
+                          {analysisResult?.habitability?.profile?.similar_atmospheres && (() => {
 
-                            <h3 style={{marginBottom: "25px", color: "#ffffffa0"}}>
-                              Atmospheric Similarity
-                            </h3>
+                            const planets = analysisResult.habitability.profile.similar_atmospheres;
+                            const topPlanet = planets[0];
+                            const otherPlanets = planets.slice(1, 3);
 
-                            {analysisResult.habitability.profile.similar_atmospheres
-                              .slice(0, 4)
-                              .map((planet, i) => (
-                                <div key={i} className="similarity-row">
-                                <div className="similarity-top">
-                                  <span className="planet-name">{planet.planet}</span>
-                                  <span className="similarity-value">{planet.similarity.toFixed(1)}%</span>
-                                </div>
+                            return (
+                              <div className="similarity-grid">
 
-                                <div className="similarity-bar">
-                                  <div
-                                    className="similarity-fill"
-                                    style={{ width: `${planet.similarity}%` }}
+                                {/* ================= LEFT: TOP MATCH ================= */}
+                                <div className="similarity-main">
+
+                                  <img
+                                    src={
+                                    planetImages[normalizePlanetName(topPlanet.planet)] ||
+                                    "/src/assets/planets/default.png"
+                                  }
+                                    alt={topPlanet.planet}
+                                    className="planet-image"
                                   />
+
+                                  <div className="planet-info">
+                                    <h2>{topPlanet.planet}</h2>
+
+                                    <div className="main-bar">
+                                      <div
+                                        className="main-fill"
+                                        style={{ width: `${topPlanet.similarity}%` }}
+                                      />
+                                    </div>
+
+                                    <span className="main-percentage">
+                                      {topPlanet.similarity.toFixed(1)}% Similar
+                                    </span>
+
+                                    {/* optional characteristics */}
+                                    <div className="planet-tags">
+                                      <span>Atmospheric Match</span>
+                                      <span>Composition Similarity</span>
+                                    </div>
+                                  </div>
+
                                 </div>
+
+                                {/* ================= RIGHT: OTHER MATCHES ================= */}
+                                <div className="similarity-side">
+
+                                  {otherPlanets.map((p, i) => (
+                                    <div key={i} className="side-card">
+
+                                      <div className="side-top">
+                                        <span>{p.planet}</span>
+                                        <span>{p.similarity.toFixed(1)}%</span>
+                                      </div>
+
+                                      <div className="side-bar">
+                                        <div
+                                          className="side-fill"
+                                          style={{ width: `${p.similarity}%` }}
+                                        />
+                                      </div>
+
+                                    </div>
+                                  ))}
+
+                                </div>
+
                               </div>
-
-                              ))}
-
-                          </div>
-                        )}
+                            );
+                          })()}
+                        </div>
 
                       </div>
                     )}
@@ -910,15 +956,7 @@ export default function SpectrumAnalysis(): JSX.Element {
                   </>
                 )}
               </div>
-            </div>
-
-            
-            </div>
-
-            {/* ================= HABITABILITY & BIOSIGNATURES ================= */}
-            <div >
-              
-
+            </div>          
               
             </div>
 

@@ -407,8 +407,6 @@
   justify-content: center;
   gap: 8px;
 }
-
-
 .planet-type-description {
   font-size: 16px;
   color: #ffffffa0;
@@ -466,11 +464,11 @@
 }
 
 /* ================= HABITABILITY SEC ================= */
-.function-col-2 {
+/* .function-col-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;  
   gap: 12px;
-}
+} */
 .preAnalysis-result {
     margin-top: 20px;
     padding: 16px;
@@ -585,77 +583,12 @@
 }
 
 
-
-
-
-
-
-
-
-/* .gas-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  pointer-events: none;
-} */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .profile-card{
   background:#0c1428;
   border-radius:14px;
   padding:20px;
   border:1px solid rgba(255,255,255,0.08);
 }
-.gas-section{
-  margin-top: 25px;
-}
-.sub-title{
-  font-size: 16px;
-  color:#ffffffa0;
-  margin-bottom: 15px;
-}
-.gas-badges {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  align-items: center;
-  justify-content: center;
-}
-.gas-badge {
-  width: 70px;
-  height: 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(6px);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.gas-percent{
-  font-size: 12px;
-  color: #ffffff76;
-  opacity: 0.8;
-}
-
 .profile-stats{
   display:flex;
   justify-content:center;
@@ -706,62 +639,107 @@
   color:#5cc3ff;
 }
 
-.similarity-row{
-  margin-bottom:14px;
-  padding:10px 30px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:10px;
-  transition:0.25s;
+/* ================= PLANET SIMILARITY CONTAINER ================= */
+.similarity-container {
+  margin-top: 20px;
 }
-.similarity-row:hover{
-  background:rgba(255,255,255,0.05);
-  transform:translateY(-1px);
+.similarity-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
 }
-.similarity-top{
-  display:flex;
-  justify-content:space-between;
-  font-size:15px;
-  margin-bottom:8px;
-  margin-top: 4px;
+.similarity-main {
+  display: flex;
+  gap: 20px;
+  padding: 30px 20px ;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  align-items: center;
 }
-.planet-name{
-  color:#ffffffc2;
-  font-weight:500;
+.planet-image {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 0 25px rgba(45, 192, 255, 0.284);
 }
-.similarity-value{
-  color:#6fd4ff;
-  font-weight:600;
+.planet-info h2 {
+  margin: 0 0 10px;
+  color: #ffffffd0;
+  margin-bottom: 20px;
 }
-.similarity-bar{
-  height:8px;
-  background:#0f172a;
-  border-radius:8px;
-  overflow:hidden;
+.main-bar {
+  height: 10px;
+  background: #45516f38;
+  border-radius: 10px;
+  overflow: hidden;
 }
-.similarity-fill{
-  height:100%;
-  border-radius:8px;
-  background:linear-gradient(90deg,#6fd4ff,#185dbe);
-  transition:width 0.6s ease;
-  box-shadow:0 0 8px rgba(111,212,255,0.4);
+.main-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6fd4ff, #185dbe);
+  border-radius: 10px;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 12px rgba(111,212,255,0.5);
 }
-
-
-
-
-
-
-
-
-/* .atmospheric-conditions{
+.main-percentage {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #6fd4ff;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.planet-tags {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.planet-tags span {
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(111,212,255,0.1);
+  color: #93c5fd;
+}
+.similarity-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.side-card {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: 0.25s;
+  color: #ffffffa0;
+}
+.side-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.side-bar {
+  height: 8px;
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.side-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6fd4ff, #185dbe);
+  border-radius: 8px;
+  transition: width 0.6s ease;
+}
+/* ATMOSPHERIC CONDITIONS */
+.atmospheric-conditions{
   margin-top:30px;
-  padding:18px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.07);
-} */
-
+  padding:15px;
+}
 .condition-row{
   display:flex;
   justify-content:space-between;
@@ -769,16 +747,13 @@
   padding:10px 0;
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
-
 .condition-row:last-child{
   border-bottom:none;
 }
-
 .condition-label{
   font-size:14px;
   color:#ffffff8a;
 }
-
 .condition-value{
   font-size:15px;
   font-weight:600;
@@ -790,98 +765,3 @@
 
 
 
-/* ================= 🌡️ THERMOMETER (PRO VERSION) ================= */
-.thermometer {
-  width: 26px;
-  height: 130px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.05);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(6px);
-}
-
-.thermo-fill {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-
-  /* 👇 toned-down scientific gradient */
-  background: linear-gradient(
-    to top,
-    #ff6a3d,   /* high heat */
-    #d9a441,   /* moderate */
-    #4fa3ff    /* low */
-  );
-
-  transition: height 1.2s ease;
-  box-shadow: 0 0 12px rgba(79,163,255,0.25);
-}
-
-/* subtle heat glow */
-.greenhouse-card.interactive:hover .thermo-fill {
-  box-shadow: 0 0 18px rgba(255,140,60,0.35);
-}
-
-
-/* ================= ☠️ TOXICITY BAR (PRO VERSION) ================= */
-.tox-wrapper {
-  width: 140px;
-}
-
-.tox-bar {
-  position: relative;
-  height: 8px;
-  border-radius: 8px;
-
-  /* 👇 toned-down gradient */
-  background: linear-gradient(
-    90deg,
-    #2dcf9f,   /* safe */
-    #e0b84f,   /* caution */
-    #ff7a4f,   /* danger */
-    #ff4d4d    /* extreme */
-  );
-
-  opacity: 0.85;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.tox-indicator {
-  position: absolute;
-  top: -5px;
-  width: 14px;
-  height: 14px;
-
-  /* 👇 glass style dot */
-  background: radial-gradient(circle, #ffffff, #cbd5f5);
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 10px rgba(255,255,255,0.6),
-    0 0 20px rgba(79,163,255,0.2);
-
-  transform: translateX(-50%);
-  transition: left 1.2s ease;
-}
-
-/* hover effect */
-.toxicity-card.interactive:hover .tox-indicator {
-  box-shadow:
-    0 0 14px rgba(255,255,255,0.9),
-    0 0 30px rgba(79,163,255,0.3);
-}
-
-.thermometer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to top,
-    transparent,
-    transparent 18px,
-    rgba(255,255,255,0.05) 19px
-  );
-  pointer-events: none;
-}

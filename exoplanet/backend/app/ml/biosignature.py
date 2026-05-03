@@ -618,10 +618,10 @@ class BiosignatureDetector:
         if ghi < 0.05:  return "Low"
         if ghi < 0.20:  return "Moderate"
         if ghi < 0.50:  return "High"
-        return "Extreme"
+        return "Extreme - High greenhouse gas presence"
 
     def _toxicity_label(self, val: float) -> str:
-        if val < 0.10:  return "Low"
+        if val < 0.10:  return "Low - Non-breathable"
         if val < 0.30:  return "Moderate"
         if val < 0.60:  return "High"
         return "Extreme"
