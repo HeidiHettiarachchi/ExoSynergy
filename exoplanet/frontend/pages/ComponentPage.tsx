@@ -15,7 +15,7 @@ function ComponentPage() {
 const navigate = useNavigate();
 
 const handleExpDetect = () => {
-  window.open('https://exoplanet-detection-sp06.onrender.com/', '_blank');
+  window.open('https://exodios.onrender.com/', '_blank');
 }
 
 const handleMineral = () => {

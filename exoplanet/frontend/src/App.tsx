@@ -9,7 +9,6 @@ import ComponentPage from '../pages/ComponentPage';
 import Login from '../pages/Login';
 import './App.css';
 
-//commenting on the app
 function App() {
   return (
     <Router>
