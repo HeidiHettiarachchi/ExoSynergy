@@ -152,6 +152,14 @@ async def preprocess_file(
         raise HTTPException(status_code=400, detail=f"Preprocessing failed: {str(e)}")
 
 
+@app.get("/atmosphere")
+async def get_atmosphere():
+    return {
+        "message": "Atmosphere analysis endpoint",
+        "description": "Atmospheric Analysis for Biosignatures & Profiling",
+        "status": "active"
+    }
+
 @app.on_event("startup")
 def startup():
     global MODEL_LOADED
