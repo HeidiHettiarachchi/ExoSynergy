@@ -1,4 +1,3 @@
-
 function ExoDetection() {
   return (
     <div>ExoDetection</div>
