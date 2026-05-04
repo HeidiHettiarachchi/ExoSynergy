@@ -33,7 +33,7 @@ const Atmosphere = () => {
             </div>
             
             <div className="hero-actions">
-              <button className="primary-action" onClick={() => navigate('/atmosphereProfile')}>
+              <button className="primary-action" onClick={() => navigate('/spectrumAnalysis')}>
                 <span className="btn-text">Start Analysis</span>
                 <span className="btn-arrow">→</span>
               </button>
