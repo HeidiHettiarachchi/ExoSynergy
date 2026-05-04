@@ -1,4 +1,18 @@
 services:
+  # Backend API
+  - type: web
+    name: exosynergy-backend
+    env: python
+    buildCommand: cd exoplanet/backend && pip install -r requirements.txt
+    startCommand: cd exoplanet/backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    routes:
+      - type: rewrite
+        source: /api/.*
+        destination: /api
+      - type: rewrite
+        source: /atmosphere
+        destination: /atmosphere
+    
   # Static Site
   - type: web
     name: exosynergy
