@@ -1,4 +1,3 @@
-import React from 'react';
 import atmoBg from '../src/assets/atmoBg.jpg';
 import './Atmosphere.css';
 

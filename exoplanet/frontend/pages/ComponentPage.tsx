@@ -1,10 +1,4 @@
-import React from 'react';
 import './ComponentPage.css';
-import ExoDetection from './ExoDetection';
-import ExtraMineral from './ExtraMineral';  
-import AtmosProfile from './spectrumAnalysis';
-import StellarAnalysis from './StellarAnalysis';
-import { useNavigate } from 'react-router-dom';
 
 // Component Images
 import exodetect from "../src/assets/exodetect.png";
@@ -14,24 +8,6 @@ import stellarDetect from "../src/assets/stellarpredict.png";
 
 
 function ComponentPage() {
-const navigate = useNavigate();
-
-const handleExpDetect = () => {
-  navigate('/exoplanetDetection');
-}
-
-const handleMineral = () => {
-  navigate('/extraMineral');
-}
-
-const handleStellar = () => {   
-    navigate('/stellarAnalysis');
-}
-
-const handleAtmos = () => {     
-    navigate('/atmosphereProfile');
-}
-
 
   return (
     <div className="component-page-wrapper">

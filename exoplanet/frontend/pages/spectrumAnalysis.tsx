@@ -9,7 +9,6 @@ import { MdOutlineFileUpload } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import { TbTemperature } from "react-icons/tb";
 import { MdOutlineScience } from "react-icons/md";
-import { GiRingedPlanet } from "react-icons/gi";
 
 // 3D animation
 import * as THREE from "three";

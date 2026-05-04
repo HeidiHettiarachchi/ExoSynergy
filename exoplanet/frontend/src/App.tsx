@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Home from '../pages/Home';
-import Header from '../pages/component/header';
+import Header from '../pages/component/Header';
 import ComponentPage from '../pages/ComponentPage';
 import Atmosphere from '../pages/Atmosphere';
 import ExoDetect from '../pages/ExoDetection';
