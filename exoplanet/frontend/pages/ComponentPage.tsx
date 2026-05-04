@@ -1,4 +1,5 @@
 import './ComponentPage.css';
+import { useNavigate } from 'react-router-dom';
 
 // Component Images
 import exodetect from "../src/assets/exodetect.png";
@@ -8,6 +9,7 @@ import stellarDetect from "../src/assets/stellarpredict.png";
 
 
 function ComponentPage() {
+  const navigate = useNavigate();
 
   return (
     <div className="component-page-wrapper">
@@ -104,7 +106,7 @@ function ComponentPage() {
                 It generates a structured atmospheric profile and evaluates habitability based on chemical distribution and atmospheric characteristics.
               </p>
 
-              <button className="btn outline-purple exo-btn" onClick={() => window.location.href = 'https://exosynergy-vm6u.onrender.com/atmosphere'}>EXPLORE MODULE</button>
+              <button className="btn outline-purple exo-btn" onClick={() => navigate('/atmosphere')}>EXPLORE MODULE</button>
             </div>
           </div>
 
