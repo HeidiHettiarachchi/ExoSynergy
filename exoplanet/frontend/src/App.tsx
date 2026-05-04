@@ -25,6 +25,7 @@ function AppContent() {
         <Route path="/exoplanetDetection" element={<ExoDetect />} />
         <Route path="/extraMineral" element={<ExtraMineral />} />
         <Route path="/atmosphereProfile" element={<AtmosProfile />} />
+        <Route path="/spectrumAnalysis" element={<AtmosProfile />} />
         <Route path="/stellarAnalysis" element={<StellarAnalysis />} />
       </Routes>
     </>
