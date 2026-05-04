@@ -4,14 +4,14 @@
   overflow: auto;
 }
 /* Hero section */
-.dashboard-hero {
+.spectrumDashboard .dashboard-hero {
   position: relative;
   width: 100%;
   min-height: 100vh;
   overflow: hidden;
 }
 /* Video background */
-.bg-video-sa {
+.spectrumDashboard .bg-video-sa {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -20,14 +20,14 @@
   z-index: 1;
 }
 /* Overlay */
-.dashboard-overlay {
+.spectrumDashboard .dashboard-overlay {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at center, rgba(0, 0, 0, 0.43), rgba(0, 0, 0, 0.541));
   z-index: 2;
 }
 /* Content wrapper */
-.dashboard-content {
+.spectrumDashboard .dashboard-content {
   position: relative;
   z-index: 3;
   height: 100%;
@@ -36,7 +36,7 @@
   justify-content: center;
 }
 /* Glass Panel */
-.glass-effect {
+.spectrumDashboard .glass-effect {
   background: rgba(10, 15, 30, 0.44);
   backdrop-filter: blur(5px);
   border: 1px solid rgba(100, 150, 255, 0.15);
@@ -49,11 +49,11 @@
   animation: glowPulse 4s ease-in-out infinite alternate;
 }
 /* @keyframes glowPulse {
-  from { box-shadow: 0 0 25px rgba(0, 120, 255, 0.15); }
-  to { box-shadow: 0 0 45px rgba(0, 120, 255, 0.35); }
+  .spectrumDashboard from { box-shadow: 0 0 25px rgba(0, 120, 255, 0.15); }
+  .spectrumDashboard to { box-shadow: 0 0 45px rgba(0, 120, 255, 0.35); }
 } */
 /* System label */
-.system-tag {
+.spectrumDashboard .system-tag {
   color: #7da6ff;
   font-size: 12px;
   letter-spacing: 3px;
@@ -61,41 +61,41 @@
   font-weight: 600;
 }
 /* Main title */
-.dashboard-title {
+.spectrumDashboard .dashboard-title {
   font-size: 56px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.1;
   text-shadow: 0 0 20px rgba(120,180,255,0.4);
 }
-.dashboard-title span {
+.spectrumDashboard .dashboard-title span {
   display: block;
   font-size: 42px;
   background: linear-gradient(90deg, #7da6ff, #ffffff88);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.divider-line {
+.spectrumDashboard .divider-line {
   width: 120px;
   height: 2px;
   background: linear-gradient(90deg, transparent, #4facfe, transparent);
   margin: 25px auto;
 }
-.divider2 {
+.spectrumDashboard .divider2 {
   border: none;
   border-top: 0.5px solid #cccccc4b;
   margin: 10px 0;
 }
 
 /* Column Layout */
-.function-col {
+.spectrumDashboard .function-col {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 24px;
   width: 100%;
   align-items: start;
 }
-.function-col > div {
+.spectrumDashboard .function-col > div {
   position: relative;
   width: 100%;
   min-width: 0;
@@ -103,13 +103,13 @@
 }
 /* Responsive column layout */
 @media (max-width: 900px) {
-  .function-col {
+  .spectrumDashboard .function-col {
     grid-template-columns: 1fr;
   }
 }
 
 /* Preprocessing Panel */
-.preprocessing-panel {
+.spectrumDashboard .preprocessing-panel {
   position: relative;
   border: 2px solid rgba(153, 153, 153, 0.174); 
   padding: 1.5rem;
@@ -120,18 +120,18 @@
   box-sizing: border-box;
 }
 /* Panel header */
-.panel-heading {
+.spectrumDashboard .panel-heading {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: #ffffffa0;
   letter-spacing: 1px;
 }
-.panel-heading h2 { 
+.spectrumDashboard .panel-heading h2 { 
   font-size: 1.4rem; 
   font-weight: 600; 
 }
-.sec-icon {
+.spectrumDashboard .sec-icon {
   width: 40px;
   height: 40px;
   background: #2195f32f;
@@ -143,9 +143,9 @@
   border: 1px solid rgba(230, 230, 230, 0.073);
 }
 /* Icons */
-.icons { height: 28px; width: 28px; color: rgba(240, 240, 240, 0.74); display: flex;}
+.spectrumDashboard .icons { height: 28px; width: 28px; color: rgba(240, 240, 240, 0.74); display: flex;}
 /* Upload Box */
-.upload-box {
+.spectrumDashboard .upload-box {
   display: flex;
   border: 2px dashed rgba(240, 240, 240, 0.37);
   padding: 2rem;
@@ -159,7 +159,7 @@
   margin-top: 10px;
 }
 /* Data type selector */
-.row-card select {
+.spectrumDashboard .row-card select {
   display: flex;
   padding: 0.4rem 0.6rem;
   border-radius: 8px;
@@ -168,7 +168,7 @@
   color: #fff;
   outline: none;
 }
-.upload-icon {
+.spectrumDashboard .upload-icon {
   width: 55px;
   height: 55px;
   background: rgba(240, 240, 240, 0.29);
@@ -179,8 +179,8 @@
   margin: 0 auto 0.5rem;
   transition: transform 0.3s ease;
 }
-.upload-box:hover .upload-icon { transform: scale(1.1); }
-.upload-title {
+.spectrumDashboard .upload-box:hover .upload-icon { transform: scale(1.1); }
+.spectrumDashboard .upload-title {
   display: flex;
   font-size: 1.2rem;
   font-weight: 500;
@@ -188,23 +188,23 @@
   margin-bottom: 0.5rem;
   color: #ffffffc6;
 }
-.upload-subtitle {
+.spectrumDashboard .upload-subtitle {
   font-size: 15px;
   letter-spacing: 0.5px;
   color: #ffffff8f;
 }
-.upload-box.uploaded {
+.spectrumDashboard .upload-box.uploaded {
   border: 1px solid #2195f364;
   background: rgba(33, 150, 243, 0.08);
   box-shadow: 0 0 15px rgba(33, 150, 243, 0.25);
 }
-.upload-success-icon {
+.spectrumDashboard .upload-success-icon {
   color: #2196f3;
   font-size: 42px;
   animation: pop 0.3s ease-in-out;
 }
 @keyframes pop { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
-.status-card {
+.spectrumDashboard .status-card {
   display: flex;
   align-items: center;
   padding: 1rem 1.2rem;
@@ -216,10 +216,10 @@
   opacity: 0; transform: translateY(10px);
   animation: fadeInUp 0.5s forwards;
 }
-.status-card.success { background: rgba(40, 180, 75, 0.15); color: #2eb82e9f; }
-.status-card.error { background: rgba(255, 50, 50, 0.15); color: #ff3333b7; }
-.status-icon { font-size: 1.6rem; }
-.row-card {
+.spectrumDashboard .status-card.success { background: rgba(40, 180, 75, 0.15); color: #2eb82e9f; }
+.spectrumDashboard .status-card.error { background: rgba(255, 50, 50, 0.15); color: #ff3333b7; }
+.spectrumDashboard .status-icon { font-size: 1.6rem; }
+.spectrumDashboard .row-card {
   background: rgba(33, 150, 243, 0.08);
   border: 1px solid rgba(33, 150, 243, 0.25);
   padding: 0.8rem 1rem;
@@ -235,23 +235,23 @@
   animation: fadeInUp 0.5s forwards;
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-.progress-container { display: flex; flex-direction: column; gap: 0.5rem; }
-.progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; }
-.progress-percent { color: #7da6ff; font-weight: 600; }
-.progress-bar {
+.spectrumDashboard .progress-container { display: flex; flex-direction: column; gap: 0.5rem; }
+.spectrumDashboard .progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; }
+.spectrumDashboard .progress-percent { color: #7da6ff; font-weight: 600; }
+.spectrumDashboard .progress-bar {
   width: 100%;
   height: 6px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 999px;
   overflow: hidden;
 }
-.progress-fill {
+.spectrumDashboard .progress-fill {
   height: 100%;
   background: linear-gradient(to right, #4facfe, #00f2fe);
   box-shadow: 0 0 10px #4facfe, 0 0 20px #00f2fe;
   transition: width 0.25s ease;
 }
-.buttons {
+.spectrumDashboard .buttons {
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -273,7 +273,7 @@
   overflow: hidden;
   transition: all 0.35s ease;
 }
-.buttons::before {
+.spectrumDashboard .buttons::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -281,9 +281,9 @@
   opacity: 0.6;
   pointer-events: none;
 }
-.buttons:hover { background-position: 100% 0%; transform: translateY(-2px) scale(1.02); }
-.buttons:active { transform: translateY(0) scale(0.98); box-shadow: 0 0 10px rgba(79, 172, 254, 0.4); }
-.buttons::after {
+.spectrumDashboard .buttons:hover { background-position: 100% 0%; transform: translateY(-2px) scale(1.02); }
+.spectrumDashboard .buttons:active { transform: translateY(0) scale(0.98); box-shadow: 0 0 10px rgba(79, 172, 254, 0.4); }
+.spectrumDashboard .buttons::after {
   content: "";
   position: absolute;
   top: -50%;
@@ -298,20 +298,20 @@
 @keyframes shimmer { 0% { transform: translateX(-100%) rotate(25deg); } 100% { transform: translateX(100%) rotate(25deg); } }
 
 /* Profiling panel */
-.atmo-panel {
+.spectrumDashboard .atmo-panel {
   padding: 20px;
   border-radius: 16px;
   margin-top: 20px;
   position: relative;
   overflow: hidden;
 }
-.atmo-content {
+.spectrumDashboard .atmo-content {
   align-items: center;
   padding-left: 20px;
 }
 
 /* Planet Section*/
-.planet-container {
+.spectrumDashboard .planet-container {
   position: relative;
   display: flex;
   justify-content: center;
@@ -319,10 +319,10 @@
   overflow: visible;  
 }
 
-.gas-label-wrapper {
+.spectrumDashboard .gas-label-wrapper {
   pointer-events: none;
 }
-.gas-tag-right {
+.spectrumDashboard .gas-tag-right {
   background: rgba(0, 0, 0, 0.356);
   border: 1px solid rgba(216, 243, 255, 0.423);
   padding: 10px 16px;
@@ -334,7 +334,7 @@
   margin-left: 50px;
   box-shadow: 0 0 15px rgba(111, 212, 255, 0.2); 
 }
-.gas-tag-left {
+.spectrumDashboard .gas-tag-left {
   position: absolute;
   right: 50px;  
   top: -60px;
@@ -348,32 +348,32 @@
   box-shadow: 0 0 15px rgba(111, 212, 255, 0.2);
   white-space: nowrap;
 }
-.gas-name {
+.spectrumDashboard .gas-name {
   font-weight: 600;
   margin-right: 7px;
   font-size: 15px;
   color: #ffffff76;
   margin-bottom: 1px;
 }
-.gas-value {
+.spectrumDashboard .gas-value {
   color: #ffffff9f;
 }
-.gas-connector-svg {
+.spectrumDashboard .gas-connector-svg {
   position: absolute;
   top: 0;
   left: 0;
   overflow: visible; 
 }
-.gas-connector-svg circle {
+.spectrumDashboard .gas-connector-svg circle {
   filter: drop-shadow(0 0 6px rgba(111, 212, 255, 0.6));
 }
 
-.left-panel-stack {
+.spectrumDashboard .left-panel-stack {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.planet-type-card {
+.spectrumDashboard .planet-type-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -383,31 +383,31 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(8px);
 }
-.planet-type-image {
+.spectrumDashboard .planet-type-image {
   width: 100%;
   height: 180px;
   overflow: hidden;
   border-radius: 12px;
   margin-bottom: 18px;
 }
-.planet-type-image img {
+.spectrumDashboard .planet-type-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 12px;
 }
-.planet-type-content {
+.spectrumDashboard .planet-type-content {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.planet-type-title-row {
+.spectrumDashboard .planet-type-title-row {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
-.planet-type-description {
+.spectrumDashboard .planet-type-description {
   font-size: 16px;
   color: #ffffffa0;
   line-height: 1.5;
@@ -415,7 +415,7 @@
 
 
 /* Gas Predictions */
-.gas-list {
+.spectrumDashboard .gas-list {
   display: grid;
   grid-template-columns: 1fr 1fr;   
   gap: 8px;
@@ -425,38 +425,38 @@
   padding-top: 20px;
 }
 @media (max-width: 900px) {
-  .gas-list {
+  .spectrumDashboard .gas-list {
     grid-template-columns: 1fr;  
   }
 }
-.gas-card {
+.spectrumDashboard .gas-card {
   background: rgba(0, 0, 0, 0.405);
   border: 1px solid rgba(255,255,255,0.05);
   padding: 12px;
   border-radius: 10px;
 }
-.gas-header {
+.spectrumDashboard .gas-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 6px;
 }
-.gas-header h4 {
+.spectrumDashboard .gas-header h4 {
   font-size: 11px;
   color: #ffffffa0;
   letter-spacing: 1px;
 }
-.gas-header p {
+.spectrumDashboard .gas-header p {
   font-size: 18px;
   font-weight: 600;
   color: #6fd4ffd1;
 }
-.gas-bar {
+.spectrumDashboard .gas-bar {
   height: 6px;
   background: #0f172a;
   border-radius: 6px;
   overflow: hidden;
 }
-.gas-fill {
+.spectrumDashboard .gas-fill {
   height: 100%;
   background: linear-gradient(90deg, #6fd4ffd1, #185dbe);
   border-radius: 6px;
@@ -469,7 +469,7 @@
   grid-template-columns: 1fr 1fr;  
   gap: 12px;
 } */
-.preAnalysis-result {
+.spectrumDashboard .preAnalysis-result {
     margin-top: 20px;
     padding: 16px;
     border-radius: 10px;
@@ -482,17 +482,17 @@
     backdrop-filter: blur(6px);
     box-shadow: 0 0 15px rgba(0, 120, 255, 0.08);
 }
-.score-circle {
+.spectrumDashboard .score-circle {
   position: relative;
   width: 180px;
   height: 180px;
   margin: 10px 0;
 }
-.score-circle svg {
+.spectrumDashboard .score-circle svg {
   width: 100%;
   height: 100%;
 }
-.score-text {
+.spectrumDashboard .score-text {
   position: absolute;
   inset: 0;
   display: flex;
@@ -500,18 +500,18 @@
   align-items: center;
   justify-content: center;
 }
-.score-text h1 {
+.spectrumDashboard .score-text h1 {
   font-size: 30px;
   color: #6fd4ffd1;
   margin: 0;
 }
-.score-text span {
+.spectrumDashboard .score-text span {
   font-size: 15px;
   opacity: 0.7;
   color: rgba(255, 255, 255, 0.582);
   margin-top: 8px;
 }
-.grade-box {
+.spectrumDashboard .grade-box {
   width: 100%;
   display: flex;              
   justify-content: space-between; 
@@ -521,10 +521,10 @@
 }
 
 /* Detected Biosignature Section */
-.biosignature-section {
+.spectrumDashboard .biosignature-section {
   margin-top: 5%;
 }
-.biosignature-section h3{
+.spectrumDashboard .biosignature-section h3 {
   box-sizing: border-box;
   border: 1px solid rgba(255,255,255,0.08);
   padding: 10px;
@@ -533,18 +533,18 @@
   margin-bottom: 10px;
   background: #185dbe27;
 }
-.biosignature-list {
+.spectrumDashboard .biosignature-list {
   display: grid;
   grid-template-columns: repeat(auto-fill);
   gap: 15px;
 }
-.biosignature-card {
+.spectrumDashboard .biosignature-card {
   background: #0149ae15;
   border-radius: 12px;
   padding: 20px;
   color: #ffffffa0;
 }
-.biosignature-status.detected {
+.spectrumDashboard .biosignature-status.detected {
   color: rgba(238, 231, 231, 0.714);
   font-size: 10px;
   border: 1px solid #0c890092 ;
@@ -553,7 +553,7 @@
   border-radius: 16px;
   padding: 6px;
 }
-.biosignature-status.not-detected {
+.spectrumDashboard .biosignature-status.not-detected {
   color: rgba(238, 231, 231, 0.714);
   font-size: 10px;
   border: 1px solid #a70000 ;
@@ -563,18 +563,18 @@
   padding: 6px;
   opacity: 0.7;
 }
-.biosignature-reason {
+.spectrumDashboard .biosignature-reason {
   margin-top: 8px;
   font-size: 15px;
   color: #cbd5f589;
 }
-.biosignature-gases {
+.spectrumDashboard .biosignature-gases {
   margin-top: 10px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-.gas-chip {
+.spectrumDashboard .gas-chip {
   background: rgba(96,165,250,0.2);
   color: #93c5fd;
   padding: 3px 8px;
@@ -583,19 +583,19 @@
 }
 
 
-.profile-card{
+.spectrumDashboard .profile-card {
   background:#0c1428;
   border-radius:14px;
   padding:20px;
   border:1px solid rgba(255,255,255,0.08);
 }
-.profile-stats{
+.spectrumDashboard .profile-stats {
   display:flex;
   justify-content:center;
   gap:10px;
   margin-top:30px;
 }
-.stat-card{
+.spectrumDashboard .stat-card {
   display:flex;
   align-items:center;
   gap:10px;
@@ -605,50 +605,50 @@
   border:1px solid rgba(255,255,255,0.08);
   transition:0.3s;
 }
-.stat-card:hover{
+.spectrumDashboard .stat-card:hover {
   transform:translateY(-3px);
 }
-.stat-icon{
+.spectrumDashboard .stat-icon {
   font-size:28px;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.stat-title{
+.spectrumDashboard .stat-title {
   font-size:15px;
   color:#ffffff9c;
   margin-bottom:2px;
 }
-.stat-value{
+.spectrumDashboard .stat-value {
   font-size:16px;
   font-weight:600;
   color:white;
 }
-.greenhouse-card{
+.spectrumDashboard .greenhouse-card {
   background:linear-gradient(135deg,#3a2b00,#9b7a00);
   color:#ffd24d;
 }
-.greenhouse-card .stat-icon{
+.spectrumDashboard .greenhouse-card .stat-icon {
   color:#ffd24d;
 }
-.toxicity-card{
+.spectrumDashboard .toxicity-card {
   background:linear-gradient(135deg,#001c38,#1f6fb2);
   color:#5cc3ff;
 }
-.toxicity-card .stat-icon{
+.spectrumDashboard .toxicity-card .stat-icon {
   color:#5cc3ff;
 }
 
 /* ================= PLANET SIMILARITY CONTAINER ================= */
-.similarity-container {
+.spectrumDashboard .similarity-container {
   margin-top: 20px;
 }
-.similarity-grid {
+.spectrumDashboard .similarity-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: 20px;
 }
-.similarity-main {
+.spectrumDashboard .similarity-main {
   display: flex;
   gap: 20px;
   padding: 30px 20px ;
@@ -658,32 +658,32 @@
   backdrop-filter: blur(8px);
   align-items: center;
 }
-.planet-image {
+.spectrumDashboard .planet-image {
   width: 140px;
   height: 140px;
   object-fit: contain;
   border-radius: 50%;
   box-shadow: 0 0 25px rgba(45, 192, 255, 0.284);
 }
-.planet-info h2 {
+.spectrumDashboard .planet-info h2 {
   margin: 0 0 10px;
   color: #ffffffd0;
   margin-bottom: 20px;
 }
-.main-bar {
+.spectrumDashboard .main-bar {
   height: 10px;
   background: #45516f38;
   border-radius: 10px;
   overflow: hidden;
 }
-.main-fill {
+.spectrumDashboard .main-fill {
   height: 100%;
   background: linear-gradient(90deg, #6fd4ff, #185dbe);
   border-radius: 10px;
   transition: width 0.8s ease;
   box-shadow: 0 0 12px rgba(111,212,255,0.5);
 }
-.main-percentage {
+.spectrumDashboard .main-percentage {
   display: block;
   margin-top: 8px;
   font-size: 14px;
@@ -691,25 +691,25 @@
   font-weight: 600;
   margin-bottom: 20px;
 }
-.planet-tags {
+.spectrumDashboard .planet-tags {
   margin-top: 10px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-.planet-tags span {
+.spectrumDashboard .planet-tags span {
   font-size: 13px;
   padding: 4px 8px;
   border-radius: 12px;
   background: rgba(111,212,255,0.1);
   color: #93c5fd;
 }
-.similarity-side {
+.spectrumDashboard .similarity-side {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-.side-card {
+.spectrumDashboard .side-card {
   padding: 14px;
   border-radius: 12px;
   background: rgba(255,255,255,0.03);
@@ -717,49 +717,48 @@
   transition: 0.25s;
   color: #ffffffa0;
 }
-.side-top {
+.spectrumDashboard .side-top {
   display: flex;
   justify-content: space-between;
   margin-bottom: 6px;
   font-size: 16px;
 }
-.side-bar {
+.spectrumDashboard .side-bar {
   height: 8px;
   background: #0f172a;
   border-radius: 8px;
   overflow: hidden;
 }
-.side-fill {
+.spectrumDashboard .side-fill {
   height: 100%;
   background: linear-gradient(90deg, #6fd4ff, #185dbe);
   border-radius: 8px;
   transition: width 0.6s ease;
 }
 /* ATMOSPHERIC CONDITIONS */
-.atmospheric-conditions{
+.spectrumDashboard .atmospheric-conditions {
   margin-top:30px;
   padding:15px;
 }
-.condition-row{
+.spectrumDashboard .condition-row {
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:10px 0;
   border-bottom:1px solid rgba(255,255,255,0.05);
 }
-.condition-row:last-child{
+.spectrumDashboard .condition-row:last-child {
   border-bottom:none;
 }
-.condition-label{
+.spectrumDashboard .condition-label {
   font-size:14px;
   color:#ffffff8a;
 }
-.condition-value{
+.spectrumDashboard .condition-value {
   font-size:15px;
   font-weight:600;
   color:#ffffffd9;
 }
-
 
 
 

@@ -1,9 +1,4 @@
-import React from "react";
-import About from '../About';
-import ContactUs from '../ContactUs';
-import Simulation from '../Simulation';
-import ComponentPage from '../ComponentPage';
-import Login from '../Login';
+import React from 'react';
 import './Header.css';
 import logo from '../../src/assets/logo.png';
 
@@ -28,9 +23,7 @@ const Header = () => {
                     <ul className="nav-list">
                         {/* <li><a href="/" className="nav-link active">Home</a></li> */}
                         <li><a href="/about" className="nav-link">About</a></li>
-                        <li><a href="/simulation" className="nav-link">Simulation</a></li>
-                        <li><a href="/contact" className="nav-link">Contact Us</a></li>
-
+                        <li><a href="/components" className="nav-link">Components</a></li>
                         <li><a href="/login" className="nav-link">Log in</a></li>
                     </ul>
                 </div>

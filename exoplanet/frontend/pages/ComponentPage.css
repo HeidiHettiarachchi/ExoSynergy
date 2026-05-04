@@ -1,111 +1,542 @@
 .component-page-wrapper {
-  width: 100%;
   min-height: 100vh;
-}
-
-.page-container {
   width: 100%;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: black;
+  position: relative;
+}
+.component-page-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.69); /* adjust darkness here */
+  z-index: 0;
+}
+.component-page-wrapper .page-container {
+  width: 100%;
   min-height: 100vh;
   padding: 6rem 2rem 3rem;
+  z-index: 1;
 }
-
-.content-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
+.component-page-wrapper .content-wrapper {
+  max-width: 75%;
+  margin: auto;
+  align-items: center;
 }
-
-.page-title {
+.component-page-wrapper .page-title {
   color: white;
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 3rem;
   text-align: center;
 }
-
-.cards-grid {
+.component-page-wrapper .module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  margin: auto;
+}
+.component-page-wrapper .module-card.large {
+  grid-column: span 7;
+}
+.component-page-wrapper .module-card.small {
+  grid-column: span 5;
+}
+@media (max-width: 768px) {
+  .module-card.large,
+  .component-page-wrapper .module-card.small {
+    grid-column: span 12;
+  }
 }
 
-.card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 1.5rem;
+/* CARD BASE */
+.component-page-wrapper .module-card {
+  padding: 1px;
+  border-radius: 8px;
+  transition: 0.4s;
+}
+
+.component-page-wrapper .module-card:hover {
+  transform: scale(1.02);
+}
+
+/* INNER PANEL */
+.component-page-wrapper .inner-card {
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 60%),
+              rgba(10, 14, 25, 0.92);
+  backdrop-filter: blur(22px);
+  border-radius: 10px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* NEON EFFECT */
+.component-page-wrapper .card1:hover {
+  border-color: #d6b28b;
+  box-shadow: 0 0 20px #9d8e7db7;
+}
+
+/* HEADER */
+.component-page-wrapper .card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* .card-header h3 {
+  color: white;
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+} */
+
+/* TAG */
+.component-page-wrapper .tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 6px;
+  border: 2px solid;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.component-page-wrapper .tag.yello { color: #d48531; border-color: #d48531; }
+.component-page-wrapper .tag.yellow { color: #d27d14; border-color: #00eaff; }
+.component-page-wrapper .tag.purple { color: #c084fc; border-color: #c084fc; }
+.component-page-wrapper .tag.red { color: #ff6b6b; border-color: #ff6b6b; }
+
+/* ICON */
+.component-page-wrapper .icon {
+  font-size: 18px;  
+}
+
+/* IMAGE */
+.component-page-wrapper .image {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 20px;
+}
+
+.component-page-wrapper .image.video { aspect-ratio: 16/9; }
+.component-page-wrapper .image.square { aspect-ratio: 1/1; }
+
+.component-page-wrapper .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 1s;
+}
+
+.component-page-wrapper .module-card:hover img {
+  transform: scale(1.1);
+}
+
+/* TEXT */
+.component-page-wrapper p {
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* FOOTER */
+.component-page-wrapper .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 20px;
+}
+
+/* STATS */
+.component-page-wrapper .stats {
+  display: flex;
+  gap: 20px;
+}
+
+.component-page-wrapper .stats span {
+  font-size: 10px;
+  color: #888;
+}
+
+.component-page-wrapper .stats strong {
+  display: block;
+  color: white;
+  font-size: 12px;
+}
+
+/* BUTTONS */
+.component-page-wrapper .btn {
+  padding: 8px 16px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
+}
+
+/* BUTTON TYPES */
+.component-page-wrapper .btn.green {
+  border: 1px solid #ccff00;
+  color: #ccff00;
+  background: transparent;
+}
+
+.component-page-wrapper .btn.green:hover {
+  background: #ccff00;
+  color: black;
+}
+
+.component-page-wrapper .btn.red {
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  background: transparent;
+}
+
+.component-page-wrapper .btn.red:hover {
+  background: #ff6b6b;
+  color: black;
+}
+
+.component-page-wrapper .btn.outline-cyan {
+  border: 1px solid #00eaff;
+  color: #00eaff;
+  background: transparent;
+}
+
+.component-page-wrapper .btn.outline-purple {
+  border: 1px solid #c084fc;
+  color: #c084fc;
+  background: transparent;
+}
+
+
+/* ===== MODULE WRAPPER ===== */
+.component-page-wrapper .exo-module {
+  position: relative;
+  transition: 0.4s ease;
+}
+
+
+
+
+
+/* ===== INNER CARD ===== */
+.component-page-wrapper .inner-card {
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 60%),
+              rgba(10, 14, 25, 0.92);
+  backdrop-filter: blur(22px);
+  border-radius: 10px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle scanline overlay */
+.component-page-wrapper .inner-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* ===== HEADER ===== */
+.component-page-wrapper .card-header h3 {
+  color: #ffffff;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.component-page-wrapper .sub-text {
+  font-size: 14px;
+  color: #7f8fa6;
+  margin-top: 6px;
+}
+
+/* glowing icon */
+.component-page-wrapper .icon.glow {
+  font-size: 20px;
+  color: #00eaff;
+  text-shadow: 0 0 12px #00eaff;
+}
+
+/* ===== TAG ===== */
+.component-page-wrapper .pulse-tag {
+  position: relative;
+  overflow: hidden;
+}
+
+.component-page-wrapper .pulse-tag::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(212, 133, 49, 0.2);
+  animation: pulse 2s infinite;
+}
+
+/* @keyframes pulse {
+  .component-page-wrapper 0% { opacity: 0.2; }
+  .component-page-wrapper 50% { opacity: 0.6; }
+  .component-page-wrapper 100% { opacity: 0.2; }
+} */
+
+/* ===== IMAGE FRAME ===== */
+.component-page-wrapper .holo-frame {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 234, 255, 0.2);
+}
+
+.component-page-wrapper .frame-glow {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 40px rgba(0, 234, 255, 0.2);
+  pointer-events: none;
+}
+
+
+
+
+
+/* ===== STATS ===== */
+.component-page-wrapper .stat {
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  border-color: rgba(72, 255, 0, 0.3);
+.component-page-wrapper .active-dot {
+  color: #00ff88;
+  text-shadow: 0 0 8px #00ff88;
 }
 
-.card-image {
-  width: 100%;
-  height: 16rem;
-  object-fit: cover;
-  border-radius: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.card-title {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-}
-
-.card-description {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-  line-height: 1.6;
-}
-
-.card-button {
+/* ===== BUTTON ===== */
+.component-page-wrapper .exo-btn {
+  border: 1px solid #00eaff;
+  color: #00eaff;
   background: transparent;
-  color: #48ff00;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  padding: 0.5rem 0;
-  transition: all 0.3s ease;
+  padding: 10px 18px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.3s;
 }
 
-.card-button:hover {
-  color: #3ad900;
-  transform: translateX(5px);
+
+
+
+
+/* ================= PURPLE THEME (EXODIOS MODULE) ================= */
+
+.component-page-wrapper .exo-purple .inner-card {
+  background: radial-gradient(circle at top left, rgba(192, 132, 252, 0.12), transparent 60%),
+              rgba(10, 6, 18, 0.92);
+  border: 3px solid rgba(192, 132, 252, 0.25);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+/* Header title */
+.component-page-wrapper .exo-purple .card-header h3 {
+  color: #e9d5ff;
+  margin-bottom: 10px;
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* Sub text */
+.component-page-wrapper .exo-purple .sub-text {
+  color: #c4b5fd;
 }
 
-@media (min-width: 1025px) {
-  .cards-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+/* Icon glow override (important since you inline color) */
+.component-page-wrapper .exo-purple .icon.glow {
+  color: #c084fc !important;
+  text-shadow: 0 0 12px #c084fc;
+}
+
+/* Tag styling */
+.component-page-wrapper .exo-purple .tag {
+  color: #c084fc;
+  border-color: #c084fc;
+}
+
+.component-page-wrapper .exo-purple .pulse-tag::after {
+  background: rgba(192, 132, 252, 0.25);
+}
+
+/* Image frame */
+.component-page-wrapper .exo-purple .holo-frame {
+  border: 1px solid rgba(192, 132, 252, 0.3);
+}
+
+.component-page-wrapper .exo-purple .frame-glow {
+  box-shadow: inset 0 0 40px rgba(192, 132, 252, 0.25);
+}
+
+/* Button */
+.component-page-wrapper .exo-purple .exo-btn {
+  border: 1px solid #c084fc;
+  color: #c084fc;
+}
+
+.component-page-wrapper .exo-purple .exo-btn:hover {
+  background: #c084fc;
+  color: black;
+  box-shadow: 0 0 18px rgba(192, 132, 252, 0.6);
+}
+
+/* Hover effect */
+.component-page-wrapper .exo-purple.inner-card:hover {
+  border-color: #c084fc;
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.35);
+}
+
+/* Stat highlight (optional nice touch) */
+.component-page-wrapper .exo-purple .green-glow {
+  color: #c084fc;
+  text-shadow: 0 0 8px #c084fc;
+}
+
+
+
+
+/* ================= ORANGE THEME (HYPERSPECTRA) ================= */
+
+.component-page-wrapper .exo-orange .inner-card {
+  background: radial-gradient(circle at top left, rgba(255, 166, 0, 0.077), transparent 60%),
+              rgba(15, 10, 5, 0.92);
+  border: 3px solid rgba(255, 140, 0, 0.25);
+}
+.component-page-wrapper .exo-orange .icon.glow {
+  color: #ff9a3c;
+  text-shadow: 0 0 12px #ff9a3c;
+}
+.component-page-wrapper .exo-orange .card-header h3 {
+  color: #f8e7d6c9;
+  margin-bottom: 10px;
+}
+.component-page-wrapper .exo-orange .sub-text {
+  color: #caa07a;
+}
+.component-page-wrapper .exo-orange .tag.yellow {
+  color: #ff9a3c;
+  border-color: #ff9a3c;
+}
+.component-page-wrapper .exo-orange .pulse-tag::after {
+  background: rgba(255, 154, 60, 0.25);
+}
+.component-page-wrapper .exo-orange .holo-frame {
+  border: 1px solid rgba(255, 154, 60, 0.3);
+}
+.component-page-wrapper .exo-orange .frame-glow {
+  box-shadow: inset 0 0 40px rgba(255, 154, 60, 0.25);
+}
+.component-page-wrapper .exo-orange .exo-btn {
+  border: 1px solid #ff9a3c;
+  color: #ff9a3c;
+}
+.component-page-wrapper .exo-orange .exo-btn:hover {
+  background: #ff9a3c;
+  color: black;
+  box-shadow: 0 0 18px #ff9a3c6c;
+}
+.component-page-wrapper .exo-orange.inner-card:hover {
+  border-color: #ff9a3c;
+  box-shadow: 0 0 20px rgba(255, 154, 60, 0.35);
+}
+
+/* ================= BLUE THEME (ATMOSPHERIC MODULE) ================= */
+.component-page-wrapper .exo-blue .inner-card {
+  background: radial-gradient(circle at top left, rgba(0, 234, 255, 0.08), transparent 60%),
+              rgba(5, 12, 18, 0.92);
+  border: 3px solid rgba(0, 234, 255, 0.25);
+}
+.component-page-wrapper .exo-blue .card-header h3 {
+  color: #cfefffb8;
+  margin-bottom: 10px;
+}
+.component-page-wrapper .exo-blue .sub-text {
+  color: #7fbcd6;
+}
+.component-page-wrapper .exo-blue .icon.glow {
+  color: #00eaff;
+  text-shadow: 0 0 12px #00eaff;
+}
+.component-page-wrapper .exo-blue .tag.purple {
+  color: #00c2ff;
+  border-color: #00c2ff;
+}
+.component-page-wrapper .exo-blue .pulse-tag::after {
+  background: rgba(0, 234, 255, 0.2);
+}
+.component-page-wrapper .exo-blue .holo-frame {
+  border: 1px solid rgba(0, 234, 255, 0.3);
+}
+.component-page-wrapper .exo-blue .frame-glow {
+  box-shadow: inset 0 0 40px rgba(0, 234, 255, 0.25);
+}
+.component-page-wrapper .exo-blue .exo-btn {
+  border: 1px solid #00eaff;
+  color: #00eaff;
+}
+.component-page-wrapper .exo-blue .exo-btn:hover {
+  background: #00eaff;
+  color: black;
+  box-shadow: 0 0 18px rgba(0, 234, 255, 0.6);
+}
+.component-page-wrapper .exo-blue.inner-card:hover {
+  border-color: #00eaff;
+  box-shadow: 0 0 20px rgba(0, 234, 255, 0.35);
+}
+
+/* ================= RED THEME (STELLAR MODULE) ================= */
+.component-page-wrapper .exo-red .inner-card {
+  background: radial-gradient(circle at top left, rgba(255, 60, 60, 0.059), transparent 60%),
+              rgba(18, 8, 8, 0.92);
+  border: 3px solid rgba(255, 70, 70, 0.25);
+}
+.component-page-wrapper .exo-red .card-header h3 {
+  color: #ffd0d0b9;
+  margin-bottom: 10px;
+}
+.component-page-wrapper .exo-red .sub-text {
+  color: #d9a0a0;
+}
+.component-page-wrapper .exo-red .icon.glow {
+  color: #ff4d4d;
+  text-shadow: 0 0 12px #ff4d4d;
+}
+.component-page-wrapper .exo-red .tag.red {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+}
+.component-page-wrapper .exo-red .pulse-tag::after {
+  background: rgba(255, 77, 77, 0.25);
+}
+.component-page-wrapper .exo-red .holo-frame {
+  border: 1px solid rgba(255, 77, 77, 0.3);
+}
+.component-page-wrapper .exo-red .frame-glow {
+  box-shadow: inset 0 0 40px rgba(255, 77, 77, 0.25);
+}
+.component-page-wrapper .exo-red .exo-btn {
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+}
+.component-page-wrapper .exo-red .exo-btn:hover {
+  background: #ff4d4d;
+  color: black;
+  box-shadow: 0 0 18px rgba(255, 77, 77, 0.6);
+}
+.component-page-wrapper .exo-red.inner-card:hover {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.35);
 }
