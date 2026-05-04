@@ -26,9 +26,15 @@ const Home = () => {
             <button className="primary-btn" onClick={() => navigate('/services')}>
               Get Started
             </button>
-            <button className="secondary-btn" onClick={() => {
-              document.getElementById("about").scrollIntoView({ behavior: "smooth" });
-            }}>
+            <button
+              className="secondary-btn"
+              onClick={() => {
+                const el = document.getElementById("about");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
               Learn More
             </button>
           </div>
