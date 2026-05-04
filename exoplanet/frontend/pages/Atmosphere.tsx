@@ -1,7 +1,9 @@
 import atmoBg from '../src/assets/atmoBg.jpg';
 import './Atmosphere.css';
+import { useNavigate } from 'react-router-dom';
 
 const Atmosphere = () => {
+  const navigate = useNavigate();
   return (
     <div className="atmosphere-wrapper">
       {/* HERO SECTION */}
@@ -31,7 +33,7 @@ const Atmosphere = () => {
             </div>
             
             <div className="hero-actions">
-              <button className="primary-action" onClick={() => window.location.href = '/atmosphereProfile'}>
+              <button className="primary-action" onClick={() => navigate('/atmosphereProfile')}>
                 <span className="btn-text">Start Analysis</span>
                 <span className="btn-arrow">→</span>
               </button>
