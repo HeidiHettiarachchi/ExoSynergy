@@ -299,7 +299,7 @@ export default function SpectrumAnalysis(): JSX.Element {
       formData.append("file", selectedFile);
       formData.append("data_type", dataType);
 
-      const res: Response = await fetch("https://exosynergy-backend.onrender.com//preprocess", {
+      const res: Response = await fetch("https://exosynergy-backend.onrender.com/preprocess", {
         method: "POST",
         body: formData,
       });
