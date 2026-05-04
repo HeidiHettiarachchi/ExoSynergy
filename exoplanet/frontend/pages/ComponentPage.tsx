@@ -104,7 +104,7 @@ function ComponentPage() {
                 It generates a structured atmospheric profile and evaluates habitability based on chemical distribution and atmospheric characteristics.
               </p>
 
-              <button className="btn outline-purple exo-btn" onClick={() => window.location.href = '/atmosphere'}>EXPLORE MODULE</button>
+              <button className="btn outline-purple exo-btn" onClick={() => window.location.href = 'https://exosynergy-vm6u.onrender.com/atmosphere'}>EXPLORE MODULE</button>
             </div>
           </div>
 
