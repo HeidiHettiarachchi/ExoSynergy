@@ -12,6 +12,9 @@ services:
       - type: rewrite
         source: /atmosphere
         destination: /atmosphere
+      - type: rewrite
+        source: /preprocess
+        destination: /preprocess
     
   # Static Site
   - type: web

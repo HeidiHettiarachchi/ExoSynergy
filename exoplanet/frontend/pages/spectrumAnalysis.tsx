@@ -13,6 +13,18 @@ import { MdOutlineScience } from "react-icons/md";
 // 3D animation
 import * as THREE from "three";
 
+// Asset imports
+import textureImg from '../src/assets/texture.png';
+import earthImg from '../src/assets/planets/Earth.jpg';
+import venusImg from '../src/assets/planets/Venus.jpg';
+import gasGiantImg from '../src/assets/planets/gasGiant.png';
+import iceGiantImg from '../src/assets/planets/iceGiant.png';
+import jupiterImg from '../src/assets/planets/jupiter.png';
+import saturnImg from '../src/assets/planets/Saturn.png';
+import uranusImg from '../src/assets/planets/Uranus.png';
+import rockyImg from '../src/assets/planets/Rocky.png';
+import hyceanImg from '../src/assets/planets/Hycean.jpg';
+
 // Interfaces
 interface GasProfile {
   [gas: string]: number;
@@ -90,13 +102,13 @@ export default function SpectrumAnalysis(): JSX.Element {
   return name.trim().toLowerCase();
   };
   const planetImages: Record<string, string> = {
-    earth: "/src/assets/planets/Earth.jpg",
-    venus: "/src/assets/planets/Venus.jpg",
-    mars: "/src/assets/planets/Venus.jpg",
-    jupiter: "/src/assets/planets/jupiter.png",
-    saturn: "/src/assets/planets/Saturn.png",
-    uranus: "/src/assets/planets/Uranus.png",
-    neptune: "/src/assets/planets/iceGiant.png",
+    earth: earthImg,
+    venus: venusImg,
+    mars: venusImg,
+    jupiter: jupiterImg,
+    saturn: saturnImg,
+    uranus: uranusImg,
+    neptune: iceGiantImg,
   };
 
   // 3D Planet Effects
@@ -128,9 +140,7 @@ export default function SpectrumAnalysis(): JSX.Element {
     // ================= PLANET =================
     const geometry = new THREE.SphereGeometry(1, 64, 64);
 
-    const texture = new THREE.TextureLoader().load(
-      "/src/assets/texture.png"
-    );
+    const texture = new THREE.TextureLoader().load(textureImg);
 
     texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -340,48 +350,48 @@ export default function SpectrumAnalysis(): JSX.Element {
   { image: string; description: string }
   > = {
     "Gas Giant": {
-      image: "/src/assets/planets/gasGiant.png",
+      image: gasGiantImg,
       description:
         "Massive planet dominated by Hydrogen (H2) and Helium (He) with thick gaseous layers and no solid surface.",
     },
     "Ice Giant / Sub-Neptune": {
-      image: "/src/assets/planets/iceGiant.png",
+      image: iceGiantImg,
       description:
         "Intermediate-sized planet rich in volatiles like Water (H2O), methane (CH4), and ammonia (NH3).",
     },
     "Earth-like": {
-      image: "/src/assets/planets/Earth.jpg",
+      image: earthImg,
       description:
         "Balanced Nitrogen-Oxygen atmosphere with potential for life-supporting conditions.",
     },
     "Venus-like (CO2-dominated)": {
-      image: "/src/assets/planets/Venus.jpg",
+      image: venusImg,
       description:
         "Dense CO2 atmosphere with extreme greenhouse heating and high pressure.",
     },
     "Rocky / Mixed Atmosphere": {
-      image: "/src/assets/planets/Rocky.png",
+      image: rockyImg,
       description:
         "Solid surface with a mix of gases and variable environmental conditions.",
     },
     "Hycean World Candidate": {
-      image: "/src/assets/planets/Hycean.jpg",
+      image: hyceanImg,
       description:
         "Ocean-covered planet with a hydrogen-rich atmosphere, considered a strong candidate for hosting life.",
     },
     "Volcanically Active Rocky": {
-      image: "/src/assets/planets/Rocky.png",
+      image: rockyImg,
       description:
         "Rocky planet with active volcanism, releasing gases like SO2 and H2S into the atmosphere.",
     },
     "Titan-like (N2-dominated)": {
-      image: "/src/assets/planets/Rocky.png",
+      image: rockyImg,
       description:
         "Cold world dominated by nitrogen with thick hazy atmosphere, similar to Saturn’s moon Titan.",
     },
 
     "Unknown": {
-      image: "/src/assets/planets/Rocky.png",
+      image: rockyImg,
       description: "Planet classification is uncertain based on available data.",
     },
   };
@@ -892,7 +902,7 @@ export default function SpectrumAnalysis(): JSX.Element {
                                   <img
                                     src={
                                     planetImages[normalizePlanetName(topPlanet.planet)] ||
-                                    "/src/assets/planets/default.png"
+                                    rockyImg
                                   }
                                     alt={topPlanet.planet}
                                     className="planet-image"
